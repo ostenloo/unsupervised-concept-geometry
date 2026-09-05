@@ -1238,3 +1238,94 @@ Two honest qualifications:
    writeup must present it that way rather than choosing silently.
 2. **It is one model and one prompt set.** Straightness at 600 prompts in
    Llama-3.1-8B-Instruct is not a claim about refusal in general.
+
+
+---
+
+## 15. Amendments written BEFORE the §4f run — Sat 5 Sep 2026
+
+Committed before any §4f generation exists. The point of the commit order is
+that a two-branch rule written after seeing the trajectories is a rescue, not a
+pre-registration.
+
+### 15a. §4f rewritten with two branches (amends §4f)
+
+§4f as written has one branch: "manifold and linear steering must give nearly
+identical trajectories… **Divergence here indicates a pipeline error**." That
+rule was drafted assuming the pipeline had passed Level 3. It has not (§13c), so
+divergence is ambiguous under the original wording between a Stage B fault and
+the Stage A failure resurfacing. Both outcomes are therefore given a reading now.
+
+**Quantity.** Per-waypoint Bhattacharyya distance between the behaviour
+distributions produced by linear and by manifold steering, along the same
+harmless↔harmful centroid pairs, at layer 28 (causally live per §12i). Report the
+mean and max over waypoints, and `E_BC` for both strategies against the behaviour
+manifold. Five pairs, as §4f specifies.
+
+**Branch A — trajectories agree** (mean per-waypoint divergence small relative to
+the linear/manifold `E_BC` gap seen in Stage A, i.e. the two strategies are
+behaviourally interchangeable). This is the **causal complement to the
+representational negative**. The Stage B claim strengthens from "the extra
+geometry is not there" to "the extra geometry buys no extra causal handle."
+
+> **Required framing, fixed now:** with coordinate-to-`v_ref` at 0.946 and
+> geodesic/chord at 1.02, agreement is close to forced — a manifold fitted
+> through points strung along one direction *is* approximately that line. This
+> must be reported as **confirmation, not discovery**, in those words. A reader
+> will see it was near-inevitable, and the writeup should say so first.
+
+**Branch B — trajectories diverge.** Layer 28 is the easiest case the manifold
+construction will ever be handed: straight structure, one dominant axis,
+causally live, 600 points. Divergence *there* is **evidence about the
+construction, not about refusal**. It would strengthen the Level 3 negative
+(§13c) by showing the same failure on data where the geometry is maximally
+favourable, and it must **not** be reported as a Stage B finding about refusal.
+
+Neither branch changes §14d's verdict, which rests on §4d/§4e structure and the
+§14c natural experiment, none of which involve steering.
+
+### 15b. Validating the tangent estimator (new; closes a real gap)
+
+**First, a correction to the record.** No random-direction null was ever
+pre-registered. The three Stage B nulls in §12h — surface similarity, prompt
+length, source identity — all ran and are reported in §14b. The gap is narrower
+and worse placed than a missed null: the **binned-centroid tangent estimator was
+adopted post-hoc** after the smoothing-spline version failed (§14a), so it is the
+one component of the Stage B pipeline that entered with no validation of any
+kind.
+
+That matters because **the failure mode of a smoother is returning smoothness**.
+Binned centroid differences will produce a coherent-looking sequence of tangents
+from almost any point cloud, so "the tangents are coherent" and "the estimator
+cannot produce anything else" are not distinguished by the reported numbers.
+
+Two checks, specified before running:
+
+1. **Random-direction null.** Recompute the tangent cosines against `R` random
+   unit vectors drawn in the same PCA subspace (`R = 200`), and report the
+   observed |cos(tangent, v_ref)| against that null distribution as a z-score.
+   In 64 dimensions a random direction gives |cos| ≈ 0.125 in expectation, so a
+   mean of 0.27–0.37 must be shown to exceed the null rather than assumed to.
+   **If the observed cosines do not clear the null, the tangent-alignment row of
+   §14a is withdrawn** and the coordinate-level alignment (0.946) stands alone.
+2. **Power check on known curvature.** The Stage A homologous series have known
+   non-zero curvature under Tanimoto and are already cached. Run the *same*
+   binned estimator on the alkane and alcohol Family-2 centroid paths and confirm
+   it reports tangent rotation there. **An estimator that cannot detect rotation
+   where rotation is known to exist cannot support "straight" as a conclusion
+   anywhere**, and if it fails this check the straightness claim rests on
+   geodesic/chord alone — which has its own synthetic null and is the stronger
+   number regardless.
+
+### 15c. Two reporting fixes (amends §14d)
+
+- **The bank comparison is the headline, not the walk-back.** §14d currently
+  presents the literal criterion (ID ≈ 5 > 1 → branch two) first and the
+  matched-control comparison second, so a reader meets branch two first and reads
+  the bank result as a retreat. The abstract sentence must carry both at once:
+  *intrinsic dimension is ~5 but is **not elevated against a matched
+  general-instruction bank** (5.21 vs 5.89), while curvature is 1.02.*
+- **Lead with the XSTest number.** AUC 0.995 from activations alone, with surface
+  distance held flat at 0.685 against 0.682, is the strongest single result in the
+  project and the one a reviewer will remember. The Stage B negative should open
+  with it rather than arriving at it.
