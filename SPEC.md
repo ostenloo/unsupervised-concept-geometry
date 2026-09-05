@@ -1443,3 +1443,65 @@ Branch B, so nothing turns on it here, but the rule was under-specified.
 coordinate alignment (0.946), the behavioural correlation (0.871) and the §14c
 natural experiment. None involve steering, and §15a fixed in advance that neither
 branch would move it.
+
+
+---
+
+## 16. §3h and §3i — Sat 5 Sep 2026
+
+### 16a. §3h: whitening is not load-bearing
+
+Whitened by the covariance of a **bare-format** 2,000-prompt bank (captured
+separately: the Stage B bank is chat-formatted, and whitening Family-1 activations
+with it would fold prompt format into the covariance being removed):
+
+| layer | RSA Euclidean | RSA whitened | delta | ID | orthography given chemistry |
+|---|---|---|---|---|---|
+| 8 | 0.342 | 0.345 | **+0.003** | 6.19 → 6.41 | 0.275 → 0.262 |
+| 28 | 0.327 | 0.341 | **+0.014** | 4.89 → 4.80 | 0.366 → 0.376 |
+
+Both deltas are far under §3h's 0.1 threshold. **The metric is not load-bearing
+here, so Stage B does not need to be run under both** — which is what §3h's
+conditional existed to determine, and it resolves in the cheaper direction.
+
+Note also that whitening does **not** remove the §12g orthographic confound
+(0.275 → 0.262 at layer 8): it is not a fix for that problem.
+
+### 16b. §3i: the hierarchy test has no power on this data
+
+Class labels used only for evaluation. Cosine between the parent mean and each
+class offset, `cos(mu_organic, mu_c - mu_organic)`, over 11 classes:
+
+| layer | metric | observed mean abs-cos | random-vector null | **permuted-label null** | z |
+|---|---|---|---|---|---|
+| 8 | Euclidean | 0.062 | 0.014 | **0.072 ± 0.054** | **−0.18** |
+| 28 | Euclidean | 0.095 | 0.013 | **0.106 ± 0.074** | **−0.15** |
+| 8 | whitened | 0.067 | — | — | — |
+| 28 | whitened | 0.108 | — | — | — |
+
+Against a random-vector null (0.013, matching the analytic sqrt(2/(pi*4096)) =
+0.0125) the observed cosines look like meaningful near-orthogonality. **Against a
+permuted-label null they are indistinguishable from chance.** Shuffling the class
+assignments — preserving group sizes and the ambient geometry, destroying only the
+taxonomy — reproduces the same near-orthogonality.
+
+The reason is structural: a small subgroup's mean offset from a large parent mean
+is nearly orthogonal to that parent almost regardless of which points are in the
+subgroup, because the parent is dominated by the bulk and the offset is
+essentially a noise direction.
+
+**So §3i is reported as a null result about the test, not about the hypothesis.**
+This neither supports nor refutes Park et al. Their result is on the unembedding
+under a whitened causal inner product with specific hierarchies; our residual-stream
+class means over 11 classes and 218 compounds do not have the power to
+discriminate their prediction from chance. The same applies to the
+series-tangent-versus-class-offset cosine (0.09-0.10), which was to be the
+direct-sum-of-polytopes check.
+
+**Method note, and it is the third time this pattern has appeared.** The observed
+cosines were about to be written up as supporting orthogonality. They do not,
+and only the permuted-label null shows it — the random-vector null, which is the
+one that first comes to mind, is 5x too permissive and would have licensed the
+wrong claim. The lesson from §15b generalises: for any statistic whose "good"
+value is near zero, the null must preserve everything except the hypothesised
+structure.
