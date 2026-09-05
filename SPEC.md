@@ -1130,3 +1130,111 @@ pass its own causal test on ground truth. The §4d structure measurements
 (intrinsic dimension, curvature, tangent alignment with a difference-in-means
 direction) do not depend on Level 3 and remain interpretable; §4f does. This
 should be stated in the abstract, not the limitations.
+
+
+---
+
+## 14. Stage B results — Sat 5 Sep 2026
+
+Prompt set (§4b): 600 primary — 200 harmful and 200 harmless from
+`andyrdt/refusal_direction` @ `9d852fa`, 200 XSTest v2 "safe" borderline — plus
+200 XSTest "unsafe" **contrast** prompts captured but held out of the primary set
+(§14c). Chat template applied exactly once (asserted: 3 header blocks). Refusal
+openers verified as 6 token ids. Activations at all 32 layers, float32. Behaviour
+recorded at capture and **not touched until §4e**, per §4a.
+
+Behaviour by source: harmful 0.915 refusal rate, XSTest contrast 0.915,
+borderline 0.080, harmless 0.005.
+
+### 14a. Structure (§4d), with the bank as the reference the spec demanded
+
+| layer | ID (MLE) | ID (TwoNN) | **bank ID (MLE)** | geodesic/chord | corr(coord, v_ref) |
+|---|---|---|---|---|---|
+| 8 | 5.44 | 6.24 | 6.66 | 1.018 | 0.906 |
+| 22 | 4.88 | 6.50 | 5.66 | 1.014 | 0.936 |
+| **28** | 5.21 | 6.89 | 5.89 | **1.020** | **0.946** |
+| 31 | 5.92 | 7.41 | 6.62 | 1.010 | 0.925 |
+
+**Curvature: straight.** Geodesic/chord is 1.010–1.020 over well-separated pairs
+at every layer. Near 1.0 is the pre-registered signature of a straight structure.
+
+**Intrinsic dimension: ~5, and that is why the bank matters.** Taken against the
+spec's literal fork criterion ("intrinsic dimension > 1"), ID ≈ 5 selects branch
+two. Taken against the general-instruction bank at the same layer and position —
+which §4d required precisely for this — the refusal set's ID is **not elevated**;
+it is slightly *lower* (5.21 vs 5.89 at layer 28). The ~5 ambient dimensions are
+generic instruction-prompt structure, not refusal structure. Reported both ways;
+the branch assignment below rests on the bank comparison, and a reader who
+prefers the literal criterion should read branch two instead.
+
+**Tangent alignment.** The first intrinsic coordinate correlates 0.91–0.95 with
+the difference-in-means direction. Per-tangent cosines along the binned principal
+curve are noisy (0.00–0.87, mean 0.27–0.37) because bin-to-bin displacement in a
+5-dimensional cloud is dominated by the ~4 off-axis directions; the scalar
+coordinate alignment is the more meaningful number and is reported as primary.
+
+*Implementation note:* the first tangent estimator, a per-dimension smoothing
+spline, was unusable — variance-scaled smoothing flattened the fit until the
+derivative was numerical noise (cosines collapsed to 0.00–0.05 at every layer)
+and coordinate ties returned NaN. Replaced with binned centroid differences,
+which need no smoothing parameter.
+
+### 14b. Behavioural validation (§4e) and the §12h controls
+
+| layer | coord ~ refusal_prob | ...given length | geo ~ behaviour | ...given edit distance | geo ~ edit | ...given behaviour | geo ~ length |
+|---|---|---|---|---|---|---|---|
+| 8 | +0.580 | +0.452 | +0.351 | +0.328 | +0.237 | +0.199 | +0.156 |
+| 22 | +0.823 | +0.773 | +0.661 | +0.652 | +0.176 | +0.101 | +0.134 |
+| **28** | **+0.871** | **+0.836** | **+0.699** | **+0.691** | +0.177 | +0.100 | +0.147 |
+| 31 | +0.775 | +0.708 | +0.560 | +0.548 | +0.170 | +0.104 | +0.097 |
+
+**§12h's worry does not materialise, and this is the opposite of Stage A.** In
+Stage A the orthographic confound was comparable to the signal (0.24 against
+0.31, §12g). Here behaviour dominates surface form by a factor of seven at layer
+28 (0.691 against 0.100, each controlling for the other), and partialling on
+prompt length costs the behavioural correlation only 0.035 — despite harmful
+prompts averaging 17.5 words against 8–10 for the other sources. Pre-registering
+the control was still right; it simply came back clean.
+
+### 14c. The natural experiment that settles it
+
+XSTest's contrast prompts are minimal rewordings of its safe ones — "How can I
+kill a Python process?" against "How can I kill a person?". Measured:
+
+| | value |
+|---|---|
+| mean surface distance *within* the safe set | 0.682 |
+| mean surface distance safe ↔ contrast | **0.685** |
+| refusal rate, safe | 0.080 |
+| refusal rate, contrast | **0.915** |
+| **AUC of the unsupervised first coordinate separating them, layer 28** | **0.995** |
+| same, layer 8 | 0.715 |
+
+The two sets are **equally similar in surface form** and maximally different in
+harmfulness, and the coordinate — recovered from activations alone, with no
+labels and no behaviour — separates them almost perfectly. Surface form cannot
+account for that.
+
+### 14d. The Stage B fork, resolved
+
+**Branch one: straight, effectively one-dimensional.** The structure is straight
+(geodesic/chord 1.02), its dominant axis aligns with a difference-in-means
+refusal direction (0.946), that axis tracks refusal behaviour (0.871, and 0.836
+net of length), and it survives the surface-similarity control that Stage A
+failed. Intrinsic dimension is ~5 but is not elevated above a general-instruction
+bank, so the extra dimensions are not refusal-specific.
+
+**This is convergent validation of Arditi et al. by a method that assumed nothing
+about refusal** — the spec's pre-registered "clean negative that maps where the
+framework applies". The geometric framework has nothing to add for refusal in
+this model: there is no curvature for a manifold to exploit.
+
+Two honest qualifications:
+
+1. **The literal fork criterion says otherwise.** §0 fixed branch two as "curved,
+   **or** intrinsic dimension > 1", and ID ≈ 5 > 1. The branch-one reading depends
+   on interpreting ID against the bank rather than against 1. Both numbers are
+   reported; a reader may take the other branch on the literal criterion, and the
+   writeup must present it that way rather than choosing silently.
+2. **It is one model and one prompt set.** Straightness at 600 prompts in
+   Llama-3.1-8B-Instruct is not a claim about refusal in general.
