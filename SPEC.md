@@ -977,3 +977,156 @@ fixed before Stage B activations are examined:
 A curved refusal manifold that is really a prompt-phrasing manifold would be the
 same result as §12g, one stage later, and the pre-registration is what prevents
 it being discovered by a reviewer instead of by us.
+
+
+---
+
+## 13. Level 3 results and §12i — Sat 5 Sep 2026
+
+### 13a. The precondition Level 3 needed and did not have
+
+Level 3 compares how far three steering trajectories stray from the behaviour
+manifold. **If the intervention has no behavioural effect, all three trajectories
+return the *source* behaviour, which lies ON the manifold**, so every `E_BC` is
+uniformly small, the strategies are indistinguishable, and `r → 0` — which looks
+exactly like success while measuring nothing.
+
+That is not hypothetical. The first Level 3 run reported `r = −0.04` (alkane) and
+`r = −0.06` (alcohol) at layer 8 — an apparent clean pass of §3f's criterion. It
+was spurious:
+
+| layer | inject source centroid → mass on source name | inject **target** centroid → mass on **target** name |
+|---|---|---|
+| 8 | 0.478 | **0.000** |
+| 28 | 0.509 | **0.448** |
+
+At layer 8 replacement does not move behaviour at all. The tell was visible in
+the numbers before the diagnostic: the denominator `E_lin − E_sup` was 0.065 at
+layer 8 against 0.541 at layer 28, and the bootstrap CI for `r` spanned the whole
+decision threshold ([−0.49, 0.80]). §12f's degenerate-case clause did not catch
+it, because that clause asks whether the denominator is *positive*, not whether
+the intervention *does anything*.
+
+**Added as a hard precondition (§12i), checked and reported before `r` is
+formed:** injecting the target centroid must place at least 25% of the source
+injection's mass onto the target name. A layer failing this is reported as
+**INERT** and its `r` is not interpreted.
+
+### 13b. Causal accessibility is a step function at layer 22
+
+Measured across all 32 layers, 6 centroid pairs, both series — probability mass
+placed on the *target* name when the target centroid is injected:
+
+| layers | alkane | alcohol |
+|---|---|---|
+| 0–15 | 0.000–0.001 | 0.000 |
+| 16–21 | 0.005 → 0.067 | 0.001 → 0.019 |
+| **22** | **0.371** | **0.286** |
+| 23–31 | 0.442–0.569 | 0.454–0.511 |
+
+Source-injection mass is flat at ≈0.44–0.58 everywhere, so this is not a general
+failure of the intervention — replacement always reproduces the source behaviour.
+What changes at layer 22 is whether a *different* point on the manifold can be
+written in and read out downstream.
+
+**This is the sharpest depth result in the project, and it dissociates cleanly
+from Level 1.** Level-1 representational alignment is flat across layers 5–30
+(§12b, prominence 0.50–1.00 at every projection dimension). Causal accessibility
+is a step function at 22. **A layer can encode chemical similarity faithfully and
+still be causally inert.**
+
+Three consequences:
+
+1. **§12a's tie-break selected a causally inert layer.** Layer 8 was chosen as
+   the argmax of mean uncensored Level-1 RSA. That criterion measures
+   representation and is silent about intervention. It is not wrong for Level 1,
+   but it must not be used to select a layer for Level 3.
+2. **§12a's plateau prediction resolves, and against the plateau.** It was
+   pre-declared that if Level 1 is flat over 19 layers then Level 3 should be flat
+   too, and that sharp layer-dependence would mean the plateau does not mean what
+   §3g assumed. Level 3 is sharply layer-dependent. **The plateau does not mean
+   what §3g assumed** — Level-1 flatness is not evidence that any layer will do.
+3. **Wurgaft's layer 28 is vindicated for the causal test**, on grounds unrelated
+   to their stated "late enough" rationale and unrelated to RSA: it is inside the
+   causally live region, and layers chosen by representational alignment are not.
+   Note this cuts against §12g's reading, where layer 28 looked *worse* because
+   orthography dominates chemistry there. Representational quality and causal
+   accessibility point in opposite directions across depth, and the honest
+   statement is that no single layer is best for both.
+
+### 13c. Level 3 result: the unsupervised pipeline fails the causal test
+
+Run at every causally live layer plus layer 8 for the record, 20 centroid pairs,
+K=50 waypoints, 8 Family-2 paraphrase base prompts, `r` bootstrapped over
+compounds (SPEC §12f). Success is `r < 0.5`.
+
+| series | layer | efficacy (tgt mass) | E_BC linear | E_BC unsup | E_BC **sup** | r | 95% CI | verdict |
+|---|---|---|---|---|---|---|---|---|
+| alkane | 8 | 0.000 | 0.444 | 0.377 | 0.379 | −0.03 | [−0.49, 0.83] | **INERT — not interpretable** |
+| alkane | 22 | 0.255 | 1.422 | 1.983 | 1.231 | 3.94 | [1.51, 23.96] | degenerate (24% of draws) |
+| alkane | 24 | 0.381 | 1.230 | 3.841 | 0.730 | 6.21 | [3.92, 10.10] | **fail** |
+| alkane | 28 | 0.394 | 1.159 | 2.084 | 0.618 | 2.71 | [1.78, 3.91] | **fail** |
+| alkane | 31 | 0.495 | 1.519 | 3.849 | 0.764 | 4.09 | [2.85, 5.90] | **fail** |
+| alkane | 28 ← coord L8 | 0.394 | 1.159 | **1.092** | 0.618 | **0.88** | [0.47, 1.31] | **fail**, but closest |
+| alcohol | 8 | 0.000 | 0.314 | 0.281 | 0.283 | −0.05 | [−2.53, 0.32] | **INERT — not interpretable** |
+| alcohol | 22 | 0.249 | 1.699 | 2.731 | 1.948 | — | [1.81, 57.03] | degenerate (63% of draws) |
+| alcohol | 24 | 0.470 | 1.526 | 5.137 | 0.817 | 6.09 | [4.62, 8.51] | **fail** |
+| alcohol | 28 | 0.452 | 1.264 | 4.246 | 0.633 | 5.73 | [4.44, 7.24] | **fail** |
+| alcohol | 31 | 0.466 | 1.381 | 3.222 | 0.645 | 3.50 | [1.76, 8.60] | **fail** |
+| alcohol | 28 ← coord L8 | 0.452 | 1.264 | 3.197 | 0.633 | 4.07 | [2.74, 5.52] | **fail** |
+
+**The headline result, stated plainly.**
+
+1. **The supervised manifold works, and reproduces Wurgaft's direction.** At layer
+   28 it beats linear steering by 1.87× (alkane, 0.618 vs 1.159) and 2.00×
+   (alcohol, 0.633 vs 1.264). Wurgaft report ≈2.8×. The framework replicates.
+2. **The unsupervised manifold fails, and fails *worse than linear*.** At every
+   live layer and for both series, `E_BC(unsupervised) > E_BC(linear)`: the
+   unsupervised coordinate is inaccurate enough that a spline parameterised by it
+   is a worse path than a straight line. `r` is 2.7–6.2 with confidence intervals
+   excluding 0.5 by a wide margin.
+3. **The pre-registered §3f success criterion is not met.** The best case anywhere
+   is the alkane hybrid at `r = 0.88`, CI [0.47, 1.31] — still a failure, though
+   its lower bound touches the threshold.
+
+**What does not explain it.** The obvious candidate — that the unsupervised
+coordinate is simply too noisy — is not supported in the form one would expect.
+Alcohol has the *best* Level-2 recovery anywhere (|ρ| = 0.976 at layer 8) and its
+hybrid still fails at `r = 4.07`, while alkane's weaker coordinate (|ρ| = 0.867)
+gives the best result in the table. Exact-position order agreement (0.0–0.6)
+likewise does not order the results. We report the failure without a confident
+mechanism rather than fit one after the fact; a spline is sensitive to the *local*
+ordering in a way a rank correlation does not capture, but that is a hypothesis
+for future work, not a finding here.
+
+**Layer 22 is correctly flagged degenerate** (24% and 63% of bootstrap draws have
+a non-positive denominator), which is what the §12f α=0.05 clause exists for. It
+sits exactly at the efficacy threshold, where supervised and linear steering are
+not yet distinguishable.
+
+### 13d. What this means for the project's claim
+
+Stage A was to validate an unsupervised pipeline before pointing it at refusal.
+The verdict across the three levels:
+
+| level | result |
+|---|---|
+| **Level 1** | Isomap 0.345 vs PCA 0.278 — the pipeline beats the baseline, but Procrustes disparity is 0.83 and roughly 0.24 of the pairwise signal is name-string similarity (§12g) |
+| **Level 2** | 0.87–0.98 recovery, but the **PCA baseline matches it** (§12e); ordinal, not chemical (§12g) |
+| **Level 3** | **fails** — the unsupervised manifold is worse than linear steering at every causally live layer |
+
+**The honest summary is that the unsupervised pipeline is not validated.** It
+recovers global structure better than PCA and ordinal structure as well as PCA,
+but it does not produce a coordinate accurate enough to support the causal test
+that was the point of building it. The supervised reference passing the same test
+on the same data is what rules out a broken harness: the machinery works, the
+unsupervised parameterisation is what fails.
+
+**Consequence for Stage B, and it is a real one.** §0 framed Stage B as applying
+"the validated pipeline" to refusal. The pipeline is not validated at Level 3, so
+Stage B's §4f steering comparison inherits a known-failing component, and any
+Stage B curvature result must be reported as coming from a pipeline that did not
+pass its own causal test on ground truth. The §4d structure measurements
+(intrinsic dimension, curvature, tangent alignment with a difference-in-means
+direction) do not depend on Level 3 and remain interpretable; §4f does. This
+should be stated in the abstract, not the limitations.
