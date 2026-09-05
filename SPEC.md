@@ -1395,3 +1395,51 @@ direction aligns with `v_ref` (check 1), and is withdrawn as evidence of
 rested on geodesic/chord, the coordinate alignment (0.946), the behavioural
 correlation (0.871) and the §14c natural experiment — none of which use tangent
 coherence.
+
+
+### 15e. §4f result: Branch B, with the two sub-criteria disagreeing
+
+Five harmless-to-harmful centroid pairs along the unsupervised coordinate, layer
+28 (causally live), K=50 waypoints, 8 base prompts, replacement intervention.
+Behaviour space is the §4f approximation — next-token mass on {refusal openers,
+compliance openers, other} — **labelled an approximation, as §4f requires; it is
+the weakest link in Stage B and a reader will find it.**
+
+| pair | E_BC linear | E_BC manifold | per-waypoint divergence (mean / max) | refusal start → end |
+|---|---|---|---|---|
+| 0→9 | 5.315 | 3.365 | 0.027 / 0.135 | 0.00 → 1.00 both |
+| 1→8 | 1.202 | 2.641 | 0.047 / 0.200 | 0.00 → 1.00 both |
+| 0→7 | 4.698 | 4.025 | 0.091 / 0.413 | 0.00 → 1.00 both |
+| 2→9 | 3.568 | 2.063 | 0.022 / 0.127 | 0.00 → 1.00 both |
+| 1→9 | 1.374 | 2.467 | 0.023 / 0.097 | 0.00 → 1.00 both |
+
+**The two pre-registered sub-criteria disagree, and both halves are reportable.**
+
+- **Behaviourally the strategies are near-identical.** Mean per-waypoint
+  Bhattacharyya divergence between linear and manifold trajectories is **0.042**
+  (below the 0.05 bar), and both drive refusal from 0.00 to 1.00 in all five
+  pairs. This is Branch A's substance: the manifold buys no different behaviour.
+- **By E_BC against the behaviour manifold they differ**, and the difference is
+  **inconsistent in sign** — the manifold is better in 3 of 5 pairs and worse in
+  2. Mean signed gap 0.319, mean absolute gap 1.332, against a Stage A reference
+  scale of 0.586. The §15a conjunction requires both criteria, so the verdict is
+  **Branch B**, and it holds under the signed form of the gap as well as the
+  absolute form (0.319 > 0.146), so it does not depend on that choice.
+
+**Reading, per §15a Branch B, fixed before the run:** layer 28 with straight
+structure, one dominant axis and 600 points is the easiest case this construction
+will ever be handed. Trajectories that wander off the behaviour manifold
+*inconsistently* relative to a straight line, on that data, are **evidence about
+the manifold construction, not about refusal**. This strengthens the §13c Level 3
+negative — the same failure mode appearing where the geometry is maximally
+favourable — and is **not** reported as a Stage B finding about refusal.
+
+**A flaw in my own threshold, recorded.** The criterion used mean |gap|, which
+cannot distinguish a consistent difference from sign-flipping noise; the signed
+gap should have been specified alongside it. Both were computed and both give
+Branch B, so nothing turns on it here, but the rule was under-specified.
+
+**§14d is unaffected.** The branch-one verdict rests on geodesic/chord, the
+coordinate alignment (0.946), the behavioural correlation (0.871) and the §14c
+natural experiment. None involve steering, and §15a fixed in advance that neither
+branch would move it.

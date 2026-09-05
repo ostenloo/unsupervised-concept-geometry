@@ -1,0 +1,70 @@
+{
+  "random_direction_null": [
+    {
+      "layer": 8,
+      "obs": 0.3740592300891876,
+      "null_mean": 0.09988254405681057,
+      "null_sd": 0.02842900170170629,
+      "z": 9.644260073188612,
+      "null_p95": 0.14761027022927695,
+      "clears": true
+    },
+    {
+      "layer": 22,
+      "obs": 0.312406986951828,
+      "null_mean": 0.10398015385181346,
+      "null_sd": 0.027344917050651948,
+      "z": 7.622141720669264,
+      "null_p95": 0.14849327143132107,
+      "clears": true
+    },
+    {
+      "layer": 28,
+      "obs": 0.29548564553260803,
+      "null_mean": 0.09655237056052958,
+      "null_sd": 0.025458608049854035,
+      "z": 7.81398867457795,
+      "null_p95": 0.13873397965365228,
+      "clears": true
+    },
+    {
+      "layer": 31,
+      "obs": 0.2709570527076721,
+      "null_mean": 0.10130859227024379,
+      "null_sd": 0.024900988499537483,
+      "z": 6.812920717608436,
+      "null_p95": 0.1465068034591133,
+      "clears": true
+    }
+  ],
+  "power_check": [
+    {
+      "series": "alkane",
+      "layer": 8,
+      "consecutive": 0.23645775020122528,
+      "first_last": 0.0687684640288353,
+      "detects_rotation": true
+    },
+    {
+      "series": "alkane",
+      "layer": 28,
+      "consecutive": 0.3260417878627777,
+      "first_last": 0.00385956815443933,
+      "detects_rotation": true
+    },
+    {
+      "series": "alcohol",
+      "layer": 8,
+      "consecutive": 0.2165115773677826,
+      "first_last": 0.08353675156831741,
+      "detects_rotation": true
+    },
+    {
+      "series": "alcohol",
+      "layer": 28,
+      "consecutive": 0.28517234325408936,
+      "first_last": 0.0009045442566275597,
+      "detects_rotation": true
+    }
+  ]
+}
