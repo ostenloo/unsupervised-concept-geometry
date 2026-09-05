@@ -25,7 +25,7 @@ def main():
     prof = m.groupby("layer").agg(
         rsa=("rsa_uncensored", "mean"), rsa_sd=("rsa_uncensored", "std"),
         base=("rsa_pca_baseline_uncensored", "mean"),
-        within=("rsa_within_final_token", "mean"), null=("shuffle_null_rsa", "mean"),
+        within=("rsa_within_final_token_unc", "mean"), null=("shuffle_null_rsa", "mean"),
         id_mle=("id_mle", "mean"), id_twonn=("id_twonn", "mean"),
         alk=("series_spearman_alkane", "mean"), alk_p=("series_spearman_alkane_pca", "mean"),
         alc=("series_spearman_alcohol", "mean"), alc_p=("series_spearman_alcohol_pca", "mean"),
@@ -41,7 +41,7 @@ def main():
     a.plot(prof.layer, prof.rsa, "o-", ms=2.6, color="C0", label="Isomap (uncensored RSA)")
     a.plot(prof.layer, prof.base, "s--", ms=2.4, color="C1", label="PCA baseline")
     a.plot(prof.layer, prof.within, "^-", ms=2.4, color="C2",
-           label="within shared final token (5.9% censored, not comparable)")
+           label="within shared final token (uncensored, like-for-like)")
     a.plot(prof.layer, prof.null, ":", color="0.5", label="shuffle null")
     band = prof.rsa.max() - ksd
     inside = prof.layer[prof.rsa >= band]

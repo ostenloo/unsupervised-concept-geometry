@@ -316,7 +316,8 @@ def id_vs_noise(intrinsic: int = 2, ambient: int = 64, n: int = 300,
 # --- final-token confound control ------------------------------------------
 
 def within_group_rsa(D_recovered: np.ndarray, D_truth: np.ndarray,
-                     group: np.ndarray, min_size: int = 6) -> dict:
+                     group: np.ndarray, min_size: int = 6,
+                     censor_at: float = 1.0) -> dict:
     """RSA computed only within groups of points sharing a read position.
 
     Family 1 reads the LAST token of the compound name, and the gated set has
@@ -343,5 +344,43 @@ def within_group_rsa(D_recovered: np.ndarray, D_truth: np.ndarray,
         return {"rsa_within_pooled": float("nan"), "groups": {}}
     a, b = np.concatenate(all_a), np.concatenate(all_b)
     ok = np.isfinite(a) & np.isfinite(b)
-    return {"rsa_within_pooled": float(spearmanr(a[ok], b[ok]).statistic),
-            "n_pairs": int(ok.sum()), "n_groups": len(per), "groups": per}
+    a, b = a[ok], b[ok]
+    # BOTH numbers, always. The headline Level 1 figure is uncensored-only, so a
+    # pooled all-pairs value here is not comparable to it -- quoting the wrong
+    # column produced a false "censoring explains the gap" claim once already.
+    unc = b < censor_at - 1e-6
+    return {"rsa_within_pooled": float(spearmanr(a, b).statistic),
+            "rsa_within_pooled_uncensored": (
+                float(spearmanr(a[unc], b[unc]).statistic) if unc.sum() >= 3 else float("nan")),
+            "frac_censored_within": float((~unc).mean()),
+            "n_pairs": int(a.size), "n_groups": len(per), "groups": per}
+
+
+def within_group_rsa_null(D_recovered: np.ndarray, D_truth: np.ndarray,
+                          group: np.ndarray, min_size: int = 6,
+                          n_draws: int = 200, seed: int = None) -> dict:
+    """Size-matched random-grouping null for `within_group_rsa`.
+
+    Restricting to small subsets could raise a rank correlation for reasons that
+    have nothing to do with the grouping variable, so the observed value means
+    nothing without this. Draws groups of the SAME sizes with random membership.
+    On the compound set it returns 0.342 against an observed 0.556 (z = 5.3),
+    i.e. the elevation is specific to the grouping and not to subset size.
+    """
+    rng = np.random.default_rng(config.SEED if seed is None else seed)
+    group = np.asarray(group)
+    sizes = [int((group == g).sum()) for g in np.unique(group)
+             if (group == g).sum() >= min_size]
+    n = D_truth.shape[0]
+    vals = []
+    for _ in range(n_draws):
+        perm = rng.permutation(n)
+        pos, fake = 0, np.full(n, -1)
+        for gi, sz in enumerate(sizes):
+            fake[perm[pos:pos + sz]] = gi
+            pos += sz
+        r = within_group_rsa(D_recovered, D_truth, fake, min_size=min_size)
+        vals.append(r["rsa_within_pooled_uncensored"])
+    v = np.asarray(vals, dtype=float)
+    return {"null_mean": float(np.nanmean(v)), "null_sd": float(np.nanstd(v)),
+            "null_p95": float(np.nanpercentile(v, 95)), "n_draws": n_draws}

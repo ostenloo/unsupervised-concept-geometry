@@ -537,22 +537,43 @@ cannot be explained by the block label. The shuffle null does **not** cover this
 because permuting compound↔activation destroys token structure and chemical
 structure together.
 
-**Result: 0.605 within-group against 0.342 overall (layer 8).** The confound is
-cleared — recovered structure is not read-position identity.
+**The comparison must be like-for-like, and my first version of it was not.**
+`within_group_rsa` pools *all* within-group pairs while the headline Level 1
+number is restricted to *uncensored* pairs. All four numbers, layer 8:
 
-**How that number must NOT be read.** It is higher than the headline, and it is
-*not* a better estimate of the same quantity: it is an easier task. Within a
-shared final token the block is chemically homogeneous, so almost nothing is
-censored — **5.9% of within-group pairs sit at distance 1.0 against 32.7%
-overall, and the `Ġacid` block is 0.0% censored** because every pair shares a
-COOH substructure. Nearly the whole within-block matrix is rankable, where a
-third of the full matrix carries no ordering at all.
+| | rho | pairs | censored |
+|---|---|---|---|
+| overall, all pairs | 0.332 | 23,653 | 32.7% |
+| **overall, uncensored only (headline)** | **0.342** | 15,907 | 0% |
+| within final token, all pairs | 0.605 | 1,345 | 5.9% |
+| **within final token, uncensored only** | **0.556** | 1,265 | 0% |
 
-One tempting explanation is wrong and is recorded so it is not re-proposed: the
-groups are *not* dominated by homologous series (only 26% of their members are in
-any series), and within-group Tanimoto does *not* reduce to carbon-count
-difference (Spearman with |ΔC| is 0.29 in `Ġacid`, 0.20 in `ene`, 0.22 in `ane`,
-and negative in `ine` and `amine`). The gap is censoring, not chain length.
+So the honest comparison is **0.556 against 0.342**, and censoring is *not* what
+explains the gap: the censored pairs are already excluded from the headline, and
+removing them moves the overall number by only 0.010 (0.332 → 0.342). An earlier
+draft of this section asserted a censoring mechanism; it was wrong on the numbers.
+
+Nor is it a subset-size artifact. Against **200 size-matched random groupings**
+(same group sizes, random membership, uncensored): mean 0.342, sd 0.041 — exactly
+the overall value. The observed 0.556 is **z = 5.3**.
+
+The grouping variable is chemistry, not orthography: final token is largely a
+proxy for functional class, and grouping by class directly gives 0.439. The real
+content is that **the representation tracks Tanimoto substantially better inside a
+functional-class block than it does globally** — a positive finding about local
+geometry, not evidence about the global number.
+
+**What the control does and does not license.** It clears what it was built for:
+if recovered structure were read-position identity, a fixed final token would show
+*no* structure, and it shows a great deal. But 0.556 is a *local, within-block*
+quantity and Level 1's claim is *global*, so it is not a better estimate of the
+headline and must never be quoted as one.
+
+One tempting alternative explanation is measured and wrong, recorded so it is not
+re-proposed: the groups are *not* dominated by homologous series (26% membership),
+and within-group Tanimoto does *not* reduce to carbon-count difference (rho with
+|ΔC| is 0.29 in `Ġacid`, 0.20 in `ene`, 0.22 in `ane`, and negative in `ine` and
+`amine`).
 
 **The Level 1 ceiling therefore remains 0.345 with Procrustes disparity 0.83.**
 
@@ -661,12 +682,28 @@ Level 1 across all 32 layers at `d ∈ {16, 32, 64, 128, 217, raw 4096}`:
 | 217 | 24 | 0.350 | 0.320 | 0.079 | 18 |
 | raw 4096 | 24 | 0.350 | 0.320 | 0.079 | 18 |
 
-**The flatness survives, and the profile does not sharpen as `d` grows** — the
-peak-to-plateau range is *smallest* at high dimension (0.056 at d=128, 0.079 at
-d=217 and raw, against 0.115 at d=64), and RSA magnitude saturates near 0.35 by
-d=64. The range is not monotone in `d` — it is largest at d=32 (0.151), where
-truncation is severe enough to add its own noise — but at no dimension does a
-peak emerge. So PCA-64 mildly
+**Peak-to-plateau range is the wrong statistic** and an earlier draft leaned on
+it. Max−min over all 32 layers is contaminated by the low early layers: a
+monotone rise-then-flat profile produces a large range with no peak at all, so
+d=32's range of 0.151 (4.4× the k-sweep sd) reads as structure only if you do not
+know the shape. The statistic that answers the question is the one already in
+use — **layers within one k-sweep sd (0.034) of the maximum**, computed at each
+`d`:
+
+| d | own sd (layers ≥4) | layers within one sd of max | argmax |
+|---|---|---|---|
+| 16 | 0.0331 | 15/32 | 28 |
+| 32 | 0.0455 | 13/32 | 5 |
+| **64** | 0.0230 | **20/32** | 9 |
+| 128 | 0.0162 | **19/32** | 23 |
+| 217 | 0.0176 | **18/32** | 24 |
+| raw 4096 | 0.0176 | **18/32** | 24 |
+
+**At every d ≥ 64 the plateau is 18–20 of 32 layers, and no peak emerges at any
+`d`.** The two low dimensions show fewer flat layers, but their own scatter is
+2–3× larger (own sd 0.033–0.046 against 0.016–0.023), so the fixed yardstick is
+unfair to them — the profile there is noisier, not sharper. RSA magnitude
+saturates near 0.35 by d=64. So PCA-64 mildly
 *exaggerates* structure relative to the full space rather than manufacturing the
 plateau. The §3g finding stands. The argmax wandering across 5/9/23/24/28 with
 `d` is further evidence it is not identified.
@@ -675,7 +712,7 @@ plateau. The §3g finding stands. The argmax wandering across 5/9/23/24/28 with
 217-component PCA is a lossless rotation. A free check that the projection path
 is not distorting distances.)
 
-### 12c. Level 2 series scope: the pre-registered list, restored
+### 12c. Level 2 series scope: pre-registered headline, alkene exploratory
 
 The §3d gate — "the model must produce the correct name greedily for ≥ 8/10 per
 series, or that series is dropped" — is a **Family-2 greedy-accuracy** gate scoped
@@ -687,10 +724,24 @@ names survived gate 3 — and conflating the two was an error of reporting, not 
 gating.
 
 For Level 2, §5's schema names `series_spearman_alkane`, `_alcohol`, `_acid`.
-**Alkene was never pre-registered**; it was added by us. It is therefore removed
-from Level 2 headline reporting — a restoration, not a new bar retrofitted after
-seeing the scores — and reported here with its number so the exclusion is
-visible, not silent:
+**Alkene was never pre-registered**; we added it. Calling its removal a
+"restoration" overstates the case — we added it, saw 0.86, and removed it, and
+that is a data-dependent action whichever direction it points. The accurate
+framing: **the pre-registered set is the headline, and alkene was an exploratory
+addition, reported with its score.**
+
+**Invariance check, which settles the concern.** The Level 2 verdict is identical
+either way (mean over layers ≥4):
+
+| series set | Isomap | PCA baseline | PCA better on |
+|---|---|---|---|
+| pre-registered (alkane/alcohol/acid) | 0.871 | 0.886 | 2 of 3 |
+| with alkene included | 0.869 | 0.905 | 3 of 4 |
+
+Including alkene makes the negative result **stronger**, not weaker, so the
+exclusion cannot have manufactured it.
+
+The scores:
 
 | series | pre-registered in §5 | Level 2 abs-rho at layer 8 | status |
 |---|---|---|---|
@@ -724,3 +775,42 @@ Per §3e Step 3 this belongs in the body, not a footnote: on the ordinal task th
 is the direct analog of Wurgaft's letters/ages recovery, **the naive baseline is
 not beaten**. The unsupervised-pipeline claim rests on Level 1 and Level 3, and
 Level 2 should be presented as a task where pipeline and baseline agree.
+
+
+### 12f. "Differ" defined before Level 3 runs
+
+§12a pre-declares that a Level 3 disagreement between layers 8 and 28 makes the
+finding layer-sensitive. That is a shape without a magnitude, and deciding the
+magnitude while looking at the answer is the failure §3g already cost a day to.
+So, fixed now.
+
+**Quantity.** §3f's success criterion is that `E_BC(unsupervised)` is closer to
+`E_BC(supervised)` than to `E_BC(linear)`. Normalise it to one number per layer:
+
+```
+    r = (E_BC_unsup − E_BC_sup) / (E_BC_linear − E_BC_sup)
+```
+
+`r = 0` means the unsupervised manifold matches the supervised reference exactly;
+`r = 1` means it is no better than linear steering. **Success is `r < 0.5`**,
+which is §3f's criterion restated. Report `r` with a standard error over centroid
+pairs (bootstrap over pairs, 1,000 resamples), per series, per layer.
+
+**Thresholds, both pre-declared:**
+
+1. **Verdict flip.** If `r < 0.5` at one layer and `r ≥ 0.5` at the other, the
+   result is layer-sensitive and **neither layer is *the* result**.
+2. **Magnitude, absent a flip.** If `|r(8) − r(28)| > 2 × SE_pooled`, where
+   `SE_pooled = sqrt(SE(8)² + SE(28)²)`, the result is layer-sensitive even
+   though both layers agree on the verdict — reported as "same verdict,
+   layer-dependent effect size".
+
+If neither trigger fires, layers 8 and 28 agree and the Level 3 result is
+reported as layer-robust — which is what §12a's plateau predicts should happen.
+
+`E_BC_linear − E_BC_sup` appearing in a denominator has one failure mode worth
+naming in advance: if linear and supervised steering are indistinguishable, `r`
+is undefined and the comparison is vacuous. If that denominator is not
+significantly greater than zero (bootstrap CI excluding 0), we report exactly
+that — the task does not discriminate the strategies — rather than dividing by
+noise.

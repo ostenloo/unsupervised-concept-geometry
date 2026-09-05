@@ -88,7 +88,11 @@ def main():
                 )
                 if fp == "morgan_count":
                     wg = E.within_group_rsa(D_geo, Dt, final_tok)
+                    # Log both; only the uncensored one is comparable to the
+                    # headline rsa_uncensored (§11c-bis).
                     row["rsa_within_final_token"] = wg["rsa_within_pooled"]
+                    row["rsa_within_final_token_unc"] = wg["rsa_within_pooled_uncensored"]
+                    row["frac_censored_within"] = wg["frac_censored_within"]
                     row["n_final_token_groups"] = wg["n_groups"]
                     null = E.shuffle_null_rsa(D_geo, Dt, n_perm=10)
                     row["shuffle_null_rsa"] = null["shuffle_null_rsa"]
