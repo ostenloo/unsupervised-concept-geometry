@@ -1,0 +1,168 @@
+name,smiles,cls,series,series_index,n_carbons,molecular_weight,formula,n_tokens,canonical_smiles,formula_truth,formula_got,formula_ok,class_picked,class_acceptable,class_ok
+methane,C,alkane,alkane,1.0,1,16.043,CH4,1,C,CH4,CH4,True,alkane,alkane,True
+ethane,CC,alkane,alkane,2.0,2,30.07,C2H6,2,CC,C2H6,C2H6,True,alkane,alkane,True
+propane,CCC,alkane,alkane,3.0,3,44.097,C3H8,1,CCC,C3H8,C₃H₈,True,alkane,alkane,True
+butane,CCCC,alkane,alkane,4.0,4,58.124,C4H10,2,CCCC,C4H10,C4H10,True,alkane,alkane,True
+pentane,CCCCC,alkane,alkane,5.0,5,72.151,C5H12,2,CCCCC,C5H12,C5H12,True,alkane,alkane,True
+hexane,CCCCCC,alkane,alkane,6.0,6,86.178,C6H14,2,CCCCCC,C6H14,C6H14,True,alkane,alkane,True
+heptane,CCCCCCC,alkane,alkane,7.0,7,100.205,C7H16,3,CCCCCCC,C7H16,C₇H₁₆,True,alkane,alkane,True
+octane,CCCCCCCC,alkane,alkane,8.0,8,114.232,C8H18,2,CCCCCCCC,C8H18,C8H18,True,alkane,alkane,True
+nonane,CCCCCCCCC,alkane,alkane,9.0,9,128.259,C9H20,2,CCCCCCCCC,C9H20,C9H20,True,alkane,alkane,True
+decane,CCCCCCCCCC,alkane,alkane,10.0,10,142.286,C10H22,2,CCCCCCCCCC,C10H22,C10H22,True,alkane,alkane,True
+ethene,C=C,alkene,alkene,2.0,2,28.053999999999995,C2H4,2,C=C,C2H4,C2H4,True,alkene,alkene,True
+propene,C=CC,alkene,alkene,3.0,3,42.081,C3H6,2,C=CC,C3H6,C₃H₆,True,alkene,alkene,True
+butene,C=CCC,alkene,alkene,4.0,4,56.10799999999999,C4H8,2,C=CCC,C4H8,C4H8,True,alkene,alkene,True
+pentene,C=CCCC,alkene,alkene,5.0,5,70.13499999999999,C5H10,2,C=CCCC,C5H10,C5H10,True,alkene,alkene,True
+hexene,C=CCCCC,alkene,alkene,6.0,6,84.16199999999999,C6H12,2,C=CCCCC,C6H12,C6H12,True,alkene,alkene,True
+heptene,C=CCCCCC,alkene,alkene,7.0,7,98.189,C7H14,3,C=CCCCCC,C7H14,C7H14,True,alkene,alkene,True
+octene,C=CCCCCCC,alkene,alkene,8.0,8,112.216,C8H16,2,C=CCCCCCC,C8H16,C8H16,True,alkene,alkene,True
+nonene,C=CCCCCCCC,alkene,alkene,9.0,9,126.243,C9H18,2,C=CCCCCCCC,C9H18,C9H18,True,alkene,alkene,True
+decene,C=CCCCCCCCC,alkene,alkene,10.0,10,140.27,C10H20,2,C=CCCCCCCCC,C10H20,C10H20,True,alkene,alkene,True
+methanol,CO,alcohol,alcohol,1.0,1,32.042,CH4O,2,CO,CH4O,CH₃OH,True,alcohol,alcohol,True
+ethanol,CCO,alcohol,alcohol,2.0,2,46.069,C2H6O,1,CCO,C2H6O,C2H5OH,True,alcohol,alcohol,True
+propanol,CCCO,alcohol,alcohol,3.0,3,60.096,C3H8O,3,CCCO,C3H8O,C₃H₇OH,True,alcohol,alcohol,True
+butanol,CCCCO,alcohol,alcohol,4.0,4,74.12299999999999,C4H10O,2,CCCCO,C4H10O,C4H9OH,True,alcohol,alcohol,True
+pentanol,CCCCCO,alcohol,alcohol,5.0,5,88.14999999999999,C5H12O,2,CCCCCO,C5H12O,C5H11OH,True,alcohol,alcohol,True
+hexanol,CCCCCCO,alcohol,alcohol,6.0,6,102.177,C6H14O,2,CCCCCCO,C6H14O,C6H13OH,True,alcohol,alcohol,True
+heptanol,CCCCCCCO,alcohol,alcohol,7.0,7,116.204,C7H16O,3,CCCCCCCO,C7H16O,C7H16O,True,alcohol,alcohol,True
+octanol,CCCCCCCCO,alcohol,alcohol,8.0,8,130.23100000000002,C8H18O,2,CCCCCCCCO,C8H18O,C8H17OH,True,alcohol,alcohol,True
+nonanol,CCCCCCCCCO,alcohol,alcohol,9.0,9,144.258,C9H20O,2,CCCCCCCCCO,C9H20O,C9H20O,True,alcohol,alcohol,True
+decanol,CCCCCCCCCCO,alcohol,alcohol,10.0,10,158.285,C10H22O,2,CCCCCCCCCCO,C10H22O,C10H22O,True,alcohol,alcohol,True
+formic acid,C(=O)O,carboxylic_acid,acid,1.0,1,46.025000000000006,CH2O2,3,O=CO,CH2O2,HCOOH,True,carboxylic acid,carboxylic acid,True
+acetic acid,CC(=O)O,carboxylic_acid,acid,2.0,2,60.05200000000001,C2H4O2,3,CC(=O)O,C2H4O2,CH₃COOH,True,carboxylic acid,carboxylic acid,True
+propionic acid,CCC(=O)O,carboxylic_acid,acid,3.0,3,74.079,C3H6O2,3,CCC(=O)O,C3H6O2,C2H5COOH,True,carboxylic acid,carboxylic acid,True
+valeric acid,CCCCC(=O)O,carboxylic_acid,acid,5.0,5,102.13299999999998,C5H10O2,3,CCCCC(=O)O,C5H10O2,C5H10O2,True,carboxylic acid,carboxylic acid,True
+caprylic acid,CCCCCCCC(=O)O,carboxylic_acid,acid,8.0,8,144.214,C8H16O2,3,CCCCCCCC(=O)O,C8H16O2,C8H16O2,True,carboxylic acid,carboxylic acid,True
+undecane,CCCCCCCCCCC,alkane,,,11,156.313,C11H24,3,CCCCCCCCCCC,C11H24,C11H24,True,alkane,alkane,True
+eicosane,CCCCCCCCCCCCCCCCCCCC,alkane,,,20,282.5559999999999,C20H42,3,CCCCCCCCCCCCCCCCCCCC,C20H42,C20H42,True,alkane,alkane,True
+tert-butanol,CC(C)(C)O,alcohol,,,4,74.12299999999999,C4H10O,3,CC(C)(C)O,C4H10O,(C4H9OH),True,alcohol,alcohol,True
+sec-butanol,CCC(C)O,alcohol,,,4,74.12299999999999,C4H10O,3,CCC(C)O,C4H10O,C4H10O,True,alcohol,alcohol,True
+benzyl alcohol,OCc1ccccc1,alcohol,,,7,108.13999999999996,C7H8O,3,OCc1ccccc1,C7H8O,C6H5CH2OH,True,alcohol,"alcohol,aromatic",True
+glycerol,OCC(O)CO,alcohol,,,3,92.094,C3H8O3,3,OCC(O)CO,C3H8O3,C3H8O3,True,alcohol,alcohol,True
+menthol,CC(C)C1CCC(C)CC1O,alcohol,,,10,156.269,C10H20O,2,CC1CCC(C(C)C)C(O)C1,C10H20O,C10H20O,True,alcohol,alcohol,True
+geraniol,CC(C)=CCCC(C)=CCO,alcohol,,,10,154.253,C10H18O,3,CC(C)=CCCC(C)=CCO,C10H18O,C10H18O,True,alcohol,"alcohol,alkene",True
+allyl alcohol,C=CCO,alcohol,,,3,58.08,C3H6O,3,C=CCO,C3H6O,C3H6O,True,alcohol,"alcohol,alkene",True
+xylitol,OCC(O)C(O)C(O)CO,alcohol,,,5,152.146,C5H12O5,3,OCC(O)C(O)C(O)CO,C5H12O5,C5H12O5,True,alcohol,alcohol,True
+sorbitol,OCC(O)C(O)C(O)C(O)CO,alcohol,,,6,182.172,C6H14O6,3,OCC(O)C(O)C(O)C(O)CO,C6H14O6,C6H14O6,True,alcohol,alcohol,True
+acetone,CC(C)=O,ketone,,,3,58.080000000000005,C3H6O,2,CC(C)=O,C3H6O,C₃H₆O,True,ketone,ketone,True
+butanone,CCC(C)=O,ketone,,,4,72.10699999999999,C4H8O,3,CCC(C)=O,C4H8O,C4H8O,True,ketone,ketone,True
+camphor,CC1(C)C2CCC1(C)C(=O)C2,ketone,,,10,152.237,C10H16O,3,CC12CCC(CC1=O)C2(C)C,C10H16O,C10H16O,True,ketone,ketone,True
+pentanone,CCCC(C)=O,ketone,,,5,86.13399999999999,C5H10O,3,CCCC(C)=O,C5H10O,C5H10O,True,ketone,ketone,True
+hexanone,CCCCC(C)=O,ketone,,,6,100.161,C6H12O,3,CCCCC(C)=O,C6H12O,C6H12O,True,ketone,ketone,True
+octanone,CCCCCCC(C)=O,ketone,,,8,128.215,C8H16O,3,CCCCCCC(C)=O,C8H16O,C₈H₁₆O,True,ketone,ketone,True
+progesterone,CC(=O)C1CCC2C3CCC4=CC(=O)CCC4(C)C3CCC12C,ketone,,,21,314.46900000000005,C21H30O2,3,CC(=O)C1CCC2C3CCC4=CC(=O)CCC4(C)C3CCC12C,C21H30O2,C21H30O2,True,ketone,"alkene,ketone",True
+formaldehyde,C=O,aldehyde,,,1,30.026,CH2O,2,C=O,CH2O,CH₂O,True,aldehyde,aldehyde,True
+acetaldehyde,CC=O,aldehyde,,,2,44.053,C2H4O,3,CC=O,C2H4O,CH₃CHO,True,aldehyde,aldehyde,True
+valeraldehyde,CCCCC=O,aldehyde,,,5,86.13399999999999,C5H10O,3,CCCCC=O,C5H10O,C5H10O,True,aldehyde,aldehyde,True
+hexanal,CCCCCC=O,aldehyde,,,6,100.161,C6H12O,2,CCCCCC=O,C6H12O,C₆H₁₂O,True,aldehyde,aldehyde,True
+heptanal,CCCCCCC=O,aldehyde,,,7,114.188,C7H14O,3,CCCCCCC=O,C7H14O,C₇H₁₄O,True,aldehyde,aldehyde,True
+nonanal,CCCCCCCCC=O,aldehyde,,,9,142.242,C9H18O,2,CCCCCCCCC=O,C9H18O,C9H18O,True,aldehyde,aldehyde,True
+decanal,CCCCCCCCCC=O,aldehyde,,,10,156.269,C10H20O,2,CCCCCCCCCC=O,C10H20O,C10H20O,True,aldehyde,aldehyde,True
+benzaldehyde,O=Cc1ccccc1,aldehyde,,,7,106.12399999999997,C7H6O,3,O=Cc1ccccc1,C7H6O,C6H5CHO,True,aldehyde,"aldehyde,aromatic",True
+vanillin,O=Cc1ccc(O)c(OC)c1,aldehyde,,,8,152.14899999999997,C8H8O3,2,COc1cc(C=O)ccc1O,C8H8O3,C8H8O3,True,aldehyde,"alcohol,aldehyde,aromatic,ether",True
+citral,CC(C)=CCCC(C)=CC=O,aldehyde,,,10,152.237,C10H16O,2,CC(C)=CCCC(C)=CC=O,C10H16O,C10H16O,True,aldehyde,"aldehyde,alkene",True
+glyoxal,O=CC=O,aldehyde,,,2,58.036,C2H2O2,3,O=CC=O,C2H2O2,C2H2O2,True,aldehyde,aldehyde,True
+acrolein,C=CC=O,aldehyde,,,3,56.064,C3H4O,3,C=CC=O,C3H4O,C3H4O,True,aldehyde,"aldehyde,alkene",True
+furfural,O=Cc1ccco1,aldehyde,,,5,96.08499999999998,C5H4O2,3,O=Cc1ccco1,C5H4O2,C5H4O2,True,aldehyde,"aldehyde,aromatic",True
+methyl acetate,COC(C)=O,ester,,,3,74.079,C3H6O2,3,COC(C)=O,C3H6O2,CH₃COOCH₃,True,ester,ester,True
+methyl formate,COC=O,ester,,,2,60.05200000000001,C2H4O2,3,COC=O,C2H4O2,CH₃OCHO,True,ester,ester,True
+vinyl acetate,C=COC(C)=O,ester,,,4,86.08999999999999,C4H6O2,3,C=COC(C)=O,C4H6O2,C4H6O2,True,ester,"alkene,ester",True
+methylamine,CN,amine,,,1,31.058,CH5N,2,CN,CH5N,CH₃NH₂,True,amine,amine,True
+ethylamine,CCN,amine,,,2,45.085,C2H7N,3,CCN,C2H7N,C2H5NH2,True,amine,amine,True
+propylamine,CCCN,amine,,,3,59.11199999999999,C3H9N,3,CCCN,C3H9N,C₃H₉N,True,amine,amine,True
+butylamine,CCCCN,amine,,,4,73.139,C4H11N,3,CCCCN,C4H11N,C4H11N,True,amine,amine,True
+hexylamine,CCCCCCN,amine,,,6,101.193,C6H15N,3,CCCCCCN,C6H15N,C6H15N,True,amine,amine,True
+dimethylamine,CNC,amine,,,2,45.085,C2H7N,3,CNC,C2H7N,(CH₃)₂NH,True,amine,amine,True
+trimethylamine,CN(C)C,amine,,,3,59.112,C3H9N,3,CN(C)C,C3H9N,(CH₃)₃N,True,amine,amine,True
+aniline,Nc1ccccc1,amine,,,6,93.129,C6H7N,2,Nc1ccccc1,C6H7N,C6H5NH2,True,amine,"amine,aromatic",True
+benzylamine,NCc1ccccc1,amine,,,7,107.15599999999996,C7H9N,3,NCc1ccccc1,C7H9N,C6H5CH2NH2,True,amine,"amine,aromatic",True
+piperidine,C1CCNCC1,amine,,,5,85.15,C5H11N,3,C1CCNCC1,C5H11N,C5H11N,True,amine,amine,True
+morpholine,C1COCCN1,amine,,,4,87.122,C4H9NO,2,C1COCCN1,C4H9NO,C4H9NO,True,amine,"amine,ether",True
+cadaverine,NCCCCCN,amine,,,5,102.181,C5H14N2,3,NCCCCCN,C5H14N2,C5H14N2,True,amine,amine,True
+dopamine,NCCc1ccc(O)c(O)c1,amine,,,8,153.18099999999998,C8H11NO2,1,NCCc1ccc(O)c(O)c1,C8H11NO2,C8H11N1O2,True,amine,"alcohol,amine,aromatic",True
+serotonin,NCCc1c[nH]c2ccc(O)cc12,amine,,,10,176.21899999999997,C10H12N2O,1,NCCc1c[nH]c2ccc(O)cc12,C10H12N2O,C10H12N2O,True,amine,"alcohol,amine,aromatic",True
+ethanolamine,NCCO,amine,,,2,61.084,C2H7NO,2,NCCO,C2H7NO,C2H7NO,True,amine,"alcohol,amine",True
+melamine,Nc1nc(N)nc(N)n1,amine,,,3,126.12300000000002,C3H6N6,2,Nc1nc(N)nc(N)n1,C3H6N6,C3H6N6,True,amine,"amine,aromatic",True
+adenine,Nc1ncnc2[nH]cnc12,amine,,,5,135.13,C5H5N5,2,Nc1ncnc2[nH]cnc12,C5H5N5,C5H5N5,True,amine,"amine,aromatic",True
+guanine,Nc1nc2[nH]cnc2c(=O)[nH]1,amine,,,5,151.129,C5H5N5O,2,Nc1nc2[nH]cnc2c(=O)[nH]1,C5H5N5O,C5H5N5O,True,amine,"amine,aromatic",True
+cytosine,Nc1cc[nH]c(=O)n1,amine,,,4,111.104,C4H5N3O,3,Nc1cc[nH]c(=O)n1,C4H5N3O,C4H5N3O,True,amine,"amine,aromatic",True
+creatine,CN(CC(O)=O)C(N)=N,amine,,,4,131.135,C4H9N3O2,2,CN(CC(=O)O)C(=N)N,C4H9N3O2,C4H9N3O2,True,amine,"amine,carboxylic acid",True
+taurine,NCCS(O)(=O)=O,amine,,,2,125.14899999999996,C2H7NO3S,3,NCCS(=O)(=O)O,C2H7NO3S,C2H7NO3S,True,amine,amine,True
+benzene,c1ccccc1,aromatic,,,6,78.11399999999999,C6H6,2,c1ccccc1,C6H6,C6H6,True,aromatic,aromatic,True
+toluene,Cc1ccccc1,aromatic,,,7,92.141,C7H8,3,Cc1ccccc1,C7H8,C₇H₈,True,aromatic,aromatic,True
+xylene,Cc1ccccc1C,aromatic,,,8,106.168,C8H10,2,Cc1ccccc1C,C8H10,C₆H₄(CH₃)₂,True,aromatic,aromatic,True
+styrene,C=Cc1ccccc1,aromatic,,,8,104.15199999999996,C8H8,2,C=Cc1ccccc1,C8H8,C₆H₅CH=CH₂,True,alkene,"alkene,aromatic",True
+anthracene,c1ccc2cc3ccccc3cc2c1,aromatic,,,14,178.23399999999995,C14H10,3,c1ccc2cc3ccccc3cc2c1,C14H10,C14H10,True,aromatic,aromatic,True
+phenanthrene,c1ccc2c(c1)ccc1ccccc12,aromatic,,,14,178.23399999999998,C14H10,3,c1ccc2c(c1)ccc1ccccc12,C14H10,C14H10,True,aromatic,aromatic,True
+phenol,Oc1ccccc1,aromatic,,,6,94.113,C6H6O,2,Oc1ccccc1,C6H6O,C6H5OH,True,aromatic,"alcohol,aromatic",True
+catechol,Oc1ccccc1O,aromatic,,,6,110.11199999999998,C6H6O2,3,Oc1ccccc1O,C6H6O2,C6H4(OH)2,True,aromatic,"alcohol,aromatic",True
+hydroquinone,Oc1ccc(O)cc1,aromatic,,,6,110.11199999999998,C6H6O2,3,Oc1ccc(O)cc1,C6H6O2,C6H4(OH)2,True,aromatic,"alcohol,aromatic",True
+aspirin,CC(=O)Oc1ccccc1C(O)=O,aromatic,,,9,180.159,C9H8O4,2,CC(=O)Oc1ccccc1C(=O)O,C9H8O4,C9H8O4,True,carboxylic acid,"aromatic,carboxylic acid,ester",True
+mesitylene,Cc1cc(C)cc(C)c1,aromatic,,,9,120.19499999999998,C9H12,3,Cc1cc(C)cc(C)c1,C9H12,C₉H₁₂,True,aromatic,aromatic,True
+cumene,CC(C)c1ccccc1,aromatic,,,9,120.19499999999996,C9H12,2,CC(C)c1ccccc1,C9H12,C₆H₅CH(CH₃)₂,True,aromatic,aromatic,True
+biphenyl,c1ccc(-c2ccccc2)cc1,aromatic,,,12,154.21199999999996,C12H10,3,c1ccc(-c2ccccc2)cc1,C12H10,C12H10,True,aromatic,aromatic,True
+indole,c1ccc2[nH]ccc2c1,aromatic,,,8,117.15099999999995,C8H7N,2,c1ccc2[nH]ccc2c1,C8H7N,C8H7N,True,aromatic,aromatic,True
+quinoline,c1ccc2ncccc2c1,aromatic,,,9,129.16199999999998,C9H7N,3,c1ccc2ncccc2c1,C9H7N,C₉H₇N,True,aromatic,"amine,aromatic",True
+pyridine,c1ccncc1,aromatic,,,5,79.10199999999998,C5H5N,3,c1ccncc1,C5H5N,C5H5N,True,amine,"amine,aromatic",True
+furan,c1ccoc1,aromatic,,,4,68.07499999999999,C4H4O,2,c1ccoc1,C4H4O,C4H4O,True,aromatic,aromatic,True
+thiophene,c1ccsc1,aromatic,,,4,84.14299999999999,C4H4S,3,c1ccsc1,C4H4S,C₄H₄S,True,aromatic,aromatic,True
+pyrrole,c1cc[nH]c1,aromatic,,,4,67.091,C4H5N,3,c1cc[nH]c1,C4H5N,C4H5N,True,aromatic,aromatic,True
+imidazole,c1c[nH]cn1,aromatic,,,3,68.079,C3H4N2,3,c1c[nH]cn1,C3H4N2,C3H4N2,True,amine,"amine,aromatic",True
+pyrimidine,c1cncnc1,aromatic,,,4,80.08999999999999,C4H4N2,3,c1cncnc1,C4H4N2,C4H4N2,True,aromatic,"amine,aromatic",True
+pyrazine,c1cnccn1,aromatic,,,4,80.09,C4H4N2,3,c1cnccn1,C4H4N2,C4H4N2,True,aromatic,"amine,aromatic",True
+purine,c1ncc2[nH]cnc2n1,aromatic,,,5,120.115,C5H4N4,2,c1ncc2[nH]cnc2n1,C5H4N4,C5H4N4,True,aromatic,"amine,aromatic",True
+thymol,Cc1ccc(C(C)C)cc1O,aromatic,,,10,150.221,C10H14O,3,Cc1ccc(C(C)C)cc1O,C10H14O,C10H14O,True,aromatic,"alcohol,aromatic",True
+eugenol,C=CCc1ccc(O)c(OC)c1,aromatic,,,10,164.20399999999995,C10H12O2,3,C=CCc1ccc(O)c(OC)c1,C10H12O2,C10H12O2,True,aromatic,"alcohol,alkene,aromatic,ether",True
+niacin,OC(=O)c1cccnc1,aromatic,,,6,123.11099999999998,C6H5NO2,2,O=C(O)c1cccnc1,C6H5NO2,C6H5NO2,True,amine,"amine,aromatic,carboxylic acid",True
+tyrosine,NC(Cc1ccc(O)cc1)C(O)=O,aromatic,,,9,181.191,C9H11NO3,3,NC(Cc1ccc(O)cc1)C(=O)O,C9H11NO3,C9H11NO3,True,aromatic,"alcohol,amine,aromatic,carboxylic acid",True
+histidine,NC(Cc1c[nH]cn1)C(O)=O,aromatic,,,6,155.15699999999998,C6H9N3O2,2,NC(Cc1c[nH]cn1)C(=O)O,C6H9N3O2,C6H9N3O2,True,amine,"amine,aromatic,carboxylic acid",True
+chloroform,ClC(Cl)Cl,halide,,,1,119.378,CHCl3,3,ClC(Cl)Cl,CHCl3,CHCl₃,True,halide,halide,True
+vinyl chloride,C=CCl,halide,,,2,62.499,C2H3Cl,2,C=CCl,C2H3Cl,C2H3Cl,True,alkene,"alkene,halide",True
+allyl chloride,C=CCCl,halide,,,3,76.526,C3H5Cl,3,C=CCCl,C3H5Cl,C3H5Cl,True,halide,"alkene,halide",True
+benzyl chloride,ClCc1ccccc1,halide,,,7,126.58599999999996,C7H7Cl,3,ClCc1ccccc1,C7H7Cl,C6H5CH2Cl,True,halide,"aromatic,halide",True
+methylene chloride,ClCCl,halide,,,1,84.93299999999999,CH2Cl2,3,ClCCl,CH2Cl2,CH2Cl2,True,halide,halide,True
+bromoform,BrC(Br)Br,halide,,,1,252.731,CHBr3,3,BrC(Br)Br,CHBr3,CHBr₃,True,halide,halide,True
+iodoform,IC(I)I,halide,,,1,393.731,CHI3,3,IC(I)I,CHI3,CHI3,True,halide,halide,True
+oxalic acid,OC(=O)C(O)=O,carboxylic_acid,,,2,90.03399999999999,C2H2O4,3,O=C(O)C(=O)O,C2H2O4,C2H2O4,True,carboxylic acid,carboxylic acid,True
+succinic acid,OC(=O)CCC(O)=O,carboxylic_acid,,,4,118.088,C4H6O4,3,O=C(O)CCC(=O)O,C4H6O4,C4H6O4,True,carboxylic acid,carboxylic acid,True
+adipic acid,OC(=O)CCCCC(O)=O,carboxylic_acid,,,6,146.14200000000002,C6H10O4,3,O=C(O)CCCCC(=O)O,C6H10O4,C6H10O4,True,carboxylic acid,carboxylic acid,True
+lactic acid,CC(O)C(O)=O,carboxylic_acid,,,3,90.078,C3H6O3,3,CC(O)C(=O)O,C3H6O3,C3H6O3,True,carboxylic acid,"alcohol,carboxylic acid",True
+citric acid,OC(=O)CC(O)(CC(O)=O)C(O)=O,carboxylic_acid,,,6,192.123,C6H8O7,3,O=C(O)CC(O)(CC(=O)O)C(=O)O,C6H8O7,C6H8O7,True,carboxylic acid,"alcohol,carboxylic acid",True
+malic acid,OC(=O)CC(O)C(O)=O,carboxylic_acid,,,4,134.087,C4H6O5,3,O=C(O)CC(O)C(=O)O,C4H6O5,C4H6O5,True,carboxylic acid,"alcohol,carboxylic acid",True
+acrylic acid,C=CC(O)=O,carboxylic_acid,,,3,72.063,C3H4O2,2,C=CC(=O)O,C3H4O2,C3H4O2,True,carboxylic acid,"alkene,carboxylic acid",True
+oleic acid,CCCCCCCCC=CCCCCCCCC(O)=O,carboxylic_acid,,,18,282.4679999999999,C18H34O2,3,CCCCCCCCC=CCCCCCCCC(=O)O,C18H34O2,C18H34O2,True,carboxylic acid,"alkene,carboxylic acid",True
+carbon dioxide,O=C=O,inorganic,,,1,44.009,CO2,2,O=C=O,CO2,CO2,True,inorganic,inorganic,True
+carbon monoxide,[C-]#[O+],inorganic,,,1,28.01,CO,3,[C-]#[O+],CO,CO,True,inorganic,inorganic,True
+sulfuric acid,OS(=O)(=O)O,inorganic,,,0,98.07899999999998,H2O4S,3,O=S(=O)(O)O,H2O4S,H2SO4,True,inorganic,inorganic,True
+hydrogen peroxide,OO,inorganic,,,0,34.014,H2O2,3,OO,H2O2,H2O2,True,inorganic,inorganic,True
+ozone,[O-][O+]=O,inorganic,,,0,47.997,O3,1,O=[O+][O-],O3,O3,True,inorganic,inorganic,True
+sulfur dioxide,O=S=O,inorganic,,,0,64.065,O2S,2,O=S=O,O2S,SO2,True,inorganic,inorganic,True
+nitrous oxide,[N-]=[N+]=O,inorganic,,,0,44.013,N2O,3,[N-]=[N+]=O,N2O,N2O,True,inorganic,inorganic,True
+hydrogen sulfide,S,inorganic,,,0,34.083,H2S,3,S,H2S,H2S,True,inorganic,inorganic,True
+phosphoric acid,OP(O)(O)=O,inorganic,,,0,97.994,H3O4P,3,O=P(O)(O)O,H3O4P,H3PO4,True,inorganic,inorganic,True
+calcium carbonate,[Ca+2].[O-]C([O-])=O,inorganic,,,1,100.086,CCaO3,2,O=C([O-])[O-].[Ca+2],CCaO3,CaCO3,True,inorganic,inorganic,True
+glucose,OCC1OC(O)C(O)C(O)C1O,other,,,6,180.156,C6H12O6,1,OCC1OC(O)C(O)C(O)C1O,C6H12O6,C6H12O6,True,alcohol,"alcohol,ether",True
+caffeine,Cn1cnc2c1c(=O)n(C)c(=O)n2C,other,,,8,194.194,C8H10N4O2,1,Cn1c(=O)c2c(ncn2C)n(C)c1=O,C8H10N4O2,C8H10N4O2,True,amine,"amine,aromatic",True
+nicotine,CN1CCCC1c1cccnc1,other,,,10,162.236,C10H14N2,1,CN1CCCC1c1cccnc1,C10H14N2,C10H14N2,True,amine,"amine,aromatic",True
+urea,NC(N)=O,other,,,1,60.056,CH4N2O,2,NC(N)=O,CH4N2O,CO(NH2)2,True,amide,amide,True
+dioxane,C1COCCO1,other,,,4,88.106,C4H8O2,3,C1COCCO1,C4H8O2,C₄H₈O₂,True,ether,ether,True
+diethyl ether,CCOCC,other,,,4,74.123,C4H10O,3,CCOCC,C4H10O,C2H5OC2H5,True,ether,ether,True
+formamide,NC=O,other,,,1,45.041,CH3NO,2,NC=O,CH3NO,CH₃NO,True,amide,amide,True
+glycine,NCC(O)=O,other,,,2,75.067,C2H5NO2,2,NCC(=O)O,C2H5NO2,C2H5NO2,True,amine,"amine,carboxylic acid",True
+alanine,CC(N)C(O)=O,other,,,3,89.09399999999998,C3H7NO2,2,CC(N)C(=O)O,C3H7NO2,C₃H₇NO₂,True,amine,"amine,carboxylic acid",True
+propylene oxide,CC1CO1,other,,,3,58.08,C3H6O,3,CC1CO1,C3H6O,C₃H₆O,True,ether,ether,True
+adrenaline,CNCC(O)c1ccc(O)c(O)c1,other,,,9,183.207,C9H13NO3,1,CNCC(O)c1ccc(O)c(O)c1,C9H13NO3,C9H13NO3,True,amine,"alcohol,amine,aromatic",True
+valine,CC(C)C(N)C(O)=O,other,,,5,117.14799999999998,C5H11NO2,2,CC(C)C(N)C(=O)O,C5H11NO2,C5H11NO2,True,amine,"amine,carboxylic acid",True
+proline,OC(=O)C1CCCN1,other,,,5,115.13200000000002,C5H9NO2,2,O=C(O)C1CCCN1,C5H9NO2,C5H9NO2,True,amine,"amine,carboxylic acid",True
+threonine,CC(O)C(N)C(O)=O,other,,,4,119.12,C4H9NO3,3,CC(O)C(N)C(=O)O,C4H9NO3,C4H9NO3,True,amine,"alcohol,amine,carboxylic acid",True
+methionine,CSCCC(N)C(O)=O,other,,,5,149.215,C5H11NO2S,3,CSCCC(N)C(=O)O,C5H11NO2S,C5H11NO2S,True,amine,"amine,carboxylic acid",True
+lysine,NCCCCC(N)C(O)=O,other,,,6,146.19,C6H14N2O2,2,NCCCCC(N)C(=O)O,C6H14N2O2,C6H14N2O2,True,amine,"amine,carboxylic acid",True
+arginine,NC(=N)NCCCC(N)C(O)=O,other,,,6,174.204,C6H14N4O2,2,N=C(N)NCCCC(N)C(=O)O,C6H14N4O2,C6H14N4O2,True,amine,"amine,carboxylic acid",True
+glutamic acid,OC(=O)CCC(N)C(O)=O,other,,,5,147.13000000000002,C5H9NO4,3,NC(CCC(=O)O)C(=O)O,C5H9NO4,C₅H₉NO₄,True,carboxylic acid,"amine,carboxylic acid",True
+fructose,OCC(O)C(O)C(O)C(=O)CO,other,,,6,180.156,C6H12O6,2,O=C(CO)C(O)C(O)C(O)CO,C6H12O6,C6H12O6,True,ketone,"alcohol,ketone",True
+isoprene,CC(=C)C=C,alkene,,,5,68.11900000000001,C5H8,3,C=CC(=C)C,C5H8,C5H8,True,alkene,alkene,True
+butadiene,C=CC=C,alkene,,,4,54.09199999999999,C4H6,3,C=CC=C,C4H6,C4H6,True,alkene,alkene,True
+acetylene,C#C,alkene,,,2,26.038,C2H2,3,C#C,C2H2,C2H2,True,alkyne,alkyne,True
+propyne,C#CC,alkene,,,3,40.065,C3H4,2,C#CC,C3H4,C₃H₄,True,alkyne,alkyne,True
+limonene,CC(=C)C1CCC(C)=CC1,alkene,,,10,136.238,C10H16,3,C=C(C)C1CC=C(C)CC1,C10H16,C10H16,True,alkene,alkene,True
+pinene,CC1=CCC2CC1C2(C)C,alkene,,,10,136.238,C10H16,2,CC1=CCC2CC1C2(C)C,C10H16,C₁₀H₁₆,True,alkene,alkene,True

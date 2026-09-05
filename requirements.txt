@@ -1,0 +1,15 @@
+# Pinned loosely: the box already carries torch 2.11.0+cu130 / transformers 5.12.1
+# system-wide; this venv installs its own so the run is reproducible.
+torch>=2.11
+transformers>=5.12
+accelerate
+safetensors
+numpy
+scipy
+scikit-learn
+pandas
+pyarrow
+matplotlib
+rdkit
+scikit-dimension
+pytest
