@@ -557,11 +557,14 @@ Nor is it a subset-size artifact. Against **200 size-matched random groupings**
 (same group sizes, random membership, uncensored): mean 0.342, sd 0.041 — exactly
 the overall value. The observed 0.556 is **z = 5.3**.
 
-The grouping variable is chemistry, not orthography: final token is largely a
-proxy for functional class, and grouping by class directly gives 0.439. The real
-content is that **the representation tracks Tanimoto substantially better inside a
-functional-class block than it does globally** — a positive finding about local
-geometry, not evidence about the global number.
+**An earlier draft claimed the grouping variable is "chemistry, not orthography".
+That is refuted by its own numbers and is reversed in §12g.** Grouping by
+functional class gives 0.439 against final token's 0.556 — if chemistry were the
+operative variable the chemical partition should do at least as well as its
+orthographic proxy, and it does worse. Put on one scale by giving each partition
+its own size-matched null, final token is **z = 9.5** and functional class
+**z = 4.2**. The orthographic partition is the stronger one. See §12g, where the
+confound is measured directly rather than by proxy.
 
 **What the control does and does not license.** It clears what it was built for:
 if recovered structure were read-position identity, a fixed final token would show
@@ -571,9 +574,10 @@ headline and must never be quoted as one.
 
 One tempting alternative explanation is measured and wrong, recorded so it is not
 re-proposed: the groups are *not* dominated by homologous series (26% membership),
-and within-group Tanimoto does *not* reduce to carbon-count difference (rho with
-|ΔC| is 0.29 in `Ġacid`, 0.20 in `ene`, 0.22 in `ane`, and negative in `ine` and
-`amine`).
+and within-group Tanimoto does *not* reduce to carbon-count difference: the
+Spearman against absolute carbon-count difference is 0.29 in `Ġacid`, 0.20 in
+`ene`, 0.22 in `ane`, and negative in `ine` and `amine` (re-derived with
+p-values; `ane`, `one`, `amine` and `ol` are not significant at 0.05).
 
 **The Level 1 ceiling therefore remains 0.345 with Procrustes disparity 0.83.**
 
@@ -682,31 +686,36 @@ Level 1 across all 32 layers at `d ∈ {16, 32, 64, 128, 217, raw 4096}`:
 | 217 | 24 | 0.350 | 0.320 | 0.079 | 18 |
 | raw 4096 | 24 | 0.350 | 0.320 | 0.079 | 18 |
 
-**Peak-to-plateau range is the wrong statistic** and an earlier draft leaned on
-it. Max−min over all 32 layers is contaminated by the low early layers: a
-monotone rise-then-flat profile produces a large range with no peak at all, so
-d=32's range of 0.151 (4.4× the k-sweep sd) reads as structure only if you do not
-know the shape. The statistic that answers the question is the one already in
-use — **layers within one k-sweep sd (0.034) of the maximum**, computed at each
-`d`:
+**Two statistics here were wrong and are replaced.**
 
-| d | own sd (layers ≥4) | layers within one sd of max | argmax |
-|---|---|---|---|
-| 16 | 0.0331 | 15/32 | 28 |
-| 32 | 0.0455 | 13/32 | 5 |
-| **64** | 0.0230 | **20/32** | 9 |
-| 128 | 0.0162 | **19/32** | 23 |
-| 217 | 0.0176 | **18/32** | 24 |
-| raw 4096 | 0.0176 | **18/32** | 24 |
+Peak-to-plateau range (max−min over 32 layers) is contaminated by the low early
+layers: a monotone rise-then-flat profile produces a large range with no peak.
+Worse, the "own sd" column in an earlier version of this table was
+`std(RSA across layers)` at a single `k` — that is the structure under test, not
+noise — while the "flat layers" column counted against a *fixed* yardstick
+borrowed from d=64. The two columns were unconnected and the header was wrong,
+which made the dismissal of d=16/32 as "noisier, not sharper" unsupported.
 
-**At every d ≥ 64 the plateau is 18–20 of 32 layers, and no peak emerges at any
-`d`.** The two low dimensions show fewer flat layers, but their own scatter is
-2–3× larger (own sd 0.033–0.046 against 0.016–0.023), so the fixed yardstick is
-unfair to them — the profile there is noisier, not sharper. RSA magnitude
-saturates near 0.35 by d=64. So PCA-64 mildly
-*exaggerates* structure relative to the full space rather than manufacturing the
-plateau. The §3g finding stands. The argmax wandering across 5/9/23/24/28 with
-`d` is further evidence it is not identified.
+Recomputed with the **full k sweep at every `d`**, so each dimension gets a real
+measurement-noise estimate (mean across-k sd), plus a scale-free prominence
+statistic — how far the best layer stands above a median layer, in that
+dimension's own noise units:
+
+| d | k-sweep sd | max | layer 28 | flat/32 (own sd) | **prominence z** | argmax |
+|---|---|---|---|---|---|---|
+| 16 | 0.0323 | 0.267 | 0.266 | 18 | **0.50** | 7 |
+| 32 | 0.0407 | 0.324 | 0.299 | 16 | **0.86** | 7 |
+| **64** | 0.0336 | 0.345 | 0.322 | 19 | **0.57** | 8 |
+| 128 | 0.0230 | 0.350 | 0.328 | 14 | **1.00** | 23 |
+| 217 | 0.0268 | 0.345 | 0.321 | 19 | **0.84** | 24 |
+| raw 4096 | 0.0268 | 0.345 | 0.321 | 19 | **0.84** | 24 |
+
+**At every `d` the best layer stands 0.50–1.00 noise units above a median layer.**
+A sharp peak would stand many. The low dimensions need no dismissal: 0.50 and
+0.86 sit inside the same range as d=128's 1.00 and d=217's 0.84. Flat-counts
+alone are not comparable across `d` because the band width is the noise estimate
+(d=128 looks least flat only because its k-sd is smallest), which is why
+prominence is the statistic quoted.
 
 (`d=217` and raw 4096 agree to three decimals, as they must: with N=218 points a
 217-component PCA is a lossless rotation. A free check that the projection path
@@ -793,8 +802,13 @@ So, fixed now.
 
 `r = 0` means the unsupervised manifold matches the supervised reference exactly;
 `r = 1` means it is no better than linear steering. **Success is `r < 0.5`**,
-which is §3f's criterion restated. Report `r` with a standard error over centroid
-pairs (bootstrap over pairs, 1,000 resamples), per series, per layer.
+which is §3f's criterion restated.
+
+**Bootstrap unit: compounds, not pairs.** Centroid pairs share compounds, so a
+pair-level resample treats dependent observations as independent and understates
+SE badly — which would make `2·SE_pooled` a threshold crossed by construction.
+Resample the ten series members with replacement (1,000 draws), recompute all
+three `E_BC` values and `r` within each draw, per series, per layer.
 
 **Thresholds, both pre-declared:**
 
@@ -808,9 +822,114 @@ pairs (bootstrap over pairs, 1,000 resamples), per series, per layer.
 If neither trigger fires, layers 8 and 28 agree and the Level 3 result is
 reported as layer-robust — which is what §12a's plateau predicts should happen.
 
-`E_BC_linear − E_BC_sup` appearing in a denominator has one failure mode worth
-naming in advance: if linear and supervised steering are indistinguishable, `r`
-is undefined and the comparison is vacuous. If that denominator is not
-significantly greater than zero (bootstrap CI excluding 0), we report exactly
-that — the task does not discriminate the strategies — rather than dividing by
-noise.
+**The degenerate case, and it must fire on the bootstrap.** `r` is a ratio of
+differences, so its bootstrap distribution goes heavy-tailed as
+`E_BC_linear − E_BC_sup` approaches zero — the same failure the clause below
+anticipates, but visible in the resamples before it is visible in the point
+estimate. So we report **the fraction of bootstrap draws with
+`E_BC_linear − E_BC_sup ≤ 0`**, and if that fraction **exceeds α = 0.05** we
+declare the comparison degenerate — the task does not discriminate the
+strategies — and report the three raw `E_BC` values without forming `r` at all.
+Report the bootstrap **median and 2.5/97.5 percentiles** of `r` rather than
+mean ± SE, since a heavy-tailed ratio has no useful mean.
+
+
+### 12g. Orthography is a first-class confound, and at most layers it dominates
+
+**This reverses a claim made in an earlier draft of §11c-bis.** The
+within-final-token control was read as showing the grouping variable is
+"chemistry, not orthography". Its own numbers say the opposite, and the direct
+measurement confirms it.
+
+**Why the proxy comparison was uninterpretable.** Final token gives ρ = 0.556 and
+functional class ρ = 0.439; the partitions differ in granularity, group count,
+size distribution and within-group Tanimoto range, and range restriction moves ρ
+by itself. Putting both on one scale via their *own* size-matched nulls:
+
+| partition | ρ (uncensored) | null | **z** | groups |
+|---|---|---|---|---|
+| final token | 0.556 | 0.343 ± 0.022 | **9.5** | 9 |
+| functional class | 0.439 | 0.343 ± 0.023 | **4.2** | 12 |
+
+The orthographic partition is more than twice as far above its null.
+
+**The direct test.** Take the Spearman partial correlation of recovered geodesics
+against name-string distance (1 − difflib ratio) controlling for Tanimoto, and
+vice versa. Tanimoto and name-string distance are nearly independent (ρ = 0.144),
+so the partials are interpretable. At layer 8:
+
+| | ρ |
+|---|---|
+| geodesic ~ Tanimoto (raw) | 0.332 |
+| geodesic ~ name-string (raw) | 0.271 |
+| **geodesic ~ Tanimoto \| name-string** | **0.307** |
+| **geodesic ~ name-string \| Tanimoto** | **0.240** |
+
+Chemistry survives controlling for orthography, so the *strong* confound — "the
+recovered geometry is just name similarity" — is false. But orthography carries a
+substantial **independent** contribution of comparable magnitude, which the
+within-group control could never have bounded.
+
+**Across depth it is worse, and this is the important part.** Orthography exceeds
+chemistry at **28 of 32 layers**; the only exceptions are **layers 5–8**.
+
+| layer | geo~Tanimoto \| name | geo~name \| Tanimoto |
+|---|---|---|
+| 0 | 0.032 | 0.346 |
+| 4 | 0.305 | 0.307 |
+| **5** | **0.352** | 0.310 |
+| **8** | **0.307** | 0.240 |
+| 14 | 0.137 | 0.439 |
+| 20 | 0.228 | 0.376 |
+| 28 | 0.266 | 0.331 |
+
+Layer 0 behaves exactly as it must — raw orthography 0.353 against raw chemistry
+0.080, since that is essentially the token embedding — which is a sanity check
+that the measure detects what it claims to.
+
+**Three consequences.**
+
+1. **The §3g plateau is partly an artifact of the confound.** Raw Level-1 RSA is
+   flat from layer 5 to 30, but the *chemical* component is not: it rises from
+   0.032 at layer 0 to a peak of 0.352 at layer 5, drops sharply to 0.08–0.14 at
+   layers 14–15, and recovers only to 0.24–0.27 late. Over the plateau range the
+   flat raw curve is a falling chemical term plus a rising orthographic one. The
+   14–15 dip is not smooth decline and is not explained here; it coincides with
+   the dip already visible in raw RSA (§3g profile), so it is a feature of the
+   representation at those layers rather than of the partialling.
+2. **§3g's verdict shifts toward Singh & Chopra.** Their rise-peak-attenuate
+   pattern *does* appear in chemistry once name-string similarity is partialled
+   out; it is invisible in the raw RSA that §12b was computed on. Wurgaft's
+   "layer 28 is late enough" looks worse under this measure, not better: at
+   layer 28 orthography (0.331) exceeds chemistry (0.266).
+3. **It independently vindicates layer 8 as primary (§12a).** The RSA tie-break
+   chose 8 from a flat profile where the choice barely mattered. The
+   decontaminated measure has a genuine peak in the 5–8 window, and layer 28 is
+   outside it. Two different criteria now agree, which is a much stronger footing
+   than the plateau alone gave.
+
+**Level 2 is insulated from all of this**, and this is now load-bearing rather
+than decorative. §11c argued the acid series is an orthographic control because
+its trivial names carry no lexical ordering. Measured, that is true of **every**
+series — the Spearman between name-string distance and absolute
+carbon-count difference is ~0 throughout — while Level 2 recovery is 0.87–0.98:
+
+| series | rho(name distance, abs carbon-count difference) | Level 2 abs-rho |
+|---|---|---|
+| alkane | −0.011 | 0.867 |
+| alcohol | −0.011 | 0.976 |
+| acid | −0.085 | 0.905 |
+| alkene | −0.057 | 0.933 |
+
+`meth/eth/prop/but/pent` are lexically unrelated strings, so ordinal recovery
+within a series **cannot** be string similarity. The orthographic-control framing
+of §11c was too narrow: it is not only the acids, it is the whole of Level 2.
+
+**Limitations of this measurement.** Name-string distance via difflib is a crude
+proxy for whatever the tokenizer and early layers actually encode; a partial
+correlation removes only the component linear in ranks; and both are single
+summary numbers over a 218-compound set. The direction and size of the effect are
+robust across layers, but "orthography contributes ≈ 0.24 at layer 8" should be
+read as an order of magnitude, not a coefficient. This belongs in the writeup's
+limitations per §10, and prominently: it is the largest threat to the Stage A
+instrument claim found so far.

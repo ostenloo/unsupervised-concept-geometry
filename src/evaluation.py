@@ -384,3 +384,71 @@ def within_group_rsa_null(D_recovered: np.ndarray, D_truth: np.ndarray,
     v = np.asarray(vals, dtype=float)
     return {"null_mean": float(np.nanmean(v)), "null_sd": float(np.nanstd(v)),
             "null_p95": float(np.nanpercentile(v, 95)), "n_draws": n_draws}
+
+
+# --- orthography vs chemistry (SPEC §12g) ----------------------------------
+
+def name_distance_matrix(names) -> np.ndarray:
+    """1 - difflib similarity ratio between compound name strings."""
+    import difflib
+    n = len(names)
+    D = np.zeros((n, n), dtype=np.float32)
+    for i in range(n):
+        for j in range(i + 1, n):
+            D[i, j] = D[j, i] = 1.0 - difflib.SequenceMatcher(None, names[i], names[j]).ratio()
+    return D
+
+
+def partial_spearman(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> float:
+    """Spearman partial correlation of x and y controlling for z."""
+    rxy = spearmanr(x, y).statistic
+    rxz = spearmanr(x, z).statistic
+    ryz = spearmanr(y, z).statistic
+    denom = np.sqrt((1 - rxz ** 2) * (1 - ryz ** 2))
+    return float((rxy - rxz * ryz) / denom) if denom > 0 else float("nan")
+
+
+def orthography_vs_chemistry(D_recovered, D_truth, names, final_tokens=None) -> dict:
+    """Does the recovered geometry track name strings independently of chemistry?
+
+    This is the DIRECT form of the confound that `within_group_rsa` only tests
+    indirectly. That control shows structure survives inside a fixed read
+    position, which rules out the strong claim "recovered structure IS token
+    identity" -- but it cannot bound how much orthography contributes overall,
+    and on this data the contribution is substantial (SPEC §12g).
+
+    Returns raw and partial Spearman correlations both ways round.
+    """
+    Dn = name_distance_matrix(names)
+    iu = np.triu_indices_from(D_truth, k=1)
+    g, t, nm = D_recovered[iu], D_truth[iu], Dn[iu]
+    out = {
+        "rho_geo_truth": float(spearmanr(g, t).statistic),
+        "rho_geo_name": float(spearmanr(g, nm).statistic),
+        "rho_truth_name": float(spearmanr(t, nm).statistic),
+        "partial_geo_name_given_truth": partial_spearman(g, nm, t),
+        "partial_geo_truth_given_name": partial_spearman(g, t, nm),
+    }
+    if final_tokens is not None:
+        ft = np.asarray(final_tokens)
+        tk = (ft[:, None] != ft[None, :]).astype(np.float32)[iu]
+        out["rho_geo_difftoken"] = float(spearmanr(g, tk).statistic)
+        out["partial_geo_difftoken_given_truth"] = partial_spearman(g, tk, t)
+        out["partial_geo_truth_given_difftoken"] = partial_spearman(g, t, tk)
+    return out
+
+
+def series_name_ordering(names, n_carbons) -> float:
+    """Does a series' NAMES encode its ordering lexically?
+
+    Spearman between name-string distance and |carbon-count difference|. Near
+    zero means the names carry no ordinal information, so a Level 2 recovery on
+    that series cannot be string similarity. Measured at ~0 for all four series
+    (SPEC §12g), which is what insulates Level 2 from the Level 1 orthography
+    finding.
+    """
+    Dn = name_distance_matrix(list(names))
+    nc = np.asarray(n_carbons, dtype=float)
+    dc = np.abs(nc[:, None] - nc[None, :])
+    j = np.triu_indices(len(nc), 1)
+    return float(spearmanr(Dn[j], dc[j]).statistic)

@@ -176,6 +176,46 @@ def figure_pca_dim_sweep():
     print("wrote F2c")
 
 
+
+
+def figure_orthography():
+    """§12g: the chemical component of Level 1, with name similarity partialled out."""
+    d = pd.read_csv(config.RESULTS / "orthography_profile.csv").sort_values("layer")
+    fig, ax = plt.subplots(1, 2, figsize=(9.2, 3.3))
+    a = ax[0]
+    a.plot(d.layer, d.rho_geo_truth, "o-", ms=2.6, color="C0", label="chemistry (raw)")
+    a.plot(d.layer, d.rho_geo_name, "s-", ms=2.4, color="C3", label="orthography (raw)")
+    a.plot(d.layer, d.partial_geo_truth_given_name, "o--", ms=2.6, color="C0", alpha=.55,
+           label="chemistry | orthography")
+    a.plot(d.layer, d.partial_geo_name_given_truth, "s--", ms=2.4, color="C3", alpha=.55,
+           label="orthography | chemistry")
+    win = d[d.partial_geo_truth_given_name > d.partial_geo_name_given_truth]
+    if len(win):
+        a.axvspan(win.layer.min() - .5, win.layer.max() + .5, color="C0", alpha=.10)
+        a.annotate("chemistry > orthography\nonly here", (win.layer.mean(), .46),
+                   ha="center", fontsize=6.5, color="C0")
+    a.axvline(28, color="0.4", ls="-.", lw=.9)
+    a.annotate("28", (28, .02), fontsize=7, color="0.3")
+    a.set_xlabel("layer"); a.set_ylabel("Spearman vs recovered geodesics")
+    a.set_title("F8  name-string similarity is a first-class confound\n"
+                "it exceeds chemistry at 28 of 32 layers (§12g)", fontsize=8)
+    a.legend(fontsize=6.2, loc="upper right"); a.set_ylim(0, .52)
+
+    b = ax[1]
+    m = d.partial_geo_truth_given_name - d.partial_geo_name_given_truth
+    b.axhline(0, color="0.6", lw=.8)
+    b.fill_between(d.layer, 0, m, where=(m > 0), color="C0", alpha=.35, lw=0)
+    b.fill_between(d.layer, 0, m, where=(m <= 0), color="C3", alpha=.30, lw=0)
+    b.plot(d.layer, m, "-", color="0.25", lw=1.2)
+    b.set_xlabel("layer"); b.set_ylabel("chemistry minus orthography (partial)")
+    b.set_title("over the plateau (L5-30): a falling chemical term\n"
+                "plus a rising orthographic one", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(config.FIGURES / "F8_orthography.png", bbox_inches="tight")
+    print("wrote F8")
+
+
 if __name__ == "__main__":
     main()
     figure_pca_dim_sweep()
+    figure_orthography()

@@ -24,7 +24,7 @@ import torch
 import config
 from src import chemistry as C, geometry as G, evaluation as E
 
-K = 12
+K_SWEEP = (8, 12, 16, 24)   # full sweep: each d needs its OWN noise estimate
 
 
 def main():
@@ -43,34 +43,39 @@ def main():
                 Xp, _ = G.pca_project(X, n_components=dim)
             ids = G.intrinsic_dimension(Xp)
             d_hat = G.d_hat_from(ids, "id_mle")
-            _, D_geo, info = G.isomap_embed(Xp, n_components=d_hat, k=K)
-            r = E.rsa_censored(D_geo, Dt)
-            rows.append(dict(pca_dim=(dim if dim else 4096), raw=(dim is None),
-                             layer=layer, d_hat=d_hat, id_mle=ids["id_mle"],
-                             rsa_uncensored=r["rsa_uncensored"],
-                             rsa_all=r["rsa_all"],
-                             connected=info["graph_connected"]))
+            for k in K_SWEEP:
+                _, D_geo, info = G.isomap_embed(Xp, n_components=d_hat, k=k)
+                r = E.rsa_censored(D_geo, Dt)
+                rows.append(dict(pca_dim=(dim if dim else 4096), raw=(dim is None),
+                                 layer=layer, k=k, d_hat=d_hat, id_mle=ids["id_mle"],
+                                 rsa_uncensored=r["rsa_uncensored"],
+                                 rsa_all=r["rsa_all"],
+                                 connected=info["graph_connected"]))
         print(f"  dim={dim if dim else 'raw':>4}: done")
 
     out = pd.DataFrame(rows)
     out.to_parquet(config.RESULTS / "pca_dim_sweep.parquet", index=False)
 
-    print("\nuncensored RSA by layer and projection dimension")
+    print("\nuncensored RSA by layer and projection dimension (mean over k)")
     piv = out.pivot_table(index="layer", columns="pca_dim", values="rsa_uncensored")
     print(piv.loc[[0, 2, 4, 6, 8, 10, 13, 15, 20, 24, 28, 31]].round(3).to_string())
 
-    print("\nprofile shape per projection dimension:")
-    print(f"{'dim':>6} {'argmax':>7} {'max':>7} {'L28':>7} {'min(4-31)':>10} "
-          f"{'peak-to-plateau':>16} {'flat layers':>12}")
+    # Each d gets its OWN noise yardstick: the across-k spread at that d, which is
+    # a genuine measurement-noise estimate. An earlier version used the spread of
+    # the profile ACROSS LAYERS -- that is the structure under test, not noise --
+    # and counted "flat" layers against a fixed yardstick borrowed from d=64.
+    # The two were unconnected and the table was mislabelled.
+    print("\nprofile shape, each d against its OWN k-sweep noise:")
+    print(f"{'dim':>6} {'k-sd':>7} {'mean rsa':>9} {'max':>7} {'L28':>7} "
+          f"{'flat/32':>8} {'flat>=L4/28':>12} {'argmax':>7}")
     for dim, g in out.groupby("pca_dim"):
-        g = g.sort_values("layer")
-        mx = g.rsa_uncensored.max(); am = int(g.loc[g.rsa_uncensored.idxmax(), "layer"])
-        l28 = float(g.loc[g.layer == 28, "rsa_uncensored"].iloc[0])
-        tail = g[g.layer >= 4].rsa_uncensored
-        # "flat layers" uses the same yardstick as the main profile: the k-sweep sd.
-        flat = int((tail >= mx - 0.0336).sum())
-        print(f"{dim:>6} {am:>7} {mx:>7.3f} {l28:>7.3f} {tail.min():>10.3f} "
-              f"{mx - tail.min():>16.3f} {flat:>12}")
+        prof = g.groupby("layer").rsa_uncensored.mean()
+        ksd = float(g.groupby("layer").rsa_uncensored.std().mean())
+        flat = int((prof >= prof.max() - ksd).sum())
+        tail = prof.loc[4:]
+        flat4 = int((tail >= tail.max() - ksd).sum())
+        print(f"{dim:>6} {ksd:>7.4f} {prof.mean():>9.3f} {prof.max():>7.3f} "
+              f"{prof.loc[28]:>7.3f} {flat:>8} {flat4:>12} {int(prof.idxmax()):>7}")
 
     print("\nID by projection dimension (mean over layers 4-31):")
     print(out[out.layer >= 4].groupby("pca_dim")[["id_mle", "d_hat"]].mean().round(2).to_string())
