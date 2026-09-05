@@ -21,7 +21,22 @@ import config
 from src import chemistry as C
 from data.compound_source import candidate_pool, SERIES_FORMULA
 
-MAX_TOKENS = 3  # SPEC §3b gate 2
+# SPEC §3b gate 2, refined -- see SPEC §11c.
+#
+# The spec's rationale is explicit: "the last-token activation of a fragmented
+# name measures the fragment". Family 1 reads the LAST token of the name, so the
+# quantity that matters is how the name's final word tokenizes, not the whole
+# string. For every two-word "X acid" name that final token is `Ġacid` -- a
+# complete word, never a fragment -- so a flat <=3-token budget rejects
+# butyric/caproic/enanthic/pelargonic acid for stem fragmentation that the read
+# position never sees. That budget costs 4/10 of the acid series.
+#
+# So: gate the final word at <=2 tokens, with a total cap to exclude names that
+# are shredded overall. Single-word names are unaffected (final word == name, so
+# the <=3 budget still binds through MAX_TOKENS).
+MAX_TOKENS = 3          # single-word names, unchanged
+MAX_TOKENS_TOTAL = 5    # multi-word names: overall cap
+MAX_TOKENS_FINAL = 2    # multi-word names: the read position itself
 
 
 def main():
@@ -70,10 +85,22 @@ def main():
     # the Family-1 template, and it tokenizes differently from the bare string.
     n_tokens = [len(tok.encode(" " + n, add_special_tokens=False)) for n in df["name"]]
     df["n_tokens"] = n_tokens
-    keep = df["n_tokens"] <= MAX_TOKENS
+    df["n_tokens_final"] = [len(tok.encode(" " + n.split()[-1], add_special_tokens=False))
+                            for n in df["name"]]
+    df["multiword"] = [len(n.split()) > 1 for n in df["name"]]
+    keep = ((~df.multiword) & (df.n_tokens <= MAX_TOKENS)) | (
+        df.multiword & (df.n_tokens <= MAX_TOKENS_TOTAL)
+        & (df.n_tokens_final <= MAX_TOKENS_FINAL))
     log["gate2_removed"] = int((~keep).sum())
-    print(f"\ngate 2 (tokenizer <= {MAX_TOKENS} tokens): "
-          f"removed {int((~keep).sum())} -> {int(keep.sum())}")
+    print(f"\ngate 2 (single-word <= {MAX_TOKENS} tok; multi-word <= {MAX_TOKENS_TOTAL} tok "
+          f"with final word <= {MAX_TOKENS_FINAL}): removed {int((~keep).sum())} -> {int(keep.sum())}")
+    admitted = df[keep & df.multiword & (df.n_tokens > MAX_TOKENS)]
+    if len(admitted):
+        print(f"\n  multi-word names admitted by the refinement ({len(admitted)}) -- "
+              f"read position is the final token, shown last:")
+        for _, r in admitted.sort_values("name").iterrows():
+            print(f"    {r['name']:22s} {r.n_tokens} tok  {tok.tokenize(' ' + r['name'])}")
+        print()
     for _, r in df[~keep].sort_values("n_tokens", ascending=False).iterrows():
         pieces = tok.tokenize(" " + r["name"])
         print(f"    DROP {r['name']:24s} {r.n_tokens:2d} tok  {pieces}")

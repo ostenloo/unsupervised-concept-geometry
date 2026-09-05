@@ -1,7 +1,7 @@
 {
-  "n_in": 205,
-  "n_out": 167,
-  "formula_pass_rate": 0.8975609756097561,
-  "class_pass_rate": 0.9073170731707317,
-  "both_pass_rate": 0.8146341463414634
+  "n_in": 312,
+  "n_out": 218,
+  "formula_pass_rate": 0.7756410256410257,
+  "class_pass_rate": 0.9102564102564102,
+  "both_pass_rate": 0.6987179487179487
 }

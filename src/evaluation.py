@@ -195,3 +195,153 @@ def cyclic_score(Y: np.ndarray) -> float:
     ang = np.sort(np.arctan2(Z[:, 1], Z[:, 0]))
     gaps = np.diff(np.concatenate([ang, ang[:1] + 2 * np.pi]))
     return float(gaps.max() / (2 * np.pi / len(ang)))
+
+
+# --- censored pairs (SPEC §11b) --------------------------------------------
+
+def rsa_censored(D_recovered: np.ndarray, D_truth: np.ndarray,
+                 censor_at: float = 1.0) -> dict:
+    """Level 1 split into an uncensored rank correlation and a censoring test.
+
+    ~36% of compound pairs sit at Tanimoto distance exactly 1.0: they share no
+    substructure at all, so the value says only "unrelated" and carries no
+    information about *how* unrelated. Those are censored observations, not tied
+    ones, and handing them to a Spearman as ties is a modeling error rather than
+    an inconvenience. So:
+
+      1. `rsa_uncensored` -- Spearman on pairs with D_truth < censor_at, which is
+         the only subset where the ground truth actually orders anything;
+      2. a two-sample test asking whether the recovered distance is larger for
+         censored than uncensored pairs, which is the whole of what the censored
+         pairs can tell us.
+
+    `rsa_all` is reported alongside for continuity with the pre-registered §3f,
+    not because it is the better number.
+
+    Isomap is largely insulated from the censoring -- geodesics are built from
+    short edges and long distances are inferred -- so this bites Level 1 RSA far
+    harder than it bites the embedding. Run it for the PCA baseline too, or the
+    comparison is not like-for-like.
+    """
+    from scipy.stats import mannwhitneyu
+
+    assert_geometry_dtype = __import__("src.geometry", fromlist=["x"]).assert_geometry_dtype
+    assert_geometry_dtype(D_recovered, "rsa_censored/recovered")
+    assert_geometry_dtype(D_truth, "rsa_censored/truth")
+
+    a, b = _upper(D_recovered), _upper(D_truth)
+    finite = np.isfinite(a) & np.isfinite(b)
+    a, b = a[finite], b[finite]
+    censored = b >= censor_at - 1e-6
+    n_unc = int((~censored).sum())
+
+    out = {
+        "rsa_all": rsa(D_recovered, D_truth),
+        "n_pairs": int(a.size),
+        "n_censored": int(censored.sum()),
+        "frac_censored": float(censored.mean()) if a.size else float("nan"),
+        "n_uncensored": n_unc,
+    }
+    out["rsa_uncensored"] = (
+        float(spearmanr(a[~censored], b[~censored]).statistic) if n_unc >= 3 else float("nan")
+    )
+    if censored.any() and n_unc >= 3:
+        u = mannwhitneyu(a[censored], a[~censored], alternative="greater")
+        out["censored_farther_u"] = float(u.statistic)
+        out["censored_farther_p"] = float(u.pvalue)
+        # Rank-biserial: 0 = no separation, 1 = every censored pair is farther.
+        out["censored_farther_effect"] = float(
+            2 * u.statistic / (censored.sum() * n_unc) - 1
+        )
+        out["median_recovered_censored"] = float(np.median(a[censored]))
+        out["median_recovered_uncensored"] = float(np.median(a[~censored]))
+    return out
+
+
+# --- ID as a curve (SPEC §11d, figure F7) ----------------------------------
+
+def id_curve(X: np.ndarray, k_values=(10, 20), subsample_fracs=(0.25, 0.5, 0.75, 1.0),
+             n_repeats: int = 5, seed: int = None) -> "object":
+    """ID against neighbourhood size k and against sample size.
+
+    ID is a statement about structure above the local noise scale at a given
+    sampling density, so the scale dependence is the result -- a single scalar
+    hides exactly the artifact a reader will ask about. Returns a tidy DataFrame
+    (rows: frac x repeat x k) for figure F7.
+    """
+    import pandas as pd
+    from src.geometry import levina_bickel_mle, participation_ratio
+
+    rng = np.random.default_rng(config.SEED if seed is None else seed)
+    n = X.shape[0]
+    rows = []
+    for frac in subsample_fracs:
+        m = max(8, int(round(frac * n)))
+        reps = 1 if m >= n else n_repeats
+        for rep in range(reps):
+            idx = np.arange(n) if m >= n else rng.choice(n, size=m, replace=False)
+            Xs = np.ascontiguousarray(X[idx])
+            for k in k_values:
+                rows.append(dict(frac=frac, n=m, repeat=rep, k=k,
+                                 id_mle=levina_bickel_mle(Xs, k=k),
+                                 id_pr=participation_ratio(Xs)))
+    return pd.DataFrame(rows)
+
+
+def id_vs_noise(intrinsic: int = 2, ambient: int = 64, n: int = 300,
+                noise_ratios=(0.0, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0),
+                seed: int = None) -> "object":
+    """ID against noise-to-spacing ratio on a synthetic manifold of known dimension.
+
+    The calibration panel of F7: it shows where the estimator stops reporting the
+    manifold and starts reporting the noise ball, which is what sets how much to
+    trust any ID measured on real activations.
+    """
+    import pandas as pd
+    from src.geometry import levina_bickel_mle
+
+    rows = []
+    for r in noise_ratios:
+        if intrinsic == 1:
+            X, _ = synthetic_circle(n=n, ambient=ambient, noise=r, seed=seed)
+        else:
+            side = int(round(np.sqrt(n)))
+            X, _ = synthetic_grid(side=side, ambient=ambient, noise=r, seed=seed)
+        rows.append(dict(noise_ratio=r, n=X.shape[0], true_id=intrinsic,
+                         id_mle_k10=levina_bickel_mle(X, k=10),
+                         id_mle_k20=levina_bickel_mle(X, k=20)))
+    return pd.DataFrame(rows)
+
+
+# --- final-token confound control ------------------------------------------
+
+def within_group_rsa(D_recovered: np.ndarray, D_truth: np.ndarray,
+                     group: np.ndarray, min_size: int = 6) -> dict:
+    """RSA computed only within groups of points sharing a read position.
+
+    Family 1 reads the LAST token of the compound name, and the gated set has
+    only ~70 distinct final tokens over ~220 compounds -- `Ġacid` alone covers
+    15%. So a reader can reasonably ask whether recovered structure is final-token
+    identity rather than chemistry. Restricting to pairs that share a final token
+    holds that variable fixed: structure surviving inside the `Ġacid` block cannot
+    be explained by the block label.
+
+    Returns the pooled within-group Spearman and the per-group breakdown.
+    """
+    group = np.asarray(group)
+    per, all_a, all_b = {}, [], []
+    for g in np.unique(group):
+        idx = np.flatnonzero(group == g)
+        if idx.size < min_size:
+            continue
+        sub_r = np.ascontiguousarray(D_recovered[np.ix_(idx, idx)])
+        sub_t = np.ascontiguousarray(D_truth[np.ix_(idx, idx)])
+        per[str(g)] = {"n": int(idx.size), "rsa": rsa(sub_r, sub_t)}
+        all_a.append(_upper(sub_r))
+        all_b.append(_upper(sub_t))
+    if not all_a:
+        return {"rsa_within_pooled": float("nan"), "groups": {}}
+    a, b = np.concatenate(all_a), np.concatenate(all_b)
+    ok = np.isfinite(a) & np.isfinite(b)
+    return {"rsa_within_pooled": float(spearmanr(a[ok], b[ok]).statistic),
+            "n_pairs": int(ok.sum()), "n_groups": len(per), "groups": per}

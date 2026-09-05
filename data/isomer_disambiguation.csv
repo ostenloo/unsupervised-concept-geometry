@@ -1,0 +1,16 @@
+name,series,n_probes,n_agree,unanimous
+propanol,alcohol,3,3,True
+butanol,alcohol,3,3,True
+pentanol,alcohol,3,3,True
+hexanol,alcohol,3,3,True
+heptanol,alcohol,3,3,True
+octanol,alcohol,3,3,True
+nonanol,alcohol,3,2,False
+decanol,alcohol,3,3,True
+butene,alkene,3,1,False
+pentene,alkene,3,2,False
+hexene,alkene,3,2,False
+heptene,alkene,3,3,True
+octene,alkene,3,2,False
+nonene,alkene,3,2,False
+decene,alkene,3,3,True

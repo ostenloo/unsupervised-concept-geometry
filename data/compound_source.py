@@ -296,6 +296,98 @@ for _cls, _members in _ADDITIONS.items():
     _CLASSES.setdefault(_cls, []).extend(_members)
 
 
+# --- 2c. targeted expansion toward the §3b 250-400 target -------------------
+# Curated tokenizer-first: candidate NAMES were filtered through gate 2 before
+# any SMILES was written, because the funnel showed gate 2 (not gate 3) is the
+# binding constraint -- generating candidates and watching a third die is wasted
+# curation. Expansion stays inside organic space; no inorganics were added,
+# since those only deepen the censored-pair problem of §11b.
+# Excluded despite passing gate 2: polymers (cellulose acetate), ambiguous
+# isomers (xylenol, glyceryl acetate), stereoisomer-only duplicates of compounds
+# already present (mannitol/dulcitol/threitol vs sorbitol, maleic vs fumaric),
+# and bicyclic terpenes whose SMILES I could not write with confidence
+# (fenchone, verbenone, damascone, abietic acid, cubane, azulene).
+
+_EXPANSION = {
+"ester": [
+    ("methyl propionate", "CCC(=O)OC"), ("methyl valerate", "CCCCC(=O)OC"),
+    ("ethyl valerate", "CCCCC(=O)OCC"), ("vinyl acetate", "C=COC(C)=O"),
+    ("allyl acetate", "C=CCOC(C)=O"), ("butyl formate", "CCCCOC=O"),
+    ("propyl formate", "CCCOC=O"), ("ethyl lactate", "CC(O)C(=O)OCC"),
+    ("methyl lactate", "CC(O)C(=O)OC"),
+    ("methyl oleate", "CCCCCCCCC=CCCCCCCCC(=O)OC"),
+    ("ethyl oleate", "CCCCCCCCC=CCCCCCCCC(=O)OCC"),
+],
+"alkane": [
+    ("adamantane", "C1C2CC3CC1CC(C2)C3"), ("norbornane", "C1CC2CCC1C2"),
+    ("decalin", "C1CCC2CCCCC2C1"),
+],
+"aldehyde": [
+    ("undecanal", "CCCCCCCCCCC=O"), ("tolualdehyde", "Cc1ccc(C=O)cc1"),
+    ("piperonal", "O=Cc1ccc2OCOc2c1"),
+],
+"ketone": [
+    ("methyl vinyl ketone", "C=CC(C)=O"),
+    ("dibenzyl ketone", "O=C(Cc1ccccc1)Cc1ccccc1"),
+    ("tropinone", "CN1C2CCC1CC(=O)C2"), ("pulegone", "CC1CCC(=C(C)C)C(=O)C1"),
+],
+"aromatic": [
+    ("anisole", "COc1ccccc1"), ("veratrole", "COc1ccccc1OC"),
+    ("phenetole", "CCOc1ccccc1"), ("stilbene", "c1ccc(/C=C/c2ccccc2)cc1"),
+    ("fluorene", "c1ccc2c(c1)Cc1ccccc1-2"),
+    ("pyrene", "c1cc2ccc3cccc4ccc(c1)c2c34"), ("indene", "C1C=Cc2ccccc21"),
+    ("tetralin", "c1ccc2c(c1)CCCC2"), ("benzofuran", "c1ccc2occc2c1"),
+    ("carbazole", "c1ccc2c(c1)[nH]c1ccccc12"),
+    ("acridine", "c1ccc2nc3ccccc3cc2c1"), ("xanthene", "C1c2ccccc2Oc2ccccc21"),
+    ("coumarin", "O=c1ccc2ccccc2o1"), ("chromone", "O=c1ccoc2ccccc12"),
+    ("flavone", "O=c1cc(-c2ccccc2)oc2ccccc12"),
+    ("isatin", "O=C1Nc2ccccc2C1=O"), ("oxindole", "O=C1Cc2ccccc2N1"),
+    ("indoline", "C1Cc2ccccc2N1"), ("styrene oxide", "C1OC1c1ccccc1"),
+    ("benzamide", "NC(=O)c1ccccc1"),
+],
+"carboxylic_acid": [
+    ("mandelic acid", "OC(c1ccccc1)C(O)=O"),
+    ("benzilic acid", "OC(c1ccccc1)(c1ccccc1)C(O)=O"),
+    ("cinnamic acid", "OC(=O)/C=C/c1ccccc1"),
+    ("phthalic acid", "OC(=O)c1ccccc1C(O)=O"),
+    ("isophthalic acid", "OC(=O)c1cccc(C(O)=O)c1"),
+    ("gallic acid", "OC(=O)c1cc(O)c(O)c(O)c1"),
+    ("caffeic acid", "OC(=O)/C=C/c1ccc(O)c(O)c1"),
+    ("ferulic acid", "COc1cc(/C=C/C(O)=O)ccc1O"),
+    ("sinapic acid", "COc1cc(/C=C/C(O)=O)cc(OC)c1O"),
+    ("itaconic acid", "OC(=O)CC(=C)C(O)=O"), ("sorbic acid", "CC=CC=CC(O)=O"),
+    ("levulinic acid", "CC(=O)CCC(O)=O"),
+    ("azelaic acid", "OC(=O)CCCCCCCC(O)=O"),
+    ("sebacic acid", "OC(=O)CCCCCCCCC(O)=O"),
+    ("pimelic acid", "OC(=O)CCCCCC(O)=O"), ("suberic acid", "OC(=O)CCCCCCC(O)=O"),
+    ("linoleic acid", "CCCCCC=CCC=CCCCCCCCC(O)=O"),
+    ("linolenic acid", "CCC=CCC=CCC=CCCCCCCCC(O)=O"),
+    ("behenic acid", "CCCCCCCCCCCCCCCCCCCCCC(O)=O"),
+    ("erucic acid", "CCCCCCCCC=CCCCCCCCCCCCC(O)=O"),
+    ("orotic acid", "OC(=O)c1cc(=O)[nH]c(=O)[nH]1"),
+    ("kojic acid", "OCC1=CC(=O)C(O)=CO1"),
+],
+"amine": [
+    ("piperazine", "C1CNCCN1"), ("azepane", "C1CCCNCC1"), ("azetidine", "C1CNC1"),
+    ("aziridine", "C1CN1"), ("guanidine", "NC(N)=N"), ("tropane", "CN1C2CCC1CCC2"),
+    ("acetamide", "CC(N)=O"), ("propionamide", "CCC(N)=O"),
+    ("thiourea", "NC(N)=S"), ("barbituric acid", "O=C1CC(=O)NC(=O)N1"),
+    ("uric acid", "O=C1NC2=C(N1)C(=O)NC(=O)N2"),
+],
+"alcohol": [
+    ("undecanol", "CCCCCCCCCCCO"), ("erythritol", "OCC(O)C(O)CO"),
+    ("inositol", "OC1C(O)C(O)C(O)C(O)C1O"),
+],
+"other": [
+    ("dimethyl sulfide", "CSC"), ("diethyl sulfide", "CCSCC"),
+    ("sulfolane", "O=S1(=O)CCCC1"),
+],
+}
+
+for _cls, _members in _EXPANSION.items():
+    _CLASSES.setdefault(_cls, []).extend(_members)
+
+
 def candidate_pool():
     """All candidates as (name, smiles, cls, series, series_index), deduped by name."""
     rows = list(_series_rows())

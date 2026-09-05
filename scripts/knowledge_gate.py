@@ -117,11 +117,72 @@ def main():
         c_ok = picked is not None and picked in acceptable
 
         rows.append(dict(name=r["name"], formula_truth=r.formula, formula_got=got_f,
+                         formula_raw=f_out[i].strip().replace("\n", " ")[:60],
+                         class_raw=c_out[i].strip().replace("\n", " ")[:30],
                          formula_ok=f_ok, class_picked=picked,
                          class_acceptable=",".join(sorted(acceptable)), class_ok=c_ok,
                          passed=bool(f_ok and c_ok)))
 
     res = pd.DataFrame(rows)
+
+    # --- gate 3b: isomer disambiguation (SPEC §11c) -------------------------
+    # Bare series names are ambiguous: "butanol" does not distinguish 1- from
+    # 2-butanol, "butene" does not distinguish 1- from 2-butene. We assign the
+    # straight-chain primary/terminal SMILES. Neither gate-3 question can catch a
+    # misassignment -- isomers share a molecular formula AND a functional-group
+    # class -- so ask a third question of the ambiguous names only. This does not
+    # gate; it tests whether our SMILES assignment matches the model's reading.
+    # Probe the DENOTATION, not the classification, and use more than one
+    # phrasing. "Is butanol primary or secondary?" is worthless here: forced to
+    # one word the model calls decanol tertiary, open-ended it says primary --
+    # that measures format compliance. Multiple probes are required because a
+    # single one misleads: asking for alkenes' "IUPAC name" returns but-2-ene
+    # while "systematic name" returns but-1-ene, from the same model.
+    amb_alc = df[(df.series == "alcohol") & (df.series_index >= 3)]
+    amb_alk = df[(df.series == "alkene") & (df.series_index >= 4)]
+    PROBES = {
+        "alcohol": [("What is the IUPAC name of {n}? Reply with the name only.",
+                     lambda t: "1-ol" in t.lower() or "1-" in t.lower()),
+                    ("Give the systematic name of {n}. Name only.",
+                     lambda t: "1-ol" in t.lower() or "1-" in t.lower()),
+                    ("Is the hydroxyl group in {n} on a terminal carbon? Reply yes or no.",
+                     lambda t: t.strip().lower().startswith("yes"))],
+        "alkene":  [("What is the IUPAC name of {n}? Reply with the name only.",
+                     lambda t: "1-ene" in t.lower()),
+                    ("Give the systematic name of {n}. Name only.",
+                     lambda t: "1-ene" in t.lower()),
+                    ("Is the double bond in {n} at a terminal position? Reply yes or no.",
+                     lambda t: t.strip().lower().startswith("yes"))],
+    }
+    dis_rows = []
+    for series, members in (("alcohol", amb_alc), ("alkene", amb_alk)):
+        if not len(members):
+            continue
+        names = list(members["name"])
+        agree = {n: [] for n in names}
+        for tmpl, test in PROBES[series]:
+            outs = M.generate_greedy(L, [M.chat(L, tmpl.format(n=n)) for n in names],
+                                     max_new_tokens=16)
+            for n, o in zip(names, outs):
+                agree[n].append(bool(test(o.strip().splitlines()[0] if o.strip() else "")))
+        for n in names:
+            v = agree[n]
+            dis_rows.append(dict(name=n, series=series, n_probes=len(v),
+                                 n_agree=sum(v), unanimous=all(v)))
+
+    if dis_rows:
+        dd = pd.DataFrame(dis_rows)
+        dd.to_csv(config.DATA / "isomer_disambiguation.csv", index=False)
+        print("\n--- gate 3b: isomer denotation across 3 probes (validates our SMILES) ---")
+        for series, grp in dd.groupby("series"):
+            frac = grp.n_agree.sum() / (grp.n_probes.sum())
+            print(f"    {series:8s} {int(grp.unanimous.sum())}/{len(grp)} names unanimous; "
+                  f"probe agreement {frac:.0%}")
+            for _, r in grp.iterrows():
+                print(f"        {r['name']:12s} {r.n_agree}/{r.n_probes}")
+        print("    Our SMILES assigns the straight-chain primary/terminal isomer. A name "
+              "well below 3/3 has no stable denotation for this model (SPEC §11c).")
+
     df2 = df.join(res.drop(columns="name"))
 
     n = len(res)

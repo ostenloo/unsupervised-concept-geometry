@@ -423,6 +423,8 @@ bits, on the gated compound set:
 | distinct distance values (N=167) | 294 | 531 | **567** |
 | pairs at distance exactly 1.0 | 35.9% | 28.2% | 35.9% |
 
+(N=167 at the time of measurement; the compound set has since grown to 218.)
+
 Every interior carbon of a straight chain has the same radius-2 environment, so
 past ~7 carbons the *set* of environments stops growing and the bit vector stops
 changing. The alkane homologous series is this spec's own continuous-manifold arm
@@ -469,26 +471,71 @@ long distances are inferred — so the censoring bites Level 1 RSA considerably
 harder than it bites the embedding. Report the uncensored-subset RSA for the PCA
 baseline too, or the comparison is not like-for-like.
 
-### 11c. Compound naming (amends §3b)
+### 11c. Compound naming and the gate-2 read position (amends §3b)
 
-The IUPAC `1-` locant is catastrophic under this tokenizer (`1-propanol` → 5
-tokens with the leading space). The ≤3-token gate deleted 8/10 alcohols and 7/9
-alkenes — i.e. **both Level 3 steering series**. Bare names (`propanol`, `butene`)
+**Bare names.** The IUPAC `1-` locant is catastrophic under this tokenizer
+(`1-propanol` → 5 tokens). The flat ≤3-token gate deleted 8/10 alcohols and 7/9
+alkenes — **both Level 3 steering series**. Bare names (`propanol`, `butene`)
 cost ≤3 and recover 10/10 and 9/9.
 
-Cost: bare `butanol` does not distinguish 1- from 2-. We assign the
-straight-chain primary/terminal SMILES. Gate 3 cannot catch a misassignment
-(isomers share a molecular formula and a functional-group class), so a **fourth
-question** is asked of the ambiguous names only — primary vs. secondary — which
-does discriminate them. Level 2 is unaffected either way: every isomer of a given
-member has the same carbon count.
+**Gate 2 gates the read position, not the string.** The spec's own rationale is
+"the last-token activation of a fragmented name measures the fragment". Family 1
+reads the *last* token of the name, and for every two-word `X acid` name that
+token is `Ġacid` — a complete word, never a fragment. A flat budget rejected
+butyric/caproic/enanthic/pelargonic acid for stem fragmentation the read position
+never sees, costing 4/10 of the acid series. Gate 2 is therefore:
+
+| | budget |
+|---|---|
+| single-word names | ≤3 tokens (unchanged) |
+| multi-word names | ≤5 tokens total **and** final word ≤2 tokens |
+
+This admits 29 multi-word names, all with clean final tokens (`Ġacid`, `ate`,
+`Ġoxide`, `Ġalcohol`), completes the acid series at **10/10**, and refills the
+ester class. It rejects `carbon tetrachloride`, `acetic anhydride` and
+`dimethyl phthalate`, whose final words are themselves shredded.
 
 **The acid series is an orthographic control, not a compromise.** Its names
-(formic, acetic, propionic, valeric, caprylic, capric) carry no lexical ordering
-whatsoever, while the fingerprints do. The standing objection to Stage A is that
-recovered structure is string similarity; a series where the two are decoupled by
-construction is the cleanest available answer to it, and should be presented that
-way rather than apologised for as inconsistent naming.
+(formic, acetic, propionic, butyric, valeric, caproic, enanthic, caprylic,
+pelargonic, capric) carry no lexical ordering whatsoever, while the fingerprints
+do. The standing objection to Stage A is that recovered structure is string
+similarity; a complete 10-member series where the two are decoupled by
+construction is the cleanest available answer, and is presented that way rather
+than apologised for as inconsistent naming.
+
+**Isomer denotation, measured (gate 3b).** Bare names are isomerically ambiguous
+and gate 3 cannot catch a misassignment — isomers share a molecular formula *and*
+a functional-group class. So denotation is probed directly, with **three
+phrasings**, because one misleads:
+
+- Asking "is butanol primary, secondary or tertiary?" is worthless. Forced to one
+  word the model calls decanol **tertiary**; open-ended it says "it is a primary
+  alcohol". That question measures format compliance, not knowledge.
+- Asking for the *name* the bare term denotes is the right probe, but still needs
+  replication: "IUPAC name of butene" returns **but-2-ene** while "systematic name
+  of butene" returns **but-1-ene**, from the same model.
+
+| series | result | consequence |
+|---|---|---|
+| **alcohol** | 96% probe agreement, 7/8 names unanimous; "is the hydroxyl on a terminal carbon?" is **8/8 Yes** | our straight-chain primary SMILES is **validated**; the Level 3 steering series is sound |
+| **alkene** | 71% agreement, 2/7 unanimous; four phrasings give but-2-ene, but-1-ene, position "2", and `C=C=C=C` | **no stable denotation.** We keep the 1-isomer (conventional and self-consistent) and flag every alkene `D_truth` entry as carrying isomer uncertainty. Level 2 is unaffected: carbon count is unambiguous under every probe. Alkenes are **not** promoted to a Level 3 series. |
+
+Incidentally the model's free-text SMILES were chemically nonsense throughout
+(`C=C=C=C` for butene, `C=CCC=C` for pentene), which retrospectively vindicates
+§3b gate 1's instruction not to source SMILES from the LLM.
+
+### 11c-bis. The final-token confound (new control)
+
+Family 1 reads the last token of the name, and the gated set has only ~70
+distinct final tokens over ~220 compounds — `Ġacid` alone covers 15%, and only 47
+compounds have a final token unique to them. A reader can reasonably ask whether
+recovered structure is *final-token identity* rather than chemistry.
+
+Control: `evaluation.within_group_rsa` recomputes Level 1 restricted to pairs
+sharing a final token. Structure surviving inside the 30-plus-member `Ġacid`
+block cannot be explained by the block label. Reported alongside Level 1; the
+shuffle null does **not** cover this, because permuting compound↔activation
+destroys token structure and chemical structure together.
 
 ### 11d. Intrinsic dimension is a curve, not a scalar (amends §3e step 1)
 
