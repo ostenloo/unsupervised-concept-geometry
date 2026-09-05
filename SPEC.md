@@ -1167,8 +1167,11 @@ generic instruction-prompt structure, not refusal structure. Reported both ways;
 the branch assignment below rests on the bank comparison, and a reader who
 prefers the literal criterion should read branch two instead.
 
-**Tangent alignment.** The first intrinsic coordinate correlates 0.91–0.95 with
-the difference-in-means direction. Per-tangent cosines along the binned principal
+**Tangent alignment.** *(Partly withdrawn — see §15d: the tangent statistic
+clears a random-direction null, so alignment with `v_ref` stands, but it does NOT
+distinguish this structure from a known-curved path, so it is not evidence of
+straightness. Straightness rests on geodesic/chord.)* The first intrinsic
+coordinate correlates 0.91–0.95 with the difference-in-means direction. Per-tangent cosines along the binned principal
 curve are noisy (0.00–0.87, mean 0.27–0.37) because bin-to-bin displacement in a
 5-dimensional cloud is dominated by the ~4 off-axis directions; the scalar
 coordinate alignment is the more meaningful number and is reported as primary.
@@ -1217,12 +1220,25 @@ account for that.
 
 ### 14d. The Stage B fork, resolved
 
+**Lead with the number a reviewer will remember (§15c).** XSTest safe and contrast
+prompts are equally similar in surface form — mean pairwise distance 0.685
+between the sets against 0.682 *within* the safe set — and differ maximally in
+harmfulness (8% versus 92% refusal). An unsupervised coordinate recovered from
+activations alone, with no labels and no behaviour, **separates them at AUC =
+0.995**. Surface form cannot produce that.
+
 **Branch one: straight, effectively one-dimensional.** The structure is straight
-(geodesic/chord 1.02), its dominant axis aligns with a difference-in-means
-refusal direction (0.946), that axis tracks refusal behaviour (0.871, and 0.836
-net of length), and it survives the surface-similarity control that Stage A
-failed. Intrinsic dimension is ~5 but is not elevated above a general-instruction
-bank, so the extra dimensions are not refusal-specific.
+(geodesic/chord 1.02); **intrinsic dimension is ~5 but is not elevated against a
+matched general-instruction bank (5.21 against 5.89)**, so the extra dimensions
+are generic prompt structure rather than refusal structure. Its dominant axis
+aligns with a difference-in-means refusal direction (0.946), that axis tracks
+refusal behaviour (0.871, and 0.836 net of length), and it survives the
+surface-similarity control that Stage A failed.
+
+Both halves of the dimension result belong in the same sentence, per §15c: stating
+the literal criterion first and the bank comparison afterwards makes the bank read
+as a walk-back, when it is the controlled measurement and the literal comparison
+against 1 is the uncontrolled one.
 
 **This is convergent validation of Arditi et al. by a method that assumed nothing
 about refusal** — the spec's pre-registered "clean negative that maps where the
