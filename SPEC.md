@@ -834,85 +834,93 @@ Report the bootstrap **median and 2.5/97.5 percentiles** of `r` rather than
 mean ± SE, since a heavy-tailed ratio has no useful mean.
 
 
-### 12g. Orthography is a first-class confound, and at most layers it dominates
+### 12g. Orthography is a first-class confound (revised: pair set corrected)
 
-**This reverses a claim made in an earlier draft of §11c-bis.** The
-within-final-token control was read as showing the grouping variable is
-"chemistry, not orthography". Its own numbers say the opposite, and the direct
-measurement confirms it.
+**This reverses a claim in an earlier draft of §11c-bis** — that the grouping
+variable is "chemistry, not orthography" — and then **withdraws two consequences
+this section itself drew**, which were computed on the wrong pair set.
 
-**Why the proxy comparison was uninterpretable.** Final token gives ρ = 0.556 and
-functional class ρ = 0.439; the partitions differ in granularity, group count,
-size distribution and within-group Tanimoto range, and range restriction moves ρ
-by itself. Putting both on one scale via their *own* size-matched nulls:
+**The proxy comparison was uninterpretable.** Final token gives ρ = 0.556 and
+functional class 0.439; the partitions differ in granularity, group count, size
+distribution and within-group Tanimoto range, and range restriction moves ρ by
+itself. Each partition against its *own* size-matched null:
 
 | partition | ρ (uncensored) | null | **z** | groups |
 |---|---|---|---|---|
 | final token | 0.556 | 0.343 ± 0.022 | **9.5** | 9 |
 | functional class | 0.439 | 0.343 ± 0.023 | **4.2** | 12 |
 
-The orthographic partition is more than twice as far above its null.
+The orthographic partition is more than twice as far above its null, which is the
+opposite of what the withdrawn claim asserted.
 
-**The direct test.** Take the Spearman partial correlation of recovered geodesics
-against name-string distance (1 − difflib ratio) controlling for Tanimoto, and
-vice versa. Tanimoto and name-string distance are nearly independent (ρ = 0.144),
-so the partials are interpretable. At layer 8:
+#### The pair set, and a reconciliation check
 
-| | ρ |
-|---|---|
-| geodesic ~ Tanimoto (raw) | 0.332 |
-| geodesic ~ name-string (raw) | 0.271 |
-| **geodesic ~ Tanimoto \| name-string** | **0.307** |
-| **geodesic ~ name-string \| Tanimoto** | **0.240** |
+A first version of this section computed the partials over **all** pairs while the
+headline Level 1 number is **uncensored-only**. That is not a detail:
+ρ(Tanimoto, name-string) is **0.144 over all pairs but 0.190 uncensored**, because
+censored pairs are the zero-overlap ones and are also more name-dissimilar. Every
+number below is on the uncensored set.
 
-Chemistry survives controlling for orthography, so the *strong* confound — "the
-recovered geometry is just name similarity" — is false. But orthography carries a
-substantial **independent** contribution of comparable magnitude, which the
-within-group control could never have bounded.
+The partial formula reproduces exactly from the three zero-order correlations at
+every layer (`(r_gT − r_gN·r_TN) / sqrt((1−r_gN²)(1−r_TN²))`, checked to three
+decimals, 32/32 layers), so the arithmetic closes. The apparent puzzle — a
+"plateau" layer dropping to 0.08 under a ρ=0.144 correction — was not a partialling
+artifact: the **all-pairs** raw correlation at layers 14–15 was genuinely low
+(0.186, 0.138). The §3g plateau was established on the *uncensored* series, where
+those layers read 0.275 and 0.251. Two different quantities were being compared.
 
-**Across depth it is worse, and this is the important part.** Orthography exceeds
-chemistry at **28 of 32 layers**; the only exceptions are **layers 5–8**.
+#### What survives: the confound itself, and it is larger than first reported
 
-| layer | geo~Tanimoto \| name | geo~name \| Tanimoto |
+| layer | geo~Tanimoto (raw) | geo~name (raw) | chem \| orth | orth \| chem |
+|---|---|---|---|---|
+| 0 | 0.139 | 0.389 | 0.073 | 0.373 |
+| 5 | 0.333 | 0.328 | 0.292 | 0.286 |
+| **8** | 0.345 | 0.339 | **0.304** | 0.297 |
+| 15 | 0.251 | 0.527 | 0.182 | 0.505 |
+| 24 | 0.328 | 0.430 | 0.278 | 0.397 |
+| 28 | 0.322 | 0.427 | 0.271 | 0.394 |
+
+**Orthography exceeds chemistry at 30 of 32 layers** (uncensored; the first draft
+said 28/32 on the wrong pair set). Only layers 5 and 8 are exceptions, and there
+the two are effectively tied (0.292 vs 0.286; 0.304 vs 0.297). Chemistry does
+survive controlling for orthography, so the strong confound — "the recovered
+geometry is just name similarity" — is false. But name-string similarity is a
+contributor of comparable or greater magnitude at essentially every depth, and
+`within_group_rsa` could never have bounded it. Layer 0 reads raw orthography
+0.389 against raw chemistry 0.139, as a token embedding must, which is a sanity
+check that the measure detects what it claims.
+
+#### Withdrawn: the depth-structure consequences
+
+Two claims made here on the all-pairs computation do **not** survive scoring on
+the correct pair set by the same criterion §12b used:
+
+| profile | prominence z | verdict |
 |---|---|---|
-| 0 | 0.032 | 0.346 |
-| 4 | 0.305 | 0.307 |
-| **5** | **0.352** | 0.310 |
-| **8** | **0.307** | 0.240 |
-| 14 | 0.137 | 0.439 |
-| 20 | 0.228 | 0.376 |
-| 28 | 0.266 | 0.331 |
+| raw uncensored RSA (§12b, d=64) | 0.57 | no peak |
+| **partial chemistry \| orthography, uncensored** | **0.77** | **no peak** |
+| partial chemistry, all pairs (wrong set) | 2.16 | would have been a peak |
 
-Layer 0 behaves exactly as it must — raw orthography 0.353 against raw chemistry
-0.080, since that is essentially the token embedding — which is a sanity check
-that the measure detects what it claims to.
+- **Withdrawn: "the verdict shifts toward Singh & Chopra."** Their
+  rise-peak-attenuate pattern does *not* appear once the partial is computed on
+  the headline pair set. The decontaminated profile is a plateau by the same
+  noise-unit statistic that rejected a peak in the raw one.
+- **Withdrawn: "this independently vindicates layer 8."** The partial profile has
+  no peak to vindicate it with. Layer 8 is still the argmax (0.304) but layer 28
+  is 0.271, a gap of 0.033 against a k-sweep sd of 0.0367. **The §12a tie-break
+  stands on its own**, which is the correct and unglamorous outcome.
+- **Corrected wording.** The earlier text described "a falling chemical term plus
+  a rising orthographic one", which treats partials as additive components of the
+  raw curve. They are not: the raw RSA is a mixture and the partial is chemistry's
+  share of it. Both the raw and the partial profiles are plateaus; the plateau is
+  **not** an artifact of the confound.
 
-**Three consequences.**
+#### Level 2 and Level 3 are insulated, for one reason
 
-1. **The §3g plateau is partly an artifact of the confound.** Raw Level-1 RSA is
-   flat from layer 5 to 30, but the *chemical* component is not: it rises from
-   0.032 at layer 0 to a peak of 0.352 at layer 5, drops sharply to 0.08–0.14 at
-   layers 14–15, and recovers only to 0.24–0.27 late. Over the plateau range the
-   flat raw curve is a falling chemical term plus a rising orthographic one. The
-   14–15 dip is not smooth decline and is not explained here; it coincides with
-   the dip already visible in raw RSA (§3g profile), so it is a feature of the
-   representation at those layers rather than of the partialling.
-2. **§3g's verdict shifts toward Singh & Chopra.** Their rise-peak-attenuate
-   pattern *does* appear in chemistry once name-string similarity is partialled
-   out; it is invisible in the raw RSA that §12b was computed on. Wurgaft's
-   "layer 28 is late enough" looks worse under this measure, not better: at
-   layer 28 orthography (0.331) exceeds chemistry (0.266).
-3. **It independently vindicates layer 8 as primary (§12a).** The RSA tie-break
-   chose 8 from a flat profile where the choice barely mattered. The
-   decontaminated measure has a genuine peak in the 5–8 window, and layer 28 is
-   outside it. Two different criteria now agree, which is a much stronger footing
-   than the plateau alone gave.
-
-**Level 2 is insulated from all of this**, and this is now load-bearing rather
-than decorative. §11c argued the acid series is an orthographic control because
-its trivial names carry no lexical ordering. Measured, that is true of **every**
-series — the Spearman between name-string distance and absolute
-carbon-count difference is ~0 throughout — while Level 2 recovery is 0.87–0.98:
+Not because Level 3 is causal — a causal intervention can run along an
+orthographic direction as easily as a chemical one. Both levels are insulated
+because **their target variable is carbon count within a homologous series, and
+name-string distance carries no information about it**:
 
 | series | rho(name distance, abs carbon-count difference) | Level 2 abs-rho |
 |---|---|---|
@@ -921,15 +929,51 @@ carbon-count difference is ~0 throughout — while Level 2 recovery is 0.87–0.
 | acid | −0.085 | 0.905 |
 | alkene | −0.057 | 0.933 |
 
-`meth/eth/prop/but/pent` are lexically unrelated strings, so ordinal recovery
-within a series **cannot** be string similarity. The orthographic-control framing
-of §11c was too narrow: it is not only the acids, it is the whole of Level 2.
+`meth/eth/prop/but/pent` are lexically unrelated, so ordinal recovery within a
+series cannot be string similarity.
 
-**Limitations of this measurement.** Name-string distance via difflib is a crude
-proxy for whatever the tokenizer and early layers actually encode; a partial
-correlation removes only the component linear in ranks; and both are single
-summary numbers over a 218-compound set. The direction and size of the effect are
-robust across layers, but "orthography contributes ≈ 0.24 at layer 8" should be
-read as an order of magnitude, not a coefficient. This belongs in the writeup's
-limitations per §10, and prominently: it is the largest threat to the Stage A
-instrument claim found so far.
+**Stated precisely:** this rules out *string similarity*, not lexical knowledge in
+general. The model may well hold the series as a memorised ordered list. For Stage
+A that is not a problem — the pipeline only requires the ground truth to be
+present in the activations, not to have been derived chemically — but Level 2 must
+therefore be described as recovering an **ordinal** structure, not a "chemical"
+one.
+
+#### Limitations
+
+difflib ratio is a crude proxy for what the tokenizer and early layers encode; a
+partial correlation removes only the component linear in ranks; these are summary
+numbers over 218 compounds. The direction and size are stable across layers and
+across the k grid, but "orthography ≈ 0.30 at layer 8" is an order of magnitude,
+not a coefficient. This belongs prominently in the writeup's limitations per §10:
+it is the largest threat to the Stage A instrument claim found so far, and it
+lands on the headline Level 1 number rather than on a side control.
+
+### 12h. Stage B inherits this, pre-registered now (amends §4d)
+
+The refusal analog of name-string similarity is **prompt surface similarity**. If
+refusal geometry tracks how the prompts are worded, the curvature and
+intrinsic-dimension claims of §4d inherit exactly the problem §12g found in Stage
+A — and finding that out after the fact a second time is not acceptable.
+
+Added to the §3j/§4d null battery as a **mandatory nuisance-variable control**,
+fixed before Stage B activations are examined:
+
+1. Build `D_surface` over the ~600 prompts: normalised character edit distance
+   and token-level Jaccard over n-grams (report both).
+2. Report the raw Spearman of recovered geodesics against `D_surface`, and the
+   **partial** against it controlling for the recovered refusal coordinate, and
+   vice versa — the same two-way partial used in §12g.
+3. Also control the obvious co-varying nuisances that differ by source split:
+   **prompt length in tokens**, and **source identity** (harmful / harmless /
+   XSTest), since the three corpora differ in register and length as well as in
+   harmfulness.
+4. §4e's behavioural correlation is reported **both** raw and partialled on
+   `D_surface` and length. If the coordinate-to-`refusal_prob` relationship does
+   not survive partialling, the honest reading is that the recovered axis is
+   surface form or length, and §4e already commits to reporting that outcome
+   as-is.
+
+A curved refusal manifold that is really a prompt-phrasing manifold would be the
+same result as §12g, one stage later, and the pre-registration is what prevents
+it being discovered by a reviewer instead of by us.

@@ -408,7 +408,8 @@ def partial_spearman(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> float:
     return float((rxy - rxz * ryz) / denom) if denom > 0 else float("nan")
 
 
-def orthography_vs_chemistry(D_recovered, D_truth, names, final_tokens=None) -> dict:
+def orthography_vs_chemistry(D_recovered, D_truth, names, final_tokens=None,
+                             censor_at: float = 1.0, uncensored: bool = True) -> dict:
     """Does the recovered geometry track name strings independently of chemistry?
 
     This is the DIRECT form of the confound that `within_group_rsa` only tests
@@ -422,6 +423,14 @@ def orthography_vs_chemistry(D_recovered, D_truth, names, final_tokens=None) -> 
     Dn = name_distance_matrix(names)
     iu = np.triu_indices_from(D_truth, k=1)
     g, t, nm = D_recovered[iu], D_truth[iu], Dn[iu]
+    # Default to the UNCENSORED pair set, because that is the pair set the
+    # headline Level 1 number lives on. Computing this on all pairs while the
+    # headline is uncensored makes the two incomparable -- and it matters here:
+    # rho(Tanimoto, name-string) is 0.144 over all pairs but 0.190 uncensored,
+    # since censored pairs are the zero-overlap ones and are also more
+    # name-dissimilar.
+    keep = np.ones_like(t, dtype=bool) if not uncensored else (t < censor_at - 1e-6)
+    g, t, nm = g[keep], t[keep], nm[keep]
     out = {
         "rho_geo_truth": float(spearmanr(g, t).statistic),
         "rho_geo_name": float(spearmanr(g, nm).statistic),
@@ -429,9 +438,11 @@ def orthography_vs_chemistry(D_recovered, D_truth, names, final_tokens=None) -> 
         "partial_geo_name_given_truth": partial_spearman(g, nm, t),
         "partial_geo_truth_given_name": partial_spearman(g, t, nm),
     }
+    out["n_pairs"] = int(g.size)
+    out["uncensored"] = bool(uncensored)
     if final_tokens is not None:
         ft = np.asarray(final_tokens)
-        tk = (ft[:, None] != ft[None, :]).astype(np.float32)[iu]
+        tk = (ft[:, None] != ft[None, :]).astype(np.float32)[iu][keep]
         out["rho_geo_difftoken"] = float(spearmanr(g, tk).statistic)
         out["partial_geo_difftoken_given_truth"] = partial_spearman(g, tk, t)
         out["partial_geo_truth_given_difftoken"] = partial_spearman(g, t, tk)
