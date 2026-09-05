@@ -1329,3 +1329,69 @@ Two checks, specified before running:
   distance held flat at 0.685 against 0.682, is the strongest single result in the
   project and the one a reviewer will remember. The Stage B negative should open
   with it rather than arriving at it.
+
+
+### 15d. §15b outcome: one check passes, one fires against §14a
+
+**Check 1 — random-direction null: PASSED at every layer.** `R = 200` random unit
+vectors in the same PCA subspace:
+
+| layer | observed mean abs-cos | null mean | null sd | z | null p95 | clears |
+|---|---|---|---|---|---|---|
+| 8 | 0.374 | 0.100 | 0.028 | **9.64** | 0.148 | yes |
+| 22 | 0.312 | 0.104 | 0.027 | **7.62** | 0.148 | yes |
+| 28 | 0.295 | 0.097 | 0.025 | **7.81** | 0.139 | yes |
+| 31 | 0.271 | 0.101 | 0.025 | **6.81** | 0.147 | yes |
+
+The null's own mean (0.100) matches the analytic expectation for random unit
+vectors in 64 dimensions, sqrt(2/(pi*64)) = 0.0997, which validates the null
+itself. Alignment between the principal-curve tangents and the difference-in-means
+direction is real and roughly 3x chance. The §14a tangent-alignment row **stands**.
+
+**Check 2 — power on known curvature: the estimator can see rotation.** Run on
+the cached Stage A homologous-series centroid paths, whose curvature under
+Tanimoto is known to be non-zero:
+
+| path | consecutive abs-cos | first-vs-last | verdict |
+|---|---|---|---|
+| alkane, L8 | 0.236 | 0.069 | rotates |
+| alkane, L28 | 0.326 | 0.004 | rotates |
+| alcohol, L8 | 0.217 | 0.084 | rotates |
+| alcohol, L28 | 0.285 | 0.001 | rotates |
+
+So the estimator is not a smoother that only ever returns smoothness.
+
+**But the like-for-like comparison this forced is the finding, and it goes
+against §14a.** The power check uses *consecutive* tangent coherence; §14a
+reported alignment against `v_ref`. Measured on the same statistic:
+
+| set | consecutive abs-cos | first-vs-last | random-pair null |
+|---|---|---|---|
+| refusal set, L8 | 0.255 | 0.055 | 0.104 |
+| **refusal set, L28** | **0.332** | **0.046** | 0.100 |
+| alkane series (**known curved**), L28 | 0.326 | 0.004 | 0.269 |
+| alcohol series (**known curved**), L28 | 0.285 | 0.001 | 0.266 |
+
+**By the tangent statistic the refusal structure is indistinguishable from a
+known-curved path** — 0.332 against 0.326, with both turning nearly orthogonal
+end to end. The tangent estimator therefore **does not support the straightness
+claim**, and §14a must not be read as though it did.
+
+Two caveats that keep this from being a reversal of §14d:
+
+- The comparison is not perfectly matched. The refusal tangents come from 11 bins
+  of ~55 points in a 64-D subspace (null 0.100); the series tangents from 5 bins
+  of 2 points in a 9-D subspace (null 0.269). Normalised by their own nulls the
+  refusal path is *more* coherent (3.3x) than the series (1.2x). The raw numbers
+  coincide; the null-relative ones do not.
+- **Straightness rests on geodesic/chord**, exactly as §15b anticipated it might.
+  That statistic is 1.010-1.020, has a direct interpretation, and carries the
+  §3j synthetic straight-line and curved-grid nulls. It is the stronger number
+  and should be quoted as the basis of the claim.
+
+**Net effect on §14a:** the tangent row survives as evidence that the curve's
+direction aligns with `v_ref` (check 1), and is withdrawn as evidence of
+*straightness* (this check). §14d's branch-one verdict is unchanged, because it
+rested on geodesic/chord, the coordinate alignment (0.946), the behavioural
+correlation (0.871) and the §14c natural experiment — none of which use tangent
+coherence.
