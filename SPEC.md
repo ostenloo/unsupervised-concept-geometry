@@ -532,10 +532,29 @@ compounds have a final token unique to them. A reader can reasonably ask whether
 recovered structure is *final-token identity* rather than chemistry.
 
 Control: `evaluation.within_group_rsa` recomputes Level 1 restricted to pairs
-sharing a final token. Structure surviving inside the 30-plus-member `Ġacid`
-block cannot be explained by the block label. Reported alongside Level 1; the
-shuffle null does **not** cover this, because permuting compound↔activation
-destroys token structure and chemical structure together.
+sharing a final token. Structure surviving inside the 41-member `Ġacid` block
+cannot be explained by the block label. The shuffle null does **not** cover this,
+because permuting compound↔activation destroys token structure and chemical
+structure together.
+
+**Result: 0.605 within-group against 0.342 overall (layer 8).** The confound is
+cleared — recovered structure is not read-position identity.
+
+**How that number must NOT be read.** It is higher than the headline, and it is
+*not* a better estimate of the same quantity: it is an easier task. Within a
+shared final token the block is chemically homogeneous, so almost nothing is
+censored — **5.9% of within-group pairs sit at distance 1.0 against 32.7%
+overall, and the `Ġacid` block is 0.0% censored** because every pair shares a
+COOH substructure. Nearly the whole within-block matrix is rankable, where a
+third of the full matrix carries no ordering at all.
+
+One tempting explanation is wrong and is recorded so it is not re-proposed: the
+groups are *not* dominated by homologous series (only 26% of their members are in
+any series), and within-group Tanimoto does *not* reduce to carbon-count
+difference (Spearman with |ΔC| is 0.29 in `Ġacid`, 0.20 in `ene`, 0.22 in `ane`,
+and negative in `ine` and `amine`). The gap is censoring, not chain length.
+
+**The Level 1 ceiling therefore remains 0.345 with Procrustes disparity 0.83.**
 
 ### 11d. Intrinsic dimension is a curve, not a scalar (amends §3e step 1)
 
@@ -590,3 +609,118 @@ refusal direction at the selected layer"**, never as "Arditi's direction".
 If their released tensor for `Llama-3.1-8B-Instruct` is a single download, take it
 as a cross-check: the cosine between the two is free validation, and a *low*
 cosine is itself a reportable result.
+
+
+---
+
+## 12. Amendments after the Stage A layer profile — Sat 5 Sep 2026
+
+Recorded after §3d capture and §3g, before Level 3.
+
+### 12a. `L_peak` is not identified; the repair is a tie-break, not a different layer
+
+§3g selects "the layer of peak Level-1 RSA". The sweep shows that quantity is not
+identified in this domain: uncensored RSA rises over layers 0–4 (0.139 → 0.329)
+and then plateaus, **19 of 32 layers sit within one k-sweep sd (0.034) of the
+maximum**, and the argmax moves to layer 5, 7, 8, 9, 24, 25 or 26 depending on
+fingerprint and `k`.
+
+**Tie-break rule (one line, stated before Level 3):** `L_peak` is the argmax of
+*mean* uncensored RSA across the full (fingerprint × k) grid for the default
+count fingerprint. That gives **layer 8**, and it is the primary layer.
+
+Layer 28 remains the comparability arm exactly as §3g requires. It is **not**
+promoted to primary: the pre-registered rule targets a quantity, and the honest
+repair is a stable estimator *of that quantity*, not a different layer chosen for
+external comparability — which would be the same post-hoc move as picking
+whichever number looked better.
+
+**Disagreement rule, pre-declared now:** if Level 3 differs between layer 8 and
+layer 28, the finding is **layer-sensitive and neither is *the* result**. This is
+§9 risk 4 made operational.
+
+**The plateau is a prediction, not just an annoyance.** If Level-1 alignment is
+flat across 19 layers, Level 3 should be flat across them too. If Level 3 instead
+turns out sharply layer-dependent, the plateau does not mean what §3g assumed it
+meant, and that discrepancy is itself the finding.
+
+### 12b. The plateau is not an artifact of the fixed 64-d projection
+
+The profile embeds every layer through PCA-64 while raw ID varies with depth
+(16.0 at layer 4, 12.9 at layer 8, 8.1 at layer 28) and is still climbing at
+N=218. A fixed truncation could flatten a real profile by removing
+proportionally more from the layers carrying more structure. Tested directly —
+Level 1 across all 32 layers at `d ∈ {16, 32, 64, 128, 217, raw 4096}`:
+
+| projection | argmax | max RSA | layer 28 | peak-to-plateau range | layers within one k-sd |
+|---|---|---|---|---|---|
+| 16 | 28 | 0.270 | 0.270 | 0.101 | 15 |
+| 32 | 5 | 0.333 | 0.314 | 0.151 | 13 |
+| **64** | 9 | 0.351 | 0.327 | 0.115 | 20 |
+| 128 | 23 | 0.348 | 0.312 | **0.056** | 19 |
+| 217 | 24 | 0.350 | 0.320 | 0.079 | 18 |
+| raw 4096 | 24 | 0.350 | 0.320 | 0.079 | 18 |
+
+**The flatness survives, and the profile does not sharpen as `d` grows** — the
+peak-to-plateau range is *smallest* at high dimension (0.056 at d=128, 0.079 at
+d=217 and raw, against 0.115 at d=64), and RSA magnitude saturates near 0.35 by
+d=64. The range is not monotone in `d` — it is largest at d=32 (0.151), where
+truncation is severe enough to add its own noise — but at no dimension does a
+peak emerge. So PCA-64 mildly
+*exaggerates* structure relative to the full space rather than manufacturing the
+plateau. The §3g finding stands. The argmax wandering across 5/9/23/24/28 with
+`d` is further evidence it is not identified.
+
+(`d=217` and raw 4096 agree to three decimals, as they must: with N=218 points a
+217-component PCA is a lossless rotation. A free check that the projection path
+is not distorting distances.)
+
+### 12c. Level 2 series scope: the pre-registered list, restored
+
+The §3d gate — "the model must produce the correct name greedily for ≥ 8/10 per
+series, or that series is dropped" — is a **Family-2 greedy-accuracy** gate scoped
+to **Level 3**. Both Level 3 series scored **10/10**, so both pass as written.
+That gate never applied to acids or alkenes, which have no Family-2 template.
+
+The "acid 8/10" figure reported earlier is a *different quantity* — how many acid
+names survived gate 3 — and conflating the two was an error of reporting, not of
+gating.
+
+For Level 2, §5's schema names `series_spearman_alkane`, `_alcohol`, `_acid`.
+**Alkene was never pre-registered**; it was added by us. It is therefore removed
+from Level 2 headline reporting — a restoration, not a new bar retrofitted after
+seeing the scores — and reported here with its number so the exclusion is
+visible, not silent:
+
+| series | pre-registered in §5 | Level 2 abs-rho at layer 8 | status |
+|---|---|---|---|
+| alkane | yes | 0.92 | reported |
+| alcohol | yes | 0.97 | reported |
+| acid | yes | 0.88 | reported |
+| **alkene** | **no** | 0.86 | **excluded** from Level 2; class-membership use only (also §11c: no stable isomeric denotation) |
+
+### 12d. Fractional depth, for the record
+
+Layer 28 is a comparable index here: Wurgaft use Llama 3.1 8B and this project
+uses `Llama-3.1-8B-Instruct`; both have **32 decoder blocks** (asserted at load in
+`src/model.load`), so layer 28 is 0.875 fractional depth in both. Comparability by
+index is therefore sound in this instance. What remains open is §2's base-vs-instruct
+question, which does not affect depth indexing. Had the depths differed, the
+comparison would have had to be made at matched fractional depth, and the case for
+28 would have been weaker still.
+
+### 12e. The Level 2 negative qualifies §0 (amends §0, "Why chemistry")
+
+§0 point 3 justifies chemistry on the grounds that "a naive method fails on it":
+PCA + `atan2` recovers the weekday circle, so passing that test is uninformative.
+**Measured, that justification holds for Level 1 and fails for Level 2.**
+
+- **Level 1**: Isomap 0.345 vs PCA baseline 0.278. The pipeline does work.
+- **Level 2**: Isomap 0.88–0.97 and PCA **0.87–0.96**, with PCA sometimes better
+  (acid at layer 2: 0.93 vs 0.74). Homologous-series ordinal structure is
+  linearly accessible; no manifold method is needed to recover it.
+
+Per §3e Step 3 this belongs in the body, not a footnote: on the ordinal task that
+is the direct analog of Wurgaft's letters/ages recovery, **the naive baseline is
+not beaten**. The unsupervised-pipeline claim rests on Level 1 and Level 3, and
+Level 2 should be presented as a task where pipeline and baseline agree.

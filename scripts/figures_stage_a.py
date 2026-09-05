@@ -41,7 +41,7 @@ def main():
     a.plot(prof.layer, prof.rsa, "o-", ms=2.6, color="C0", label="Isomap (uncensored RSA)")
     a.plot(prof.layer, prof.base, "s--", ms=2.4, color="C1", label="PCA baseline")
     a.plot(prof.layer, prof.within, "^-", ms=2.4, color="C2",
-           label="within shared final token")
+           label="within shared final token (5.9% censored, not comparable)")
     a.plot(prof.layer, prof.null, ":", color="0.5", label="shuffle null")
     band = prof.rsa.max() - ksd
     inside = prof.layer[prof.rsa >= band]
@@ -53,8 +53,8 @@ def main():
     a.annotate("Wurgaft 28", (28, .04), fontsize=7, color="C3", rotation=90, va="bottom")
     a.set_xlabel("layer"); a.set_ylabel("Spearman vs Tanimoto (uncensored)")
     a.set_title(f"F2  Level 1 by depth — plateau, not peak\n"
-                f"{int((prof.rsa>=band).sum())}/32 layers within one k-sweep sd of the max",
-                fontsize=8)
+                f"{int((prof.rsa>=band).sum())}/32 layers within one k-sweep sd; "
+                f"survives d=16..4096 (§12b)", fontsize=8)
     a.legend(fontsize=6.3, loc="lower right"); a.set_ylim(-.03, None)
 
     b = ax[1]
@@ -113,7 +113,8 @@ def main():
     a.plot(prof.layer, prof.alc, "o-", ms=2.5, color="C2", label="alcohol, Isomap")
     a.plot(prof.layer, prof.alc_p, "s--", ms=2.3, color="C2", alpha=.5, label="alcohol, PCA")
     a.set_xlabel("layer"); a.set_ylabel("|Spearman| vs carbon count")
-    a.set_title("Level 2 — series recovery.\nPCA baseline matches it.", fontsize=8)
+    a.set_title("Level 2 — series recovery.\nThe PCA baseline matches it: the pipeline\n"
+                "does no work on this task (§12e).", fontsize=8)
     a.legend(fontsize=6); a.set_ylim(0, 1.02)
 
     # Both spaces: the ID of the raw residual stream and of the PCA-64 subspace
@@ -147,5 +148,34 @@ def main():
     print("wrote F1, F2, F7")
 
 
+
+
+def figure_pca_dim_sweep():
+    """§12b: is the plateau an artifact of the fixed 64-d projection?"""
+    d = pd.read_parquet(config.RESULTS / "pca_dim_sweep.parquet")
+    fig, ax = plt.subplots(1, 2, figsize=(8.6, 3.2))
+    for dim, g in d.groupby("pca_dim"):
+        g = g.sort_values("layer")
+        lab = "raw 4096" if dim == 4096 else f"PCA-{dim}"
+        ax[0].plot(g.layer, g.rsa_uncensored, marker="o", ms=2,
+                   lw=1.8 if dim == 64 else 1.0, alpha=1.0 if dim == 64 else .65,
+                   label=lab)
+    ax[0].axvline(8, color="C0", ls="-.", lw=.8); ax[0].axvline(28, color="C3", ls="-.", lw=.8)
+    ax[0].set_xlabel("layer"); ax[0].set_ylabel("uncensored RSA")
+    ax[0].set_title("F2c  the plateau across projection dimension", fontsize=8)
+    ax[0].legend(fontsize=6, ncol=2)
+
+    rng = d[d.layer >= 4].groupby("pca_dim").rsa_uncensored.agg(lambda v: v.max() - v.min())
+    ax[1].plot(rng.index, rng.values, "o-", ms=4)
+    ax[1].set_xscale("log"); ax[1].set_xlabel("projection dimension")
+    ax[1].set_ylabel("peak-to-plateau range (layers 4-31)")
+    ax[1].axvline(64, color="0.6", ls=":", lw=.8)
+    ax[1].set_title("does not sharpen as d grows\n(smallest range at d>=128)", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(config.FIGURES / "F2c_pca_dim_sweep.png", bbox_inches="tight")
+    print("wrote F2c")
+
+
 if __name__ == "__main__":
     main()
+    figure_pca_dim_sweep()

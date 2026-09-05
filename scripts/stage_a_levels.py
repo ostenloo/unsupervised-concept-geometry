@@ -92,6 +92,10 @@ def main():
                     row["n_final_token_groups"] = wg["n_groups"]
                     null = E.shuffle_null_rsa(D_geo, Dt, n_perm=10)
                     row["shuffle_null_rsa"] = null["shuffle_null_rsa"]
+                # Alkene is logged but is NOT part of Level 2 headline reporting:
+                # §5's schema names alkane, alcohol and acid only, so alkene was
+                # our addition. Excluded per §12c -- a restoration of the
+                # pre-registered list, not a bar retrofitted after seeing scores.
                 for s, mask in series_masks.items():
                     row[f"series_spearman_{s}"] = (
                         E.series_recovery(E.series_coordinate(Y, mask), n_carbons[mask])
@@ -109,6 +113,7 @@ def main():
     out.to_parquet(config.RESULTS / "stage_a.parquet", index=False)
     print(f"\nwrote {config.RESULTS/'stage_a.parquet'} ({len(out)} rows)")
 
+    d = out
     m = out[(out.fingerprint_type == "morgan_count")]
     prof = m.groupby("layer").agg(
         rsa_unc=("rsa_uncensored", "mean"), rsa_all=("rsa_spearman", "mean"),
@@ -117,8 +122,19 @@ def main():
         id_mle=("id_mle", "mean"), id_twonn=("id_twonn", "mean"),
         alk=("series_spearman_alkane", "mean"), alc=("series_spearman_alcohol", "mean"),
         null=("shuffle_null_rsa", "mean")).reset_index()
-    peak = int(prof.loc[prof.rsa_unc.idxmax(), "layer"])
-    print(f"\nL_peak (max uncensored RSA, morgan_count) = {peak}")
+    # SPEC §12a tie-break: L_peak is the argmax of MEAN uncensored RSA across the
+    # full (fingerprint x k) grid. The per-(fingerprint, k) argmax is not
+    # identified -- it moves to layer 5, 7, 8, 9, 24, 25 or 26 -- so a single
+    # argmax is not a usable selection rule.
+    grid = (d[d.fingerprint_type == "morgan_count"]
+            .groupby("layer").rsa_uncensored.mean())
+    peak = int(grid.idxmax())
+    ksd = float(m.groupby("layer").rsa_uncensored.std().mean())
+    n_flat = int((grid >= grid.max() - ksd).sum())
+    print(f"\nL_peak (§12a tie-break: argmax of mean uncensored RSA) = {peak}")
+    print(f"  k-sweep sd = {ksd:.4f}; {n_flat}/32 layers within one sd of the max "
+          f"-> plateau, not peak (§12a)")
+    print(f"  layer 28 (comparability arm) = {grid.loc[28]:.4f} vs max {grid.max():.4f}")
     print(prof.to_string(index=False, float_format=lambda v: f"{v:6.3f}"))
     (config.RESULTS / "layer_profile.csv").write_text(prof.to_csv(index=False))
     (config.RESULTS / "L_peak.txt").write_text(str(peak))
