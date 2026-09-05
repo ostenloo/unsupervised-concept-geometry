@@ -1521,3 +1521,54 @@ one that first comes to mind, is 5x too permissive and would have licensed the
 wrong claim. The lesson from §15b generalises: for any statistic whose "good"
 value is near zero, the null must preserve everything except the hypothesised
 structure.
+
+
+---
+
+## 17. Completion audit — Sat 5 Sep 2026
+
+### 17a. Acceptance test 9 had never been run, and it found two things
+
+§6 test 9 ("greedy generation at alpha=0 reproduces base output token-for-token;
+hook counter increments; hooks removed after every run") is on §8's **never cut**
+list and had not been written. Running it surfaced two facts, neither of which
+invalidates a result but both of which were unknown:
+
+1. **The steering hook is not position-safe under `generate()`.** An ungated
+   `t[:, -1, :] = rep` also overwrites every newly generated position, pinning
+   the model to one token — " propane propane propane ..." in place of
+   " propane. The formula for propane is C3H8." Production steering
+   (`level3_steering.py`, `stageb_steering.py`) runs a **single forward** and
+   asserts the hook fires exactly once, so Level 3 and §4f are not exposed. Any
+   future reuse under generation must gate on sequence length. Test 9b pins this
+   failure mode so it stays known.
+
+2. **`M.capture`'s forward and `generate()`'s prompt pass are not numerically
+   identical.** They differ by up to **0.125** absolute (mean 0.0046, ~3x bf16
+   epsilon at that magnitude) — different kernel paths in bf16. Injecting a value
+   captured through one path into the other perturbs generation enough to flip a
+   token about nine steps in. Verified that the mechanism itself is faithful: an
+   identity hook and a float32 round-trip both reproduce base output exactly.
+   So "alpha = 0 reproduces base" holds exactly **within one forward path**, and
+   the test is written that way.
+
+   Level 3 and §4f are unaffected: both do one forward and read logits
+   immediately, with no autoregressive compounding, and both inject deliberately
+   different values regardless.
+
+Tests 4 and 8 are covered by recorded artefacts. `tests/test_acceptance_gpu.py`
+now carries 4/4 passing; the CPU suite carries 10/10.
+
+### 17b. What remains
+
+| item | status |
+|---|---|
+| §3a-§3j, Levels 1-3 | done |
+| §3h metric comparison, §3i hierarchy | done (§16; §3i has no power) |
+| §4b-§4f | done |
+| §6 acceptance tests | done — 10 CPU, 4 GPU |
+| F1, F2, F2c, F3, F4, F5, F7, F8 | done |
+| **F6 (hierarchy)** | **not made** — §3i is at its permuted-label null, so the figure would plot a null result. Worth one panel only if §3i is reported at all. |
+| **§5 parquet schema** | **partial** — quantities are all present but some field names differ from the spec's listing (`geo_chord_mean` vs `geo_chord_ratio_mean`, `coord_vs_refusal_prob` vs `..._spearman`), and `timestamp`, `model_revision`, `E_BC_se`, `notes` are absent. |
+| **§4d "three layers"** | **deviates** — spec names `L_ref`, `L_peak`, 28. Since §11f fixes the layer ourselves rather than reproducing Arditi's selection sweep, there is no `L_ref`; layers 8, 22, 28, 31 were run instead. Stated, not silently substituted. |
+| **§10 writeup** | **not started** — the actual deliverable |
