@@ -1,0 +1,10 @@
+{
+  "alkane": {
+    "greedy_correct": 10,
+    "kept_for_level3": true
+  },
+  "alcohol": {
+    "greedy_correct": 10,
+    "kept_for_level3": true
+  }
+}

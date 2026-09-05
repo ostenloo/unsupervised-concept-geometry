@@ -143,10 +143,20 @@ def intrinsic_dimension(X: np.ndarray) -> dict:
 
     out["id_participation_ratio"] = participation_ratio(X)
 
-    triple = [out["id_twonn"], out["id_mle"], out["id_lpca"]]
-    finite = [v for v in triple if np.isfinite(v)]
+    # SPEC §3e reports the estimators as a triple and calls the dimension
+    # undetermined when they disagree by > 1.5. The spread must be taken over
+    # estimators measuring the SAME quantity. lPCA (and the participation ratio)
+    # estimate *linear* dimension: on a circle they correctly return 2 where the
+    # intrinsic dimension is 1, and inside a PCA-64 subspace lPCA saturates near
+    # 64. Pooling it with TwoNN and MLE produced spreads of 18-54 at every layer,
+    # which reads as total estimator disagreement and is really a category error.
+    # So: spread over the intrinsic estimators, with the linear one reported
+    # beside it rather than mixed into it.
+    intrinsic = [out["id_twonn"], out["id_mle"]]
+    finite = [v for v in intrinsic if np.isfinite(v)]
     out["id_spread"] = float(max(finite) - min(finite)) if len(finite) > 1 else float("nan")
     out["id_determined"] = bool(np.isfinite(out["id_spread"]) and out["id_spread"] <= 1.5)
+    out["id_linear_lpca"] = out["id_lpca"]
     return out
 
 

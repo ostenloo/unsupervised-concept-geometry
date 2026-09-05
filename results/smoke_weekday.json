@@ -1,0 +1,22 @@
+{
+  "28": {
+    "cyclic_order": true,
+    "max_angular_gap_ratio": 1.25
+  },
+  "31": {
+    "cyclic_order": true,
+    "max_angular_gap_ratio": 1.272
+  },
+  "24": {
+    "cyclic_order": true,
+    "max_angular_gap_ratio": 1.308
+  },
+  "20": {
+    "cyclic_order": true,
+    "max_angular_gap_ratio": 1.257
+  },
+  "16": {
+    "cyclic_order": true,
+    "max_angular_gap_ratio": 1.19
+  }
+}
