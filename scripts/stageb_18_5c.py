@@ -26,10 +26,12 @@ import config
 from src import ablation as AB
 from src import model as M
 from scripts.stageb_18_5 import generate, refused, boot_ci
+from scripts.stageb_18_4ac import fit_coordinate, build_direction, difference_in_means
 
 SB = config.DATA / "stageb"
 NPY = config.ACTS / "npy"
 MULTIPLIERS = [0.5, 1.0, 2.0, 4.0]
+SELECTED_LAYER = json.loads((config.RESULTS / "stageb_18_5_rerun.json").read_text())["selected_layer"]
 
 
 def main():
@@ -41,14 +43,30 @@ def main():
     A = np.load(NPY / "stageb.npy")
     src = df.source.to_numpy()
     mh, ml = src == "harmful", src == "harmless"
-    X = np.ascontiguousarray(A[:, config.WURGAFT_LAYER, :])
+    X = np.ascontiguousarray(A[:, SELECTED_LAYER, :])
 
-    D = np.load(config.RESULTS / "stageb_18_5_directions.npz")
+    # Directions must be rebuilt AT the causal layer. The saved .npz holds the
+    # L28 set, and steering with an L28 direction inside L10's residual stream
+    # would be a different experiment wearing this one's label.
+    print(f"steering at the CAUSAL layer L{SELECTED_LAYER} (§18.21), not L28 — "
+          f"directions rebuilt there")
+    m4 = mh | ml
+    Xf = X[m4]
+    hf = mh[m4]
+    fit = fit_coordinate(Xf)
+    d, _ = build_direction(fit, Xf)
+    if (Xf @ d)[hf].mean() < (Xf @ d)[~hf].mean():
+        d = -d
+    v_ref = difference_in_means(X[mh], X[ml])
+    pc1 = fit["pca"].components_[0].copy()
+    if (Xf @ pc1)[hf].mean() < (Xf @ pc1)[~hf].mean():
+        pc1 = -pc1
+
     ev = json.loads((SB / "eval_18_5.json").read_text())
     L = M.load()
     lchats = [M.chat(L, p) for p in ev["harmless"]]
 
-    dirs = {"d400": D["d400"], "v_ref": D["v200"], "pc1": D["pc1"]}
+    dirs = {"d400": d, "v_ref": v_ref, "pc1": pc1}
     gaps = {k: float((X[mh] @ v).mean() - (X[ml] @ v).mean()) for k, v in dirs.items()}
     print("mean harmful-minus-harmless projection gap (the matching unit):")
     for k, g in gaps.items():
