@@ -3010,3 +3010,109 @@ is the fix the steering dose-response needs.
 
 **Ordering.** This runs *before* any matched-null or dose-grid work, because both
 would need re-running if position turns out to matter.
+
+### 18.25 §18.24 results — the grid reproduces both anchors; the `d` conclusion is position-robust
+
+`results/stageb_18_24_grid.json`, `_dirs.json`, `_confirm.json`. Bypass score =
+baseline − ablated refusal-opener log-odds on the 76 held-out harmful prompts.
+Token identities, which the grid is uninterpretable without:
+
+| index | −5 | −4 | −3 | −2 | −1 |
+|---|---|---|---|---|---|
+| token | `<\|eot_id\|>` | `<\|start_header_id\|>` | `assistant` | `<\|end_header_id\|>` | `'\n\n'` |
+
+**Both external anchors are live cells, and they are a ridge rather than a
+disagreement.** Top of the grid:
+
+| rank | cell | score | |
+|---|---|---|---|
+| 1 | (12, −5) | +19.320 | |
+| 2 | (11, −1) | +19.053 | **the 3.1 reimplementation's selection** |
+| 3 | (11, −2) | +18.957 | |
+| 4 | (11, −5) | +18.652 | |
+| 5 | (10, −1) | **+18.088** | **the cell we inherited** |
+
+The inherited cell ranks **5 of 160**, 1.23 log-odds below the argmax. Arditi's
+Table 5 position for the 3.0 sibling (−5 = `<|eot_id|>`) is strong here too
+(+19.320 at L12, +18.652 at L11), so their choice transfers rather than conflicts.
+The top region is layers 10–12 × positions {−1, −2, −5}.
+
+**Position −4 is dead at every layer** (maximum 2.643 across all 32; 0.707 at
+L10). It is `<|start_header_id|>`, a pure structural template token — an
+interpretable failure, not an anomaly.
+
+**Branch 2 fires**, not branch 1: some positions fail, −1 is among the working
+ones, and it was inherited rather than selected. Recorded exactly that way.
+
+#### Generation confirmation — the cheap metric agrees
+
+| cell | refusal | drop | CE |
+|---|---|---|---|
+| (12, −5) | 0.000 | 0.947 | 0.2349 |
+| (11, −1) | 0.000 | 0.947 | 0.2244 |
+| (10, −1) | 0.000 | 0.947 | 0.2270 |
+
+All three saturate the substring metric with CE inside the gate, which is why the
+log-odds readout was needed to rank them at all. **The choice among the top cells
+is immaterial for the anchor**, and §18.21's result does not move.
+
+#### Branch 3 — fires on the raw range, resolves on the live one
+
+cos(`d`, `v_ref`) at L10 spans 0.632–0.896 across all five positions (spread
+0.264, "material" by the pre-registered threshold). **The entire spread is the
+dead position:** −4 gives 0.896; across the four live positions the range is
+0.632–0.683, spread **0.051**. L11 is the same shape (0.602–0.632 live, 0.875 at −4).
+
+Excluding −4 after seeing the numbers is the shape of a garden-fork, so the basis
+is stated: the exclusion criterion is **the grid's own bypass score**, the grid was
+pre-registered and computed before this analysis, and −4 fails across all 32
+layers rather than at the cell of interest. Both ranges are reported.
+
+Resolved by measurement rather than argument — arms re-run at **(10, −5)**,
+Arditi's own position:
+
+| cell | cos(`d`,`v_ref`) | `d` drop | `d_⊥` drop | cos-matched null |
+|---|---|---|---|---|
+| (10, −1) | 0.683 | 0.658 | 0.013 | 0.614 |
+| (10, −5) | 0.679 | 0.487 | 0.000 | 0.430 |
+
+`d`'s absolute drop falls at −5, but **so does its matched null, and the
+relationship is preserved**: `d` sits inside its cos-matched null at both
+positions, and `d_⊥` is ~0 at both. **The arms 2/3/4b conclusion — `d` carries no
+causal content beyond its `v_ref` overlap — holds at Arditi's position choice as
+well as at ours.** Branch 3's qualification is therefore that the *magnitudes* are
+position-dependent while the *conclusion* is not, and the range is reported.
+
+#### Branch 4 — fires, but my threshold was mis-specified
+
+cos(PC1, `v_ref`) at L10 is **0.978–0.993**, outside the pre-registered 0.90–0.96
+window — *above* it. That window was anchored to the 0.946 figure, which is a
+**Pearson correlation, not a cosine**. C1 caught this confusion in SPEC2; it
+recurred in my own §18.24 pre-registration. The threshold is withdrawn as
+mis-specified rather than treated as a finding.
+
+The quantity that does matter is stability, and it separates the layers sharply:
+
+| layer | cos(PC1,`v_ref`) range | spread |
+|---|---|---|
+| 10 | 0.978–0.993 | **0.016** |
+| 11 | 0.983–0.996 | 0.013 |
+| 28 | 0.275–0.998 | **0.723** |
+
+**PC1's alignment is position-robust at the causal layers and position-fragile at
+the structural one.** At (28, −4) it collapses to 0.275 and AUROC(PC1) falls to
+**0.3005 — below chance**. This is a third independent reason the causal layers
+are where the claim should be stated.
+
+#### Limitation, restated as §18.24 requires
+
+Position was **not swept at selection time**; −1 was inherited from
+`src/model.py`'s default. It is now **post-hoc verified** to rank 5 of 160, to sit
+in the top ridge, and to coincide with the position an independent reimplementation
+selects for this model — while the original paper selects −5 for the 3.0 sibling,
+which our grid also finds strong. Selection was not optimised over position, and
+the writeup says so in those terms.
+
+> The two external citations remain **unverified in this session** (§18.24) and
+> must be checked against the papers before the writeup cites them. Nothing in
+> this subsection's measurements depends on them.
