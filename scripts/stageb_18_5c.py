@@ -25,7 +25,7 @@ import torch
 import config
 from src import ablation as AB
 from src import model as M
-from scripts.stageb_18_5 import generate, refused, boot_ci
+from scripts.stageb_18_5 import generate, refused, boot_ci, ce_on
 from scripts.stageb_18_4ac import fit_coordinate, build_direction, difference_in_means
 
 SB = config.DATA / "stageb"
@@ -73,11 +73,14 @@ def main():
         print(f"  {k:<7} {g:8.3f}")
 
     base = generate(L, lchats)
+    ce_base = ce_on(L, lchats, base)
     out = {"gaps": gaps, "multipliers": MULTIPLIERS,
            "baseline_refusal_harmless": float(np.mean([refused(t) for t in base])),
            "curves": {}}
     print(f"\nbaseline refusal on harmless: {out['baseline_refusal_harmless']:.3f}")
-    print(f"\n{'direction':<8} {'mult':>5} {'alpha':>8} {'refusal(harmless)':>18}")
+    print(f"  baseline CE {ce_base:.4f}")
+    print(f"\n{'direction':<8} {'mult':>5} {'alpha':>8} {'refusal(harmless)':>18} "
+          f"{'CE':>9} {'distinct':>9}  gate")
 
     flags = {}
     for name, v in dirs.items():
@@ -86,18 +89,37 @@ def main():
         out["curves"][name] = []
         for m in MULTIPLIERS:
             alpha = m * gaps[name]
-            with AB.add_direction(L, u, alpha=float(alpha)):
+            with AB.add_direction(L, u, alpha=float(alpha), layers=SELECTED_LAYER):
                 gen = generate(L, lchats)
+                ce = ce_on(L, lchats, base)
             r = [refused(t) for t in gen]
+            # §18.22 coherence gate: degenerate text scores as "not refusing".
+            distinct = float(np.mean([len(set(t.split())) / max(len(t.split()), 1)
+                                      for t in gen]))
+            ok = (ce <= ce_base + 1.0) and (distinct >= 0.35)
             flags[(name, m)] = r
             out["curves"][name].append(dict(multiplier=m, alpha=float(alpha),
-                                            refusal_rate=float(np.mean(r))))
-            print(f"{name:<8} {m:5.1f} {alpha:8.2f} {np.mean(r):18.3f}")
+                                            refusal_rate=float(np.mean(r)),
+                                            ce=float(ce), distinct_ratio=distinct,
+                                            passes_gate=bool(ok)))
+            print(f"{name:<8} {m:5.1f} {alpha:8.2f} {np.mean(r):18.3f} "
+                  f"{ce:9.3f} {distinct:9.3f}  {'ok' if ok else 'DEGENERATE'}")
             (config.RESULTS / f"gen_18_5c_{name}_{m}.json").write_text(json.dumps(gen, indent=2))
 
     print("\n=== consistency: do the dose-response curves overlap at every level? ===")
     verdict = {}
-    for m in MULTIPLIERS:
+    gate_ok = {(n, m): c["passes_gate"] for n in out["curves"]
+               for c, m in zip(out["curves"][n], MULTIPLIERS)}
+    usable = [m for m in MULTIPLIERS
+              if all(gate_ok[(n, m)] for n in ("d400", "v_ref", "pc1"))]
+    print(f"  doses passing the coherence gate for all three directions: {usable}")
+    if len(usable) < 2:
+        out["verdict"] = ("NO POWER: fewer than two doses survive the coherence "
+                          "gate, so agreement between curves is not measurable")
+        print(f"\n  verdict: {out['verdict']}")
+        (config.RESULTS / "stageb_18_5c.json").write_text(json.dumps(out, indent=2))
+        raise SystemExit(0)
+    for m in usable:
         lo, hi = boot_ci(flags[("d400", m)], flags[("v_ref", m)])
         lo2, hi2 = boot_ci(flags[("pc1", m)], flags[("v_ref", m)])
         ov = (lo <= 0 <= hi)
@@ -109,7 +131,7 @@ def main():
     out["consistency"] = {str(k): v for k, v in verdict.items()}
 
     all_ov = all(v["overlap_d400"] for v in verdict.values())
-    high_only = (not all_ov) and all(verdict[m]["overlap_d400"] for m in MULTIPLIERS[:2])
+    high_only = (not all_ov) and verdict[usable[0]]["overlap_d400"]
     out["verdict"] = ("consistent" if all_ov else
                       "consistent in the linear regime, diverging under strong steering"
                       if high_only else "divergent")

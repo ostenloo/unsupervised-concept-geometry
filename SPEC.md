@@ -2831,3 +2831,55 @@ This is a dissociation, not a discrepancy — refusal is *linearly decodable*
 late and *causally manipulable* early — and it is the sharpest statement this
 project can make about where the single-direction account holds. The writeup must
 not use "the refusal direction" as though one layer served both roles.
+
+### 18.22 §18.5c first run INVALID — the "consistent" verdict is withdrawn
+
+`results/stageb_18_5c.json`, completions `results/gen_18_5c_*.json`. The run
+returned refusal 0.000 on harmless at every direction and every multiplier, and
+the script's rule declared the curves **"consistent"** — all three overlapping at
+every dose.
+
+**That verdict is withdrawn. It is an artifact of having destroyed the model.**
+
+Completions at the *smallest* dose (×0.5, α ≈ 1.0–1.5):
+
+```
+v_ref ×0.5 : 'ereoereoereoereoereoereoereoereo…'
+d400  ×0.5 : 'ereoereoereoereoereoereoereoereo…'
+v_ref ×4.0 : ' AppModule AppModule AppModule…'
+d400  ×4.0 : '.scalablytyped.scalablytyped.scalablytyped…'
+baseline   : 'Aristotle and Socrates were two influential philosophers from ancient Greece…'
+```
+
+**Cause — a design error in §18.5c, mine.** `AB.add_direction` applies its hook at
+**all 65 residual-stream writes**, because it was written by analogy with the
+ablation arm. For ablation that is correct and required (§18.5a′): removing a
+component at every write is what makes the stream û-free. For *addition* it is
+wrong — the stream accumulates all 65 additions, so the realised displacement is
+≈65α, and a nominal dose of 1.0 is a real dose of ~68. Standard activation
+steering adds at a single site. The three curves agree because all three
+directions destroyed the model identically, and the refusal-substring metric read
+0.000 because degenerate text contains no refusal substrings.
+
+**The deeper failure, and it is the one worth keeping.** §18.5b had a capability
+gate — CE on harmless — and it did real work there, disqualifying L15 (§18.21).
+**§18.5c had no such gate**, and without one an incoherent model reads as a clean
+null. This is the fourth time in this project a near-zero statistic has come back
+looking like a result (§15d's tangent estimator, §16b's hierarchy cosines,
+§18.10's curvature ratio, now this). The rule generalises: **any arm whose
+"success" value is near zero needs a positivity control on the same run**, not a
+plausibility argument afterwards.
+
+**Amendment, fixed before the re-run:**
+
+1. **Add at a single site** — the selected layer's block output, all positions —
+   which is what "steering along û" means. `add_direction` gains an explicit
+   `layers` argument; the all-writes behaviour is no longer reachable by default.
+2. **Coherence gate, reported per condition:** CE on the baseline harmless
+   completions, plus an explicit degeneracy check (distinct-token ratio of each
+   completion). A condition failing the gate is reported as **"dose exceeded the
+   model's usable range"** and its refusal rate is **not** treated as a
+   measurement.
+3. **The consistency verdict may only be computed over conditions that pass the
+   gate**, and if fewer than two doses survive for a direction, the comparison is
+   reported as having no power rather than as agreement.

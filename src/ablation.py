@@ -128,14 +128,24 @@ def ablate(L: Loaded, u: torch.Tensor, alpha: float = 1.0, monitor: bool = False
 
 
 @contextlib.contextmanager
-def add_direction(L: Loaded, u: torch.Tensor, alpha: float):
-    """`x <- x + alpha*û` at every residual-stream write -- the §18.5c steering arm."""
+def add_direction(L: Loaded, u: torch.Tensor, alpha: float, layers):
+    """`x <- x + alpha*û` at the block output of each layer in `layers`.
+
+    §18.22: `layers` is REQUIRED and has no default. The first version of this
+    applied the addition at all 65 residual-stream writes, by analogy with
+    `ablate`. That analogy is wrong: removing a component at every write is what
+    makes the stream û-free, but *adding* at every write accumulates, so a
+    nominal dose of alpha lands as ~65*alpha and destroyed the model at every
+    dose tested. Steering along a direction means adding at a site.
+    """
+    if isinstance(layers, int):
+        layers = [layers]
     st = AblationState()
     handles = []
     cache: dict[tuple, torch.Tensor] = {}
 
     def hook(_m, _i, out):
-        t = _resolve_any(out)
+        t = _resolve_block_output(out)
         key = (t.device, t.dtype)
         if key not in cache:
             cache[key] = u.to(device=t.device, dtype=t.dtype)
@@ -143,8 +153,8 @@ def add_direction(L: Loaded, u: torch.Tensor, alpha: float):
         return _rebuild(out, t + alpha * cache[key])
 
     try:
-        for mod in _writes(L):
-            handles.append(mod.register_forward_hook(hook))
+        for i in layers:
+            handles.append(L.blocks[i].register_forward_hook(hook))
             st.writes_hooked += 1
         yield st
     finally:
