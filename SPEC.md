@@ -2349,3 +2349,73 @@ observed 2.41 at k=12 is interpretable only against a matched synthetic null at
 the data's own σ/spacing. It is no longer plausible that this ends in a
 straightness claim; the realistic outcomes are a bound or a null with stated
 power.
+
+### 18.14 §18.4f″ results — N2 was small, N9 was decisive, and branch one gets stronger
+
+Run 9 Sep 2026 against `d6aa671` as amended by §18.11. `scripts/stageb_18_4f.py`,
+`results/stageb_18_4f.json`. Reproduction check: the logged construction returns
+**5.21 / 5.89**, matching §14a exactly.
+
+#### N2 — real, but roughly a tenth of what I implied
+
+Subsampling both banks to the same m=480 without replacement (N3), 200 draws:
+
+| | mean `id_mle` | 95% CI |
+|---|---|---|
+| refusal | 5.274 | [5.083, 5.435] |
+| bank | 5.820 | [5.461, 6.221] |
+| bank − refusal | **+0.546** | **[+0.121, +0.993]** |
+
+**The difference CI excludes zero, so the bank contrast survives n-matching.** Of
+the logged +0.68 gap, only **+0.07** is attributable to sample size. N2's
+mechanism is real and was worth controlling, but it accounts for about a tenth of
+the effect, not the effect. §18.11's warning that N2 and N9 might push in opposite
+directions was right to be agnostic; N2 simply turned out small.
+
+#### N9 — fires, and it removes the ID number entirely
+
+Corrected noise-to-spacing first. §18.4f″'s initial ratio of 0.042 compared a
+*per-dimension* σ against a *full-vector* distance and is not a like-for-like
+quantity; it is withdrawn. Measured properly, inside PCA(64):
+
+| quantity | value |
+|---|---|
+| median residual norm about the 1-D line, in PCA(64) | 16.918 |
+| median nearest-neighbour spacing, in PCA(64) | 7.884 |
+| **ratio** | **2.146** |
+
+Each point sits more than twice as far off the 1-D line as it does from its
+nearest neighbour. This is the regime §18.10 identified, and it is independently
+corroborated by §18.4g's ambient statistic reading 2.06–2.74 where §18.10 found a
+*straight* line at comparable noise returns 2.107. Three separate measurements
+agree.
+
+**The control:** `id_mle` on a structure whose true intrinsic dimension is **1**,
+carrying this data's own resampled residuals, returns **5.430, 95% CI [5.157,
+5.704]** — against an observed refusal ID of **5.274**. The 1-D control does not
+merely reach the observed value, it slightly **exceeds** it.
+
+**§18.11's pre-registered rule fires: no claim about ~5 dimensions may be made,
+and the result is reported as an upper bound.** "Intrinsic dimension ≈ 5" is a
+measurement of the noise floor, not of refusal.
+
+#### The consequence is not a loss — branch one gets a better argument
+
+§14a read ID ≈ 5 and rescued the one-dimensional reading via the bank comparison,
+which §14d then had to defend against the literal fork criterion ("ID > 1"). That
+defence is no longer needed. The refusal set at 5.274 sits **at or below** the
+noise floor a genuinely 1-dimensional structure produces (5.430), while the
+general-instruction bank at 5.820 sits **above** it. So:
+
+- Refusal is **consistent with being effectively one-dimensional**, stated
+  directly rather than by comparison.
+- The bank is **not** — general instruction prompts carry structure beyond 1-D
+  that refusal prompts do not.
+
+This is a stronger version of branch one, reached by a different route, and it
+retires §14d's first "honest qualification" (that the literal ID > 1 criterion
+pointed the other way): at this noise floor the literal criterion could not have
+distinguished 1 from 5 in the first place, so it was never informative here.
+
+**§14a's ID row is superseded**: report 5.21/5.89 as logged, with the 1-D noise
+floor of 5.43 beside them, and the dimensionality claim stated as a bound.

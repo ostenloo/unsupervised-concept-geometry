@@ -1,0 +1,33 @@
+{
+  "layer": 28,
+  "m": 480,
+  "n_draw": 200,
+  "logged_refusal_n600": 5.206834788283604,
+  "logged_bank_n2000": 5.88700760706697,
+  "matched_refusal_mean": 5.2737310284413095,
+  "matched_refusal_ci": [
+    5.0831700347233975,
+    5.434781903671308
+  ],
+  "matched_bank_mean": 5.820076006034506,
+  "matched_bank_ci": [
+    5.4612028975951725,
+    6.221099397440431
+  ],
+  "diff_mean": 0.5463449775931959,
+  "diff_ci": [
+    0.1214414644118107,
+    0.9927841012068626
+  ],
+  "diff_ci_includes_zero": false,
+  "n_bias_estimate": 0.0669316010324641,
+  "sigma_per_dim": 0.32778027653694153,
+  "nn_spacing_pca64": 7.884194374084473,
+  "sigma_over_spacing": 0.04157435255710625,
+  "synthetic_1d_id_mean": 5.430456337348881,
+  "synthetic_1d_id_ci": [
+    5.156514281545506,
+    5.70434170528009
+  ],
+  "one_d_control_reaches_observed": true
+}
