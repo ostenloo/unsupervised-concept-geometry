@@ -1,0 +1,15 @@
+{
+  "test1_nullop_identical": true,
+  "writes_hooked": 65,
+  "fired_per_forward": 65.0,
+  "test2_leak_writes": 0.036376953125,
+  "test2_leak_blocks": 0.1455078125,
+  "test2_unablated_writes": 14.625,
+  "test2_unablated_blocks": 14.125,
+  "test2_fraction_removed_writes": 0.997512686965812,
+  "test2_rounding_bound": 0.8896827398024766,
+  "test2_pass": true,
+  "test3_kv_cache_consistent": true,
+  "test4_hooks_removed": true,
+  "all_pass": true
+}

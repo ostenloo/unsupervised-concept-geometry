@@ -3246,3 +3246,73 @@ decode. Re-run with it, changing nothing else:
    withdrawn in favour of this result.
 4. The substring cross-check must agree with the log-odds curve wherever both are
    measurable; disagreement is reported rather than reconciled.
+
+### 18.30 §18.29 result — the denser test qualifies "PC1 is interchangeable"
+
+`results/stageb_18_29_dose.json`. Baseline log-odds −11.225, CE 0.2144. Doses
+passing the CE gate: **five**, against §18.23's two.
+
+| ×mult | `v_ref` Δ | PC1 Δ | `d` Δ | gate |
+|---|---|---|---|---|
+| 0.25 | +1.079 | +0.983 | +0.209 | ok |
+| 0.50 | +5.661 | +4.937 | +0.637 | ok |
+| 0.75 | +12.449 | +11.429 | +1.680 | ok |
+| 1.00 | +16.016 | +15.670 | +3.948 | ok |
+| 1.50 | +15.431 | +15.953 | +8.865 | ok |
+| 2.00 | +13.923 | +14.452 | +11.415 | `v_ref`/PC1 FAIL, `d` ok |
+| 3.00–4.00 | — | — | — | all FAIL |
+
+**Rule 4 satisfied:** where both metrics were measured they agree — at ×1.0,
+substring 0.970 / 0.950 / 0.020 against log-odds +16.016 / +15.670 / +3.948, same
+ordering and same spacing.
+
+**Rule 1 fails for both directions, and the failures are not comparable:**
+
+| dose | `d` − `v_ref` | PC1 − `v_ref` |
+|---|---|---|
+| ×0.25 | [−2.32, +0.50] overlap | [−1.56, +1.29] overlap |
+| ×0.50 | [−6.34, −3.71] **diverge** | [−1.97, +0.48] overlap |
+| ×0.75 | [−11.83, −9.68] **diverge** | [−1.78, −0.22] **diverge** |
+| ×1.00 | [−12.94, −11.19] **diverge** | [−0.75, +0.06] overlap |
+| ×1.50 | [−7.06, −6.05] **diverge** | [+0.38, +0.66] **diverge** |
+
+- **`d` diverges at 4 of 5 doses, consistently negative, by up to 13 log-odds.**
+  §18.23's verdict on `d` is confirmed on a metric that cannot saturate, and
+  strengthened — the two-point test had found the same thing with far less power.
+- **PC1 diverges at 2 of 5 doses, by at most 1.8 log-odds, and the sign flips**
+  (below `v_ref` at ×0.75, above at ×1.5). **§18.23's "PC1 is interchangeable with
+  `v_ref`" does not survive the denser test as stated.** It was measured at two
+  doses of a saturating metric; with five doses of a continuous one, the curves are
+  statistically distinguishable at two of them.
+
+**The honest statement, replacing §18.23's:** under *addition*, PC1 tracks `v_ref`
+to within ~1.8 log-odds at every dose tested — an order of magnitude closer than
+`d`, whose gap reaches 13 — but the two are **not identical**, and the difference
+is a small dose-shift in the curve rather than a consistent offset. Per §15e's
+lesson about sign-flipping gaps, the shape difference should not be read as one
+direction being weaker: PC1 is *behind* `v_ref` at ×0.75 and *ahead* at ×1.5.
+
+**What is unaffected: the necessity result.** §18.21's ablation finding — `v_ref`
+and PC1 both take refusal to exactly 0.000, difference CI [0.000, 0.000] — does
+not involve this metric or this intervention and stands unchanged. So the correct
+summary is asymmetric and should be written that way:
+
+> **Under ablation, PC1 and `v_ref` are indistinguishable. Under addition, they
+> are close but distinguishable. `d` is far from both under either.**
+
+**Method note.** This is the second time a §18 conclusion has been weakened by
+running the same comparison with more power (§18.14's ID result was the first).
+Both times the weaker version was the one with fewer measurement points, and both
+times the pre-registered rule — not a judgement call — is what forced the
+downgrade.
+
+### 18.31 F9 — the selection grid figure
+
+`figures/F9_position_grid.png`, from `scripts/figure_position_grid.py`. Sequential
+single-hue encoding because the job is magnitude; **not** diverging, despite the
+signed score, because the negative tail reaches only −1.18 against a positive
+range to +19.32 and a zero-centred diverging scale would spend half its range on
+17 of 160 cells. The colour floor is clamped at 0 and the figure says so. Marked
+cells are outlined and identified in a legend placed *below* the axes — an in-plot
+legend covered live cells on the −1 row, and obscuring data to label it is not a
+trade worth making.
