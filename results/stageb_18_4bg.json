@@ -1,0 +1,65 @@
+{
+  "layer": 28,
+  "linearity": {
+    "r2_in_sample_64": 0.9899947047233582,
+    "r2_cv_64": 0.9711439132690429,
+    "r2_cv_ridge_4096": 0.9826588988304138
+  },
+  "panel": [
+    {
+      "method": "Isomap coord 1 -> d (ours)",
+      "pearson_r": 0.9778369665145874,
+      "cosine": 0.6539293527603149,
+      "auroc": 0.993475
+    },
+    {
+      "method": "PC1 of the fit bank",
+      "pearson_r": 0.9993320107460022,
+      "cosine": 0.9947017431259155,
+      "auroc": 0.9922
+    },
+    {
+      "method": "k-means (k=2) centroid difference",
+      "pearson_r": 0.9998085498809814,
+      "cosine": 0.9980056285858154,
+      "auroc": 0.9922249999999999
+    }
+  ],
+  "manifold_load_bearing": false,
+  "random_null": {
+    "pearson_r": {
+      "mean": 0.4190117195076425,
+      "p95": 0.8113184184874495
+    },
+    "cosine": {
+      "mean": 0.01293426711352679,
+      "p95": 0.03032211929782198
+    },
+    "auroc": {
+      "mean": 0.6623242500000001,
+      "p95": 0.8908799999999999
+    }
+  },
+  "k_slice": {
+    "8": {
+      "logged": 1.0130689206058145,
+      "ambient": 2.7439581592619984,
+      "connected": true
+    },
+    "12": {
+      "logged": 1.0204886967849143,
+      "ambient": 2.411404367634188,
+      "connected": true
+    },
+    "16": {
+      "logged": 1.0221211481676127,
+      "ambient": 2.2357037593021105,
+      "connected": true
+    },
+    "24": {
+      "logged": 1.0227881943491848,
+      "ambient": 2.0610242551704046,
+      "connected": true
+    }
+  }
+}

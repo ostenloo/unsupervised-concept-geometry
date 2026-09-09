@@ -2014,8 +2014,14 @@ Under A1 ✓ / A2 ✗, §18.4 and §18.6 both still run in full; only §18.5 is 
 ### 18.8 Open — requires Austin
 
 1. ~~Tailscale / fedora reachability~~ — **RESOLVED 9 Sep 2026**, §18.2. Branch A1 ✓ / A2 ✓.
-2. **Deadline branch (B1/B2/B3).** Determines the freeze, the eval sizes, and what §3 is for.
-3. **Venue/length**, if B1.
+2. ~~Deadline branch~~ — **RESOLVED 9 Sep 2026: B1.** Not submitted; applying to
+   the Fri 11 Sep deadline. The Sept 10 18:00 freeze is live, §18.5 eval sizes are
+   n=100 per set, and the P2 items stay deferred. B2's correction question does
+   not arise — nothing has been submitted, so the moved claims (§18.10 curvature,
+   §18.12's 0.654 cosine, N10's AUROC construction) are corrected *before*
+   anything is filed rather than after.
+3. **Venue/length** — still open, and now load-bearing: three headline claims
+   moved this week and the abstract must be rewritten around what survived.
 4. **ssh authorisation scope** for a long-running unattended GPU job under §18.5.
 5. ~~`bank_bare` transfer~~ — **RESOLVED**: transferred while the window was open (§18.2).
 
@@ -2272,3 +2278,74 @@ and arm 3 (`d_⊥`) carries proportionally more of the test.
 
 **Still open.** §14a's curvature (§18.10) and ID (§18.11 N9) remain under review;
 neither is touched by this run.
+
+### 18.13 §18.4b and §18.4g results — the manifold machinery is not load-bearing
+
+Run 9 Sep 2026 against `d6aa671`. `scripts/stageb_18_4bg.py`,
+`results/stageb_18_4bg.json`. Fit on the clean 400; every baseline on the same
+bank as the `d` it is compared against; both metrics per row, per C1.
+
+| method | Pearson r | cos(`v_ref_200`) | AUROC (held out) |
+|---|---|---|---|
+| Isomap coord 1 → `d` (ours) | 0.978 | **0.654** | **0.9935** |
+| PC1 of the fit bank | 0.999 | **0.995** | 0.9922 |
+| k-means (k=2) centroid difference | 1.000 | 0.998 | 0.9922 |
+| random directions, n=100 | mean 0.419, p95 **0.811** | mean 0.013, p95 0.030 | mean 0.662, p95 0.891 |
+
+**The pre-registered branch fires: PC1 r = 0.999 ≥ 0.90, |ΔAUROC| = 0.0013 ≤ 0.01.
+The manifold machinery is not load-bearing.** The reframe fixed in advance is
+adopted: *the refusal axis is recoverable by any unsupervised linear method,
+including trivial ones — which is positive evidence that the linear account is
+complete.* This is the honest framing and arguably the cleaner contribution; it
+was written down before the number existed precisely so it could not be spun now.
+
+It is worse for the manifold than "no better". **PC1 aligns with `v_ref` at cosine
+0.995; the Isomap direction manages 0.654.** Isomap's coordinate is *less* aligned
+with the supervised refusal direction than the first principal component, while
+delivering the same AUROC to within 0.0013. The extra machinery moves the
+recovered direction off `v_ref` without buying discrimination.
+
+**The random null is the other finding here, and it retroactively damages the
+headline alignment number.** A random direction, sign-oriented on the training
+set exactly as every other row is, achieves **Pearson r = 0.811 at the 95th
+percentile and 0.899 at maximum**. The logged 0.946 therefore sits barely above
+what random directions reach by chance. Pearson-r-across-points is a nearly
+uninformative metric on this data, and it is the metric the writeup's alignment
+claim rests on. Cosine's null is 0.013 mean / 0.030 p95, so cos 0.654 clears its
+null by a wide margin and 0.995 overwhelmingly. **Report cosine as primary; report
+Pearson r only with its null attached.** C1 flagged the confusion of the two; this
+quantifies why it mattered.
+
+The AUROC null is also not 0.5 but **0.662 mean / 0.891 p95** — harmful and
+harmless prompts differ in many ways a random direction partially captures, and
+sign-orientation folds the distribution upward. 0.9935 exceeds the maximum of 100
+draws, so it stands, but the null must be stated rather than assumed at chance.
+
+#### §18.4g — both curvature statistics across `K_SWEEP` (fit set: 600, per N6)
+
+| k | logged (geo / embedded chord) | ambient (geo / PCA-space chord) | connected |
+|---|---|---|---|
+| 8 | 1.0131 | 2.7440 | True |
+| 12 | 1.0205 | 2.4114 | True |
+| 16 | 1.0221 | 2.2357 | True |
+| 24 | 1.0228 | 2.0610 | True |
+
+Two things, both bearing on §18.4e′:
+
+1. **The logged statistic is flat in k (1.013–1.023) — as §18.10 predicts of an
+   MDS residual.** Its k-stability was previously read as evidence the curvature
+   result was robust. It is instead a property of the quantity being insensitive
+   to almost everything, curvature included.
+2. **The ambient statistic reads 2.06–2.74 and is strongly k-dependent.** §18.10
+   found that a *straight* line at σ=0.01 — noise above inter-point spacing —
+   returns 2.107 on this statistic. The Stage B data therefore sits in the
+   noise-dominated regime, which independently corroborates **N9**: if the local
+   cloud is noise at this scale, both the curvature statistic and `id_mle` are
+   reporting noise. The strong k-dependence means **the §18.4e′ power statement
+   must be given per-k**; a single MDR would be meaningless.
+
+**Consequence.** The curvature question is now entirely dependent on §18.4e′: an
+observed 2.41 at k=12 is interpretable only against a matched synthetic null at
+the data's own σ/spacing. It is no longer plausible that this ends in a
+straightness claim; the realistic outcomes are a bound or a null with stated
+power.
