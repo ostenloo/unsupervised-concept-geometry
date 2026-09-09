@@ -2714,3 +2714,40 @@ generation only.
 tidy support for the completeness conclusion: `d_⊥` does nothing, `d` sits inside
 the cos-matched null. That reading is not available while the anchor is dead, and
 recording that here is the point of having written the rule down first.
+
+### 18.20 §18.19 sweep result — the causal locus is layer 10, not 28
+
+`results/stageb_18_5_sweep.json`, `/tmp/sweep.log`. Difference-in-means direction
+rebuilt at every layer and ablated at every write; refusal drop on the same 76
+held-out harmful prompts. Baseline 0.947.
+
+| layer | 0–4 | 5 | 6 | 7 | 8 | 9 | **10** | **11** | 12 | 13 | 15 | 16–27 | 28 | 29–31 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| refusal | ≥0.908 | 0.829 | 0.763 | 0.500 | 0.237 | 0.105 | **0.000** | **0.000** | 0.132 | 0.474 | 0.303 | ≥0.868 | 0.882 | ≥0.803 |
+
+**Layers 10 and 11 remove refusal completely.** The causal window opens sharply
+at layer 7, peaks at 10–11, and has essentially closed by 16. Layer 28 — the layer
+every Stage B number was computed at — produces a drop of 0.066, barely above the
+random null of 0.003.
+
+**§11f's deviation was consequential, and it is now measured.** The spec recorded
+in advance that "the non-trivial part of Arditi et al. is… the selection sweep
+over layer and position" and chose to fix the layer from the §3g profile instead.
+That choice cost the causal result entirely: the anchor fails at the inherited
+layer and succeeds completely two-thirds of the network earlier. §13b found the
+same shape in Stage A — causal accessibility as a step function in layer — so this
+is the second appearance of the pattern in this project.
+
+Per §18.19 rule 2 the anchor is established (drop 0.947 ≥ 0.5) and the arms are
+re-run at the selected layer, subject to rule 1's CE gate — a layer that removes
+refusal by destroying the model does not qualify, and the sweep measured drop
+only. Ties break to the earlier layer, so layer 10 is the candidate.
+
+**A gap this exposes, which no amount of re-running fixes.** Every structural
+claim in Stage B — the AUROC, the intrinsic dimension, the curvature statistic,
+the coordinate alignment — was measured at L28, plus 8/22/31. **The layer where
+refusal is causally accessible was never analysed structurally.** The
+representational and causal claims are therefore about different parts of the
+network, and the writeup must say so rather than letting "layer 28" and "the
+refusal direction" blur together. §18.21 measures the §18.4b panel at the selected
+layer to close as much of this as CPU allows.
