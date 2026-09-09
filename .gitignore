@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 acts/
 *.pdf
+env/local_venv_freeze.txt

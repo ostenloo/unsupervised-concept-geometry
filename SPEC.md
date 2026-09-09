@@ -1572,3 +1572,461 @@ now carries 4/4 passing; the CPU suite carries 10/10.
 | **§5 parquet schema** | **partial** — quantities are all present but some field names differ from the spec's listing (`geo_chord_mean` vs `geo_chord_ratio_mean`, `coord_vs_refusal_prob` vs `..._spearman`), and `timestamp`, `model_revision`, `E_BC_se`, `notes` are absent. |
 | **§4d "three layers"** | **deviates** — spec names `L_ref`, `L_peak`, 28. Since §11f fixes the layer ourselves rather than reproducing Arditi's selection sweep, there is no `L_ref`; layers 8, 22, 28, 31 were run instead. Stated, not silently substituted. |
 | **§10 writeup** | **not started** — the actual deliverable |
+
+
+---
+
+## 18. Amendment: Stage B remaining work, reconciled against the record — Wed 9 Sep 2026
+
+**Status:** v3. This section is the §0 pre-registration artifact for all Stage B
+remaining work. It supersedes the external drafts `SPEC2.md` (written without
+repo access), `SPEC3.md` (v1) and `SPEC4.md` (v2), which are retained unmodified
+as the audit trail. Nothing in §18.4–§18.6 is run before this section is
+committed.
+
+### 18.0 Audit trail
+
+v1 corrected seven errors in SPEC2 (E1–E7); v2 corrected those. A second audit
+of v2 against the code found eight more (N1–N8), fixed here. Both rounds are
+recorded rather than silently applied, because the point of the exercise is that
+the corrections are visible.
+
+| ID | Error | Fix |
+|---|---|---|
+| E1 | Misquoted SPEC.md:5 as "base deadline Fri 4 Sep" — that is the writing date. | Base deadline **Sun 6 Sep**; §18.3. |
+| E2 | Bootstrapped TwoNN; the 5.21/5.89 contrast is MLE-vs-MLE (§14a). | §18.4f″ bootstraps `id_mle`. |
+| E3 | Transfer manifest incomplete, size ~5× low. | §18.2 manifest, ~2.5 GB. |
+| E4 | Decontaminated the coordinate but not `v_ref`. | §18.4c′. |
+| E5 | Silent on which `d` is ablated. | §18.4a′ closes it by measurement. |
+| E6 | "Every residual-stream write" ≠ block-output hooks; the test would pass while leaking. | §18.5a′ sub-layer hooks and sub-layer assertion. |
+| E7 | Synthetic bank skipped PCA(64) and used isotropic noise. | §18.4e′. |
+| **N1** | **`geodesic/chord` as implemented measures Isomap's MDS reconstruction residual, not curvature.** | **§18.4d″ — new statistic; the logged one is reclassified.** |
+| **N2** | **The 5.21-vs-5.89 ID contrast is confounded by sample size (600 vs 2000).** | **§18.4f″ — n-matched contrast.** |
+| **N3** | Bootstrap-with-replacement silently breaks `levina_bickel_mle` (duplicate points give `T_1 = 0` and are dropped at `geometry.py:92`). | §18.4f″ — m-out-of-n subsampling without replacement. |
+| N4 | §18.4d′ points 1 and 2 contradicted: data born in 64-d makes the PCA(64) step vacuous. | §18.4e′ picks option (B) explicitly. |
+| N5 | Platform test targeted a rounded value on a possibly non-deterministic pipeline; `cos(d₄₀₀, d₆₀₀)` ignored Isomap's arbitrary component sign. | §18.7 pins `eigen_solver`; all component comparisons use `\|cos\|`. |
+| N6 | Making `d₄₀₀` primary "throughout" silently migrated the structural claims to a different point set. | §18.4c′ splits which claims move and which stay. |
+| N7 | v2 dropped v1's eval-size rule. | §18.5b restores it. |
+| N8 | Sub-layer hooks need the same resolver and firing-count discipline as `capture`. | §18.5a′. |
+
+### 18.1 Corrections to SPEC2 (carried forward)
+
+**C1** 0.946 is a Pearson correlation across points (`stageb_structure.py:124`),
+not a cosine — every prose reference must say which. **C2** OLS at n=600, p=4096
+is vacuous; §18.4a′ regresses on the 64-d PCA scores instead. **C3** use the
+pre-registered `K_SWEEP = (8,12,16,24)` (`config.py:29`); tails may be added as
+marked extensions, never renumbered. **C4** §1e is a broken-estimator diagnosis,
+not an agreement claim. **C5** §16a stands; no whitening re-run. **C6** float32
+(`config.py:14`); a bf16 recapture would not be faithful. **C7** §1 is
+compute-gated too, so SPEC2's "drop to §1 only" fallback is void.
+
+**C8.** SPEC2 and v1 both wrote "TwoNN" for the ID contrast. The logged contrast
+is Levina–Bickel MLE. Name the estimator every time.
+
+**C9 (new, from N1).** Everywhere the record says "geodesic/chord", the quantity
+computed was geodesic-over-*embedded*-chord. §18.4d″ governs what may be claimed
+from it.
+
+### 18.2 Compute gates — RESOLVED 9 Sep 2026
+
+Two gates, deliberately separate; conflating them produced C7.
+
+**Gate A1 — one-time transfer. FIRED 9 Sep 2026.** fedora
+(`100.71.95.25`, uptime 112 days) reachable; all artifacts present. Tensors
+converted `.pt` → `.npy` on fedora at float32 (no dtype change), SHA-256
+manifest taken at source, transferred, verified at destination.
+
+| File | Shape / size | Needed by |
+|---|---|---|
+| `acts/npy/stageb.npy` | (800, 32, 4096) f32, 419 MB | §18.4a–e, §18.6 |
+| `acts/npy/bank.npy` | (2000, 32, 4096) f32, 1.05 GB | §18.4f″ |
+| `acts/npy/bank_bare.npy` | (2000, 32, 4096) f32, 1.05 GB | template control (§18.8.5) |
+| `data/stageb/*.json`, `xstest_raw.csv` | small | §18.5b eval sets, §18.7 hashes |
+| `env/A1_pip_freeze.txt`, `env/A1_manifest.sha256` | small | §18.7 |
+
+`bank_bare.npy` was transferred rather than decided, on the reasoning that the
+window was open and 1 GB is cheaper than a second window that may not exist. If
+the chat-template control is not claimed, the file is unused, not misused.
+
+**Gate A2 — sustained ssh + idle GPU. AVAILABLE.** RTX 5090, 181 MiB / 32,607 MiB
+used, 0% utilisation at check time. Driver 580.105.08, torch 2.11.0+cu130,
+transformers 5.12.1, Python 3.12.13. Requires tmux/nohup for a job outliving the
+session, and §18.8.4 (authorisation scope) before a long run starts.
+
+**Branch fired: A1 ✓ / A2 ✓ — full spec.** Note the consequence of the split:
+§18.4 and §18.6 are now permanently decoupled from box availability and run
+locally on the transferred `.npy` files regardless of what happens to fedora.
+
+### 18.3 Deadline branches — OPEN (§18.8.2)
+
+SPEC.md:5 records the application deadline as **Sun 6 Sep**, extension possible
+to Fri 11 Sep; SPEC.md:404 records the venue as a MATS application with a
+required LLM-assistance disclosure. Today is Wed 9 Sep, so the base deadline has
+passed. Commit `c725bdb` does not disambiguate submitted-from-stalled.
+
+- **B1 — extension granted.** ~2 days; SPEC2 §5 schedule with the Sept 10 18:00 freeze.
+- **B2 — submitted on/around Sun 6 Sep.** The submitted artifact is fixed. New
+  results are an addendum; do not retro-edit submitted claims, and do not present
+  post-submission results as having been in the application. Freeze void — run
+  §18.5 properly rather than fast.
+- **B3 — missed.** Standalone writeup or next-cycle piece. Freeze void; the P2
+  items return (Stage A diagnosis tests, full layer sweep, second concept family).
+
+Under B2/B3 the freeze and SPEC2's n=100 eval sizes are artifacts of a dead
+constraint and are re-derived, not inherited.
+
+### 18.4 Revised §1 (P0; gated on A1 only — now unblocked)
+
+**Run order is load-bearing.** §18.4d″ before §18.4e′ before §18.4g, because the
+power check must be run against whichever curvature statistic is being claimed.
+§18.4a′ and §18.4c′ before anything that names `d` or `v_ref`.
+
+#### 18.4a′ Close the `d` fork by measurement, then build `d`
+
+1. Fit the pipeline on the logged 600 in-primary prompts → `d₆₀₀`.
+2. Fit on the decontaminated 400 (§18.4c′) → `d₄₀₀`.
+3. Report **|cos(`d₄₀₀`, `d₆₀₀`)|** — absolute, because Isomap component sign is
+   arbitrary (N5). If ≥0.99 the fork is empty: record it and carry `d₄₀₀` with a
+   one-line note. If <0.99, carry both through every table, with `d₄₀₀` primary
+   in §18.5 and `d₆₀₀` as a labelled robustness arm.
+
+`d₄₀₀` is primary under either outcome: the causal claim should concern the
+direction recovered under clean conditions.
+
+**Construction (C2).** Regress the leading Isomap coordinate on the 64-d PCA
+scores (p=64, well-posed); report in-sample **and** 5-fold CV R²; lift
+`d = V₆₄ @ β`, normalized. Separately report cross-validated **ridge** R² on the
+full 4096-d centered activations — CV only, since in-sample is uninformative at
+this n. The gap between the two measures what PCA(64) discarded.
+
+Report cos(`d`, `v_ref`). **That measured value, not 0.946, is arm 4b's constraint.**
+
+#### 18.4b Baseline panel, both metrics per row
+
+| Method | Pearson r (coord vs. proj on `v_ref`) | cos(·, `v_ref`) | XSTest AUROC |
+|---|---|---|---|
+| Isomap coord 1 | ✓ | ✓ | ✓ |
+| PC1 of the in-primary set (**not** the 2000-prompt bank; recomputed on the 400 for the clean condition) | ✓ | ✓ | ✓ |
+| k-means (k=2) centroid difference | ✓ | ✓ | ✓ |
+| Random directions, n=100 | distribution | distribution | distribution |
+
+Every baseline is computed on the same bank as the `d` it is compared against.
+Name the metric in every cell; never present one as the other.
+
+**Branch rule.** PC1 ≥0.90 Pearson r *and* AUROC within 0.01 → the manifold
+machinery is not load-bearing. Reframe to "the refusal axis is recoverable by any
+unsupervised linear method including trivial ones, which is positive evidence
+that the linear account is complete." Write that abstract sentence now.
+
+#### 18.4c′ Decontaminate the coordinate **and** `v_ref` — and fix which claims move
+
+`prompts.csv` is 800 rows: 200 harmful / 200 harmless / 200 XSTest borderline
+(all `in_primary`) + 200 XSTest contrast (held out). `stageb_structure.py:30-42`
+computes `difference_in_means(H = acts[harmful], B = acts[~harmful])`, and that
+complement is 200 harmless **+ 200 XSTest borderline** — so `v_ref`'s negative
+pole is half XSTest, and refitting only the coordinate would leave the reference
+direction fit on the evaluation set.
+
+1. `v_ref_200` = difference-in-means, 200 harmful vs 200 harmless only.
+2. Report **cos(`v_ref_200`, `v_ref_400`)** first. If ≥0.99, the contamination is
+   immaterial and that is said with a number. If not, `v_ref_200` is primary
+   throughout — including §18.5 arm 1 and the arm 4b constraint — and
+   `v_ref_400` appears as a labelled robustness row.
+3. The logged 0.946 belongs to `d₆₀₀ × v_ref_400`. It stays in the record
+   labelled as such; the headline r is recomputed under the clean pairing and
+   **will differ**.
+
+**AUROC:** refit on the 400 harmful+harmless, evaluate on all 400 XSTest as
+genuine holdout. **That is the headline.** 0.995 reported alongside, labelled
+transductive; the gap is itself reportable.
+
+**Which claims move (N6).** The 400 is two clusters with the borderline prompts
+— the points that fill the middle of the refusal axis — removed, which is the
+regime where kNN geodesics are least trustworthy. Therefore, fixed now:
+
+- **Moves to the 400:** the AUROC, and the `d` fed to §18.5.
+- **Stays on the 600:** the structural claims — curvature, ID, tangents — reported
+  as computed on the 600 and labelled so.
+- **Precondition:** check `info["graph_connected"]` across the full `K_SWEEP` on
+  the 400 *before* anything is built on `d₄₀₀`. A disconnected graph there
+  invalidates `d₄₀₀`, not just its error bars.
+
+#### 18.4d″ Curvature statistic — the logged one does not measure curvature (N1)
+
+`geometry.py:182-186` returns `Y = iso.fit_transform(X)` and
+`D_geo = iso.dist_matrix_`; `stageb_structure.py:112` then calls
+`geodesic_chord(D_geo, Y)`, whose chord term is `pdist(Y)` — Euclidean distance
+**in the embedding**. Isomap's objective is precisely to make embedded distances
+approximate `dist_matrix_`, so the ratio is driven to 1 by construction, and
+because classical MDS truncated to d components can only shrink distances it sits
+systematically just *above* 1. The logged 1.010–1.020, and its stability across
+four layers and the k-sweep, are consistent with an MDS residual, not with a
+curvature measurement.
+
+On a genuinely curved manifold Isomap unrolls it: geodesic ≈ embedded distance
+≫ ambient chord, so the implemented statistic returns ≈1 for a curved arc. It has
+no power against the hypothesis it was reported as testing.
+
+**Fixed now:**
+
+1. **New statistic:** geodesic over **ambient chord** — `||x_i − x_j||` in the
+   PCA(64) space (`Xp`, already in scope one line above the current call). This
+   is the curvature measure; it is what §18.4e′ computes MDR for and what the
+   straightness claim rests on.
+2. **The logged statistic is reclassified**, not deleted: reported as an
+   Isomap/MDS reconstruction diagnostic under that name. Also write
+   `iso.reconstruction_error()` (computed at `geometry.py:189`, never persisted)
+   into the parquet, so the reclassification is demonstrated rather than asserted.
+3. **Falsification test, run first, no activations required:** a semicircular arc
+   in R³ with known `φ/sin φ`, through the same pipeline. Expected: the logged
+   statistic returns ≈1.0 at every true curvature; the new one recovers `φ/sin φ`.
+   If that is *not* what happens, N1 is wrong and this subsection is withdrawn
+   before anything downstream is touched.
+4. **§14a's straightness finding is under review until (3) resolves**, and the
+   writeup may not restate it until then. §14d's branch-one verdict cites
+   geodesic/chord first among its four supports; the other three (coordinate
+   alignment, behavioural correlation, the §14c natural experiment) are
+   untouched by N1 and are unaffected.
+
+#### 18.4e′ Power check on synthetic curvature
+
+Run against the §18.4d″ statistic. Two changes from SPEC2 §1d, resolving E7 and
+N4 — v2 asked for both a whole-pipeline run and generation in the 64-d space,
+which are incompatible, since data born in 64-d makes PCA(64) a no-op:
+
+**Option (B) is chosen.** Generate in the full 4096-d ambient space using the
+**real bank's covariance** — not isotropic noise, which was E7's actual defect —
+then run the pipeline whole, with PCA(64) **fit on the synthetic bank**. Report
+the covariance model used. Noise scale from residuals about a 1-D principal curve
+along `d`; note in the writeup that this curve is fit to data that may itself be
+curved, a mild circularity that biases σ upward and therefore MDR conservative.
+
+Otherwise as SPEC2 §1d: circular arcs, true ratio `φ/sin φ`, sweep
+{1.000, 1.005, 1.01, 1.02, 1.05, 1.10, 1.25, 1.50}, 50 replicates, n matched.
+Null at 1.000 sets the threshold (95th percentile); MDR = smallest true ratio
+detected at ≥80% power. Run at k=12 and report MDR per-k across `K_SWEEP`, since
+the floor is k-conditional.
+
+**Also run the power check against the logged statistic**, which is expected to
+return no detection at any ratio through 1.50. That is the quantitative
+demonstration of N1 and belongs in the writeup as such.
+
+**Branch rule.** MDR > 1.02 → the claim is "curvature below our detection
+threshold of X," never "the manifold is straight." Committed now.
+
+#### 18.4f″ ID uncertainty, correct estimator, n-matched (E2, N2, N3)
+
+§14a's columns are `ID (MLE) | ID (TwoNN) | bank ID (MLE)`; at L28,
+**5.21 = MLE (refusal), 6.89 = TwoNN (refusal), 5.89 = bank MLE**. The contrast
+is MLE-vs-MLE, and the bootstrap must reproduce the composite in
+`geometry.py:130-136` — the mean of Levina–Bickel at k ∈ {10, 20}, not a single k.
+
+**Sample-size confound (N2), and it comes before the CI.** The refusal set is
+`A = acts[prim]`, 600 points (`stageb_structure.py:91`); the bank is 2000.
+Levina–Bickel at fixed k is density-dependent: more samples means smaller
+neighbourhoods and a typically higher estimate. **A 2000-point bank scoring above
+a 600-point set is what identical intrinsic structure would produce**, and the
+logged difference runs in exactly the direction the bias predicts. Without this
+control both outcomes are uninterpretable — overlapping CIs read as "not
+elevated", separated CIs as "genuinely lower", and either could be n-bias.
+
+**Required: subsample the bank to n=600 over many draws and make that the
+contrast.** The 2000-point number stays in the record, labelled as computed at a
+different n.
+
+**Resampling method (N3).** `geometry.py:92` drops any point whose nearest-neighbour
+distance is zero (`ok = T[:, 0] > 0`). Under bootstrap *with replacement*, every
+duplicated point has `T_1 = 0`, so a large fraction of rows is silently dropped
+and the survivors' distance sequences are compressed by ties — the CI would
+describe a different estimator than the point estimate. Use **m-out-of-n
+subsampling without replacement** (80%, consistent with SPEC2 §3a), with n held
+fixed and equal across both banks.
+
+**Reported limit.** 5.21 (MLE) against 6.89 (TwoNN) is a ~30% disagreement
+between two estimators on identical data. That spread bounds how much weight
+"the refusal cloud is ~5-dimensional" can carry and is stated as a limit on the
+ID claim rather than left for a reader to find. Bootstrap TwoNN for that
+comparison only; the §14d contrast remains MLE-vs-MLE.
+
+**Branch rule.** If the n-matched MLE CIs overlap, the §14d control-bank
+comparison framing does not survive and must not be written.
+
+#### 18.4g Ratio-only k slice
+
+Both statistics (§18.4d″) at `K_SWEEP = (8,12,16,24)`. Gates §18.4e′.
+
+### 18.5 Revised §2 (P0; gated on A2)
+
+#### 18.5a′ Hook granularity, and a test that certifies the right thing (E6, N8)
+
+`config.py:25` pins `HOOK_MODULE_TEMPLATE = "model.layers.{layer}"` — **block
+outputs**. Arditi ablates at every residual-stream write: embedding output, each
+attention output, each MLP output. With block-output hooks, attention can write a
+û-component that the MLP reads within the same block before the next ablation
+fires. **The leak biases toward a false null on arms 2 and 3** — the arms whose
+nulls are pre-committed as supporting the completeness conclusion. A leaky hook
+manufactures exactly the result being pre-registered as expected. And v2's test
+would have passed while leaking, since a block-boundary assertion checks
+precisely where the hooks fire.
+
+**Resolution — extend the hooks. Not optional.** Hook `model.embed_tokens`,
+`model.layers.{i}.self_attn`, and `model.layers.{i}.mlp` outputs. Sub-layer
+returns vary by attention implementation in transformers 5.x, so apply the same
+explicit tensor resolution as `_resolve_block_output` (`model.py:48`) rather than
+trusting a return convention, and assert the firing count — **65 per forward**
+(1 embedding + 32 attention + 32 MLP) — the way `capture` asserts 32
+(`model.py:118`).
+
+If the hooks cannot be extended in the time available, **arm 3's null becomes
+uninterpretable and is reported as such.** Pre-committing "arm 3's null supports
+completeness" while running an instrument that produces nulls artifactually is
+not available. One or the other.
+
+**Acceptance test, before any eval run:**
+1. **Null-op:** zero-magnitude projection reproduces baseline generation token-for-token.
+2. **Completeness at sub-layer outputs:** during full generation, assert
+   `max|û·x| < ε` at every hooked sub-layer output and every position, generated
+   positions included. A block-boundary assertion is insufficient (E6).
+3. **KV-cache consistency:** ablated generation with and without KV cache must
+   match on ≥5 prompts. Divergence means keys/values were computed pre-ablation —
+   silent partial ablation. If they diverge, disable the cache and absorb the cost.
+
+Log the test output in the results file. An unasserted ablation is not evidence.
+
+**Timing.** The 20-prompt measurement runs on this new path, not the
+single-forward path, and is therefore the first exercise of new code. Measure
+before committing to a schedule; SPEC2's 45–90 min was an estimate.
+
+#### 18.5b Arms
+
+Directional ablation `x ← x − ûûᵀx` at every hooked write, every layer, every
+position, throughout generation.
+
+| Arm | Direction | Purpose |
+|---|---|---|
+| 1 | `v_ref_200` (§18.4c′) | replication anchor |
+| 2 | `d₄₀₀` (§18.4a′) | does the unsupervised direction cause refusal |
+| 3 | `d_⊥ = d₄₀₀ − proj_{v_ref_200}(d₄₀₀)` | independent causal content |
+| 4 | random unit, n=5 seeds | null |
+| 4b | random, constrained to the **measured** cos(`d₄₀₀`, `v_ref_200`) | "is `d` more than a vector near `v_ref`" |
+| 5 | none | baseline |
+
+Robustness arms (`d₆₀₀`, `v_ref_400`) only if §18.4a′/§18.4c′ return |cos| <0.99.
+
+**Eval sets.** Harmful: JailbreakBench Behaviors, string-deduplicated against the
+400-prompt fit bank (JBB shares lineage with AdvBench/HarmBench); report n after
+dedup. Harmless: **held-out rows of `harmless_test.json`** — not a fresh Alpaca
+pull, which risks overlapping both the 200 in the fit set and the 2000 in
+`bank.npy`. Dedup against both and report n, to the same standard as the harmful
+set. **n (N7): 100 per set under B1; under B2/B3 re-derive from a power
+calculation on the arm-1-versus-arm-5 refusal-rate difference and report the
+target power.**
+
+**Metrics.** (a) Arditi refusal-substring rate — primary. (b) CE loss on harmless
+completions — capability gate, not a footnote. (c) Manual stratified spot-check
+of ~40 completions, documented — covers the incoherence failure mode where a
+lobotomised model scores as "not refusing". (d) LLM judge secondary if an API key
+exists; never on the critical path, never a local model sharing the GPU.
+
+**Branch rules, committed:**
+- Arm 2 drop ≥ 0.8 × arm 1 drop, arm 2 CE within noise of arm 5 → `d` is causally
+  equivalent to `v_ref`.
+- Arm 3 ≤ arms 4/4b + CI → `d`'s causal power is fully explained by `v_ref`
+  overlap, which **supports** the completeness conclusion. **Valid only if
+  §18.5a′ test 2 passed at sub-layer granularity.**
+- Arm 3 significantly above both nulls → the single-direction account is
+  incomplete, and that becomes the headline.
+
+#### 18.5c Steering (absorbs §4f)
+
+Addition arm on harmless prompts, `û ∈ {d₄₀₀, v_ref_200}`, **matched on
+projection magnitude, not raw α**. Consistency = dose-response curves overlap
+within bootstrap CI at every level. Divergence at high magnitude only →
+"consistent in the linear regime, diverging under strong steering", which is a
+finding, not a failure.
+
+### 18.6 §3 reduction
+
+- **§3d (whitening):** cite §16a — already resolved, not load-bearing. Do not re-run.
+- **§3c (layers):** `model.py:97` confirms capture is `[n, 32, 4096]` float32, so
+  this is CPU-only on the transferred file. §14a already establishes ratio
+  stability at 8/22/28/31 — but see §18.4d″ for what that ratio measures. What
+  remains: the §18.4b metrics (r, cosine, AUROC) at 8/22/31 alongside 28, which is
+  where the Wurgaft layer-inheritance vulnerability actually bites.
+- **§3a (resampling stability), §3b (full k sweep):** P1, CPU, gated on A1.
+
+Under A1 ✓ / A2 ✗, §18.4 and §18.6 both still run in full; only §18.5 is lost.
+
+### 18.7 Reproducibility pins
+
+- **Model SHA:** `config.py:11` — reference, do not re-pin.
+- **Stage B dataset commit:** `data/stageb/UPSTREAM_COMMIT.txt`.
+- **XSTest, `harmless_train`/`harmless_test`:** snapshots unrecorded at run time.
+  Pinned by SHA-256 content hash in `env/A1_manifest.sha256`, taken at source on
+  fedora and verified after transfer. Recorded verbatim: *snapshot unrecorded at
+  run time; re-pinned by content hash on 9 Sep 2026.* No retroactive implication
+  of pinning.
+- **fedora environment, and a correction.** The first A1 capture froze fedora's
+  *system* python (torch 2.11.0+cu130, transformers 5.12.1) — which is **not the
+  environment any result was produced in**. The runs used
+  `~/unsupervised-concept-geometry/.venv`: Python 3.12.13, **torch 2.14.0,
+  transformers 5.16.1**, numpy 2.5.2, scipy 1.18.1, scikit-learn 1.9.0,
+  scikit-dimension 0.3.7. Driver 580.105.08. Pinned in
+  `env/A1_pip_freeze_RUNENV.txt` (79 packages); the wrong capture is retained as
+  `env/A1_pip_freeze_SYSTEM_wrong_env.txt` rather than deleted.
+
+  **Consequence for §18.5a′ (N8):** `config.py:23` states "transformers on this
+  box is 5.12.1, where block outputs are no longer a bare tuple in all paths."
+  That comment describes the system install; the code actually ran under
+  **5.16.1**. The sub-layer hook work targets 5.16.1, and the comment is stale —
+  which is the reason `_resolve_block_output`-style explicit tensor resolution is
+  required for the sub-layer hooks rather than any assumed return convention.
+- **Local environment.** This laptop had no venv and no numpy/scipy/sklearn/pandas/skdim.
+  Created on Python 3.13.7 (system python3 is 3.14, whose `ensurepip` fails):
+  numpy 2.5.3, scipy 1.18.1, scikit-learn 1.9.0, pandas 3.0.5, pyarrow 25.0.1,
+  skdim 0.3.7 — pinned in `env/local_venv_freeze.txt`. **The analysis stack
+  matches the fedora run environment except numpy (2.5.3 vs 2.5.2) and Python
+  minor (3.13.7 vs 3.12.13); scikit-learn, scipy and skdim match exactly**, which
+  is what the §18.4 numbers depend on. Running on macOS arm64 against Linux x86
+  remains a platform change with a different BLAS and is recorded as a deviation;
+  the acceptance test below, not the version match, is what licenses it.
+- **Determinism (N5).** `sklearn.manifold.Isomap` defaults to `eigen_solver='auto'`,
+  which may select ARPACK with an unseeded start vector, so `Y` is not guaranteed
+  reproducible even on one machine. **Pin `eigen_solver` explicitly** before any
+  embedding-derived quantity is used as an acceptance criterion. All comparisons
+  between Isomap components use `|cos|`, since component sign is arbitrary.
+- **Platform acceptance test.** Before trusting any new local number, reproduce a
+  logged one against the **full-precision** value in
+  `results/stageb_structure.parquet` — not the rounded 1.020 in §14a's table.
+  Prefer a `D_geo`-derived statistic, which is deterministic shortest-paths, over
+  an embedding-derived one. Tolerance ±0.002; outside it, §18.4 runs on fedora or
+  not at all.
+- **Stage A diagnoses remain untested hypotheses.** The alkane monotone-ordinal
+  account and the IUPAC orthographic confound are stated predictions, not
+  established mechanisms, and nothing in §18 tests either. The writeup must say so
+  explicitly; without that sentence, "we diagnosed two failure modes" reads as a
+  finding. Under B3 they return to scope.
+
+### 18.8 Open — requires Austin
+
+1. ~~Tailscale / fedora reachability~~ — **RESOLVED 9 Sep 2026**, §18.2. Branch A1 ✓ / A2 ✓.
+2. **Deadline branch (B1/B2/B3).** Determines the freeze, the eval sizes, and what §3 is for.
+3. **Venue/length**, if B1.
+4. **ssh authorisation scope** for a long-running unattended GPU job under §18.5.
+5. ~~`bank_bare` transfer~~ — **RESOLVED**: transferred while the window was open (§18.2).
+
+### 18.9 Claim-dependency graph
+
+Built **before** §18.4 resolves, with the branches open — that is the artifact's
+purpose. Graphviz/mermaid source in-repo, rendered for the writeup, annotated
+post-hoc with which branch fired.
+
+Nodes:
+- §18.4a′ CV R² low → C2's overclaiming fires; "recovers a *direction*" is not supportable
+- §18.4b → the novelty claim
+- §18.4c′ → the AUROC claim **and** every `v_ref`-referenced quantity
+- §18.4d″ falsification test → **gates the straightness claim's existence**, not just its size
+- §18.4e′ → the straightness claim's power statement
+- §18.4f″ n-matched contrast → §14d's ID contrast
+- §18.5a′ test 2 → **gates** arm 3's interpretability
+- §18.5b arm 3 → the conclusion itself
