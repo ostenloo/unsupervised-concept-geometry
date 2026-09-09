@@ -2559,3 +2559,41 @@ method is from the manifold regime, the better it aligns.
 
 Graph connectivity holds at every k on the 400, which was §18.4c′'s precondition
 for building anything on `d₄₀₀`. That precondition is met.
+
+### 18.17 Amendment to §18.5, written before the GPU work begins
+
+Two changes forced by §18.12–§18.16. Recorded before any ablation code exists.
+
+**1. Arm 4b's constraint is cos = 0.654, measured (§18.12), not 0.946.** This
+weakens that null substantially: random vectors at cosine 0.65 to `v_ref` are far
+easier to clear than at 0.95, so arm 4b tests less than SPEC2 assumed and **arm 3
+(`d_⊥`) carries correspondingly more of the causal test.** Stated now so the
+weakness is not discovered in the interpretation.
+
+**2. New arm 6: PC1 of the fit bank.** After §18.4b and §18.16 the interesting
+causal question has changed. "Does `d` cause refusal" was the question when `d`
+was the distinctive object; it no longer is — PC1 matches its AUROC, beats its
+alignment and is an order of magnitude more stable. The question that now carries
+weight is whether **`d`, PC1 and `v_ref` are causally interchangeable.**
+
+| Arm | Direction | Purpose |
+|---|---|---|
+| 1 | `v_ref_200` | replication anchor |
+| 2 | `d₄₀₀` | does the unsupervised direction cause refusal |
+| 3 | `d_⊥` | independent causal content beyond `v_ref` |
+| 4 | random unit, n=5 | null |
+| 4b | random at cos = 0.654 to `v_ref` | "more than a vector near `v_ref`" |
+| 5 | none | baseline |
+| **6** | **PC1 of the clean 400** | **is the trivial baseline causally equivalent too** |
+
+**Pre-registered rule for arm 6.** If arms 1, 2 and 6 produce refusal drops within
+each other's CIs, with CE within noise of arm 5, then the linear account is
+supported **causally** and not merely correlationally: the same behaviour is
+reachable through the supervised direction, the manifold direction and the first
+principal component alike. That is the strongest form the completeness conclusion
+can take from this data. If arm 6 drops materially less than arms 1–2, then PC1's
+correlational parity was not causal parity, §18.4b's "not load-bearing" applies to
+prediction but not intervention, and that distinction becomes the finding.
+
+**Unchanged:** the §18.5a′ acceptance tests gate everything, and arm 3's null is
+uninterpretable unless test 2 passes at sub-layer granularity.
