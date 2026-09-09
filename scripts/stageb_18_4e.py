@@ -63,10 +63,20 @@ class Generator:
     the whole point of the exercise.
     """
 
-    def __init__(self, X, d, seed=config.SEED):
+    def __init__(self, X, d, seed=config.SEED, density="uniform"):
+        """`density` controls how arc-length positions are drawn.
+
+        "uniform" spreads points evenly, which is what the §18.15 run used.
+        "empirical" resamples the observed projections onto `d`, reproducing the
+        real data's clustering along the curve. Gaps between clusters lengthen
+        graph geodesics, so a uniform null under-states the inflation a straight
+        structure would produce and can make clustering look like curvature.
+        """
         self.n, self.p = X.shape
         Xc = X - X.mean(0, keepdims=True)
         proj = Xc @ d
+        self.density = density
+        self.proj_centered = (proj - proj.mean()).astype(np.float32)
         self.spread = float(proj.max() - proj.min())
         self.resid = (Xc - np.outer(proj, d)).astype(np.float32)   # about the 1-D line
         self.e1 = d.astype(np.float32)
@@ -82,7 +92,10 @@ class Generator:
     def draw(self, true_ratio, n=None):
         n = n or self.n
         phi = half_angle_for_ratio(true_ratio)
-        s = self.rng.uniform(-self.spread / 2, self.spread / 2, size=n).astype(np.float32)
+        if self.density == "empirical":
+            s = self.rng.choice(self.proj_centered, size=n, replace=True)
+        else:
+            s = self.rng.uniform(-self.spread / 2, self.spread / 2, size=n).astype(np.float32)
         e2 = self._orthonormal_partner()
         if phi > 0:
             radius = self.spread / (2 * phi)

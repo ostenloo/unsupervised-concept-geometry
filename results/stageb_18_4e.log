@@ -1,0 +1,60 @@
+L28: n=600 spread along d = 24.46 | residual sigma/dim = 0.3278 | median NN spacing (PCA64) = 7.884
+observed ambient statistic at k=12 (for reference): 2.4114
+
+=== k=8 (20 replicates) ===
+   true  ambient mean   power    logged mean   power
+  1.000         2.339    0.05         1.0559    0.05
+  1.005         2.375    0.25         1.0521    0.00
+  1.010         2.377    0.15         1.0540    0.00
+  1.020         2.358    0.25         1.0537    0.00
+  1.050         2.385    0.35         1.0525    0.00
+  1.100         2.389    0.35         1.0526    0.00
+  1.250         2.418    0.55         1.0557    0.05
+  1.500         2.459    0.80         1.0549    0.00
+  ambient: null p95 = 2.409 | observed = 2.744 | MDR = 1.5
+  logged : null p95 = 1.0677 | observed = 1.0131 | MDR = >1.50 (no detection)
+  observed vs null: ambient ABOVE the null's 95th percentile
+
+=== k=12 (50 replicates) ===
+   true  ambient mean   power    logged mean   power
+  1.000         2.081    0.06         1.0530    0.06
+  1.005         2.090    0.12         1.0525    0.10
+  1.010         2.091    0.10         1.0536    0.12
+  1.020         2.092    0.10         1.0531    0.02
+  1.050         2.098    0.20         1.0531    0.06
+  1.100         2.100    0.12         1.0543    0.20
+  1.250         2.115    0.28         1.0534    0.08
+  1.500         2.149    0.64         1.0560    0.22
+  ambient: null p95 = 2.139 | observed = 2.411 | MDR = >1.50 (no detection)
+  logged : null p95 = 1.0613 | observed = 1.0205 | MDR = >1.50 (no detection)
+  observed vs null: ambient ABOVE the null's 95th percentile
+
+=== k=16 (20 replicates) ===
+   true  ambient mean   power    logged mean   power
+  1.000         1.948    0.05         1.0562    0.05
+  1.005         1.944    0.15         1.0541    0.05
+  1.010         1.950    0.10         1.0568    0.10
+  1.020         1.937    0.05         1.0561    0.05
+  1.050         1.959    0.15         1.0544    0.00
+  1.100         1.945    0.05         1.0564    0.10
+  1.250         1.970    0.25         1.0575    0.10
+  1.500         2.004    0.65         1.0567    0.15
+  ambient: null p95 = 1.987 | observed = 2.236 | MDR = >1.50 (no detection)
+  logged : null p95 = 1.0632 | observed = 1.0221 | MDR = >1.50 (no detection)
+  observed vs null: ambient ABOVE the null's 95th percentile
+
+=== k=24 (20 replicates) ===
+   true  ambient mean   power    logged mean   power
+  1.000         1.795    0.05         1.0577    0.05
+  1.005         1.806    0.05         1.0580    0.10
+  1.010         1.802    0.05         1.0577    0.10
+  1.020         1.800    0.05         1.0585    0.05
+  1.050         1.821    0.25         1.0549    0.05
+  1.100         1.813    0.15         1.0564    0.05
+  1.250         1.836    0.55         1.0564    0.05
+  1.500         1.847    0.65         1.0590    0.20
+  ambient: null p95 = 1.836 | observed = 2.061 | MDR = >1.50 (no detection)
+  logged : null p95 = 1.0642 | observed = 1.0228 | MDR = >1.50 (no detection)
+  observed vs null: ambient ABOVE the null's 95th percentile
+
+wrote /Users/austinliu/unsupervised-concept-geometry/results/stageb_18_4e.json

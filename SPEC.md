@@ -2419,3 +2419,93 @@ distinguished 1 from 5 in the first place, so it was never informative here.
 
 **§14a's ID row is superseded**: report 5.21/5.89 as logged, with the 1-D noise
 floor of 5.43 beside them, and the dimensionality claim stated as a bound.
+
+### 18.15 §18.4e′ results — no power to detect curvature, and a departure from straight anyway
+
+Run 9 Sep 2026 against `d6aa671`. `scripts/stageb_18_4e.py` (+ `_e2.py` addendum),
+`results/stageb_18_4e.json`, `stageb_18_4e2.json`, log in `stageb_18_4e.log`.
+Option (B) as fixed in §18.4e′: arcs generated in the full 4096-d ambient space,
+noise by resampling the real residual vectors about the 1-D line along `d` (which
+reproduces the true residual covariance without factorising a 4096² matrix), the
+pipeline run whole with PCA(64) fit on each synthetic bank. 50 replicates at
+k=12, 20 elsewhere.
+
+#### The logged statistic has no power at any k — N1, quantified
+
+| k | logged: null p95 | observed | MDR |
+|---|---|---|---|
+| 8 | 1.0677 | 1.0131 | **> 1.50** |
+| 12 | 1.0613 | 1.0205 | **> 1.50** |
+| 16 | 1.0632 | 1.0221 | **> 1.50** |
+| 24 | 1.0642 | 1.0228 | **> 1.50** |
+
+Power never exceeds 0.22 at any true ratio through 1.50. This is the outcome
+§18.4e′ pre-registered as expected and it converts §18.10's demonstration into a
+number: **the statistic §14a reported straightness from could not have detected
+curvature of any magnitude up to 50%.** Note also that the observed value sits
+*below* its own null mean, which is meaningless given zero power, and is exactly
+the kind of reassuring-looking number the whole exercise exists to disarm.
+
+#### The ambient statistic has essentially no power either
+
+| k | ambient: null p95 | observed | MDR |
+|---|---|---|---|
+| 8 | 2.409 | 2.744 | 1.50 |
+| 12 | 2.139 | 2.411 | **> 1.50** |
+| 16 | 1.987 | 2.236 | **> 1.50** |
+| 24 | 1.836 | 2.061 | **> 1.50** |
+
+**§18.4e′'s branch rule fires at its extreme.** MDR > 1.02, so no straightness
+claim is available; the honest statement is *"curvature is below our detection
+threshold"* — and the threshold is above 1.50, i.e. the instrument cannot detect
+curvature of any magnitude this design tested. The power statement is per-k as
+§18.4g required, and the floor is k-dependent because the null itself is.
+
+#### But the observed value exceeds the null at every k, and it survives the sharper null
+
+Observed is above the null's 95th percentile at all four k. The obvious artifact
+explanation is density: the null draws arc positions uniformly, while the real 600
+are three groups (harmful / harmless / borderline) with gaps along `d`, and gaps
+lengthen graph geodesics. So the null was re-run with positions **resampled from
+the observed projections onto `d`**, changing nothing else:
+
+| k | observed | null p95, uniform | null p95, density-matched | |
+|---|---|---|---|---|
+| 8 | 2.744 | 2.422 | 2.491 | above |
+| 12 | 2.411 | 2.134 | 2.171 | above |
+| 16 | 2.236 | 1.987 | 2.027 | above |
+| 24 | 2.061 | 1.847 | 1.866 | above |
+
+Clustering accounts for very little and the excess survives. The N9 control was
+re-run density-matched for the same reason and is unchanged: a true 1-D structure
+returns `id_mle` 5.175 [4.868, 5.497] against an observed 5.207, so §18.14's
+conclusion stands under the sharper null too.
+
+**What the excess is not.** At k=12 the observed 2.411 exceeds the synthetic mean
+at true ratio **1.50** (2.149). The observed configuration is therefore outside
+the arc family that was swept — it is not characterisable as arc curvature of any
+magnitude tested, and quoting a curvature figure from it would be unsupportable.
+
+**What it is.** The null is "straight line + exchangeable residuals + matched
+density". Resampling residual *vectors* independently of position destroys any
+dependence between where a point sits along `d` and how it deviates. So what the
+excess establishes is that **the real residuals are not exchangeable along the
+coordinate** — there is position-dependent structure. That is a real, consistent,
+null-clearing departure from the straight-line model, and its direction is not
+identified: curvature, position-dependent noise scale, and locally varying
+covariance all produce it.
+
+#### Net effect on §14a and §14d
+
+- **No straightness claim survives, by two independent routes.** The original
+  statistic had no power (§18.10, and now MDR > 1.50); the corrected statistic
+  detects a significant departure from straight. §14a's "Curvature: straight" is
+  withdrawn, not merely reclassified.
+- **§14d's branch-one verdict is not withdrawn but its basis has changed
+  entirely.** Curvature is gone as a support. What carries it now is §18.14's
+  ID result — refusal at or below the 1-D noise floor while the bank is above it —
+  plus the coordinate alignment, the behavioural correlation and the §14c natural
+  experiment. Three of those four are unaffected by anything found this week.
+- **The departure is reportable and must not be buried**, but it cannot be
+  presented as curvature. The correct sentence names the null it clears and the
+  three mechanisms it cannot distinguish between.
