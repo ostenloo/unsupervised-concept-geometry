@@ -2883,3 +2883,64 @@ plausibility argument afterwards.
 3. **The consistency verdict may only be computed over conditions that pass the
    gate**, and if fewer than two doses survive for a direction, the comparison is
    reported as having no power rather than as agreement.
+
+### 18.23 §18.5c re-run and the spot-check — sufficiency agrees with necessity
+
+`results/stageb_18_5c.json`. Single-site addition at L10 (§18.22), directions
+rebuilt there, matched on each direction's own harmful-minus-harmless projection
+gap (`d` 2.082, `v_ref` 3.050, PC1 3.018). Baseline refusal on harmless 0.000,
+CE 0.2144.
+
+| direction | ×0.5 | ×1.0 | ×2.0 | ×4.0 |
+|---|---|---|---|---|
+| `v_ref` | 0.040 | **0.970** | 1.000 ✗ | 0.190 ✗ |
+| PC1 | 0.040 | **0.950** | 1.000 ✗ | 0.510 ✗ |
+| `d` | 0.000 | 0.020 | 0.600 | 1.000 ✗ |
+
+✗ = fails the §18.22 coherence gate. **The gate immediately earned itself**: at
+`v_ref` ×4.0 the *measured refusal rate falls* to 0.190, not because steering
+stopped working but because CE reached 4.05 and the distinct-token ratio 0.313 —
+the model is producing degenerate text, which contains no refusal substrings.
+Without the gate that would have been a spurious inverted-U dose-response.
+
+**Consistency, computed only over the two doses passing the gate for all three
+directions:**
+
+- **PC1 vs `v_ref`: overlap at both** — [−0.050, +0.050] at ×0.5 and
+  [−0.080, +0.030] at ×1.0.
+- **`d` vs `v_ref`: diverges at both** — [−0.080, −0.010] and [−0.990, −0.900].
+
+**Verdict: divergent for `d`, interchangeable for PC1** — the same answer the
+ablation arm gave, reached by addition instead of removal.
+
+**And `d`'s shortfall is quantitatively what its `v_ref` overlap predicts.** At
+×1.0 `d` displaces 2.082 along itself, i.e. 0.683 × 2.082 = **1.42** along
+`v_ref` — just under `v_ref`'s own ×0.5 dose of 1.52. The refusal induced is
+0.020 against 0.040. `d` behaves like a *weaker dose of `v_ref`*, not like a
+different intervention, which is the sufficiency-side statement of §18.21's arm
+4b result.
+
+#### §18.5b metric (c): stratified spot-check
+
+42 completions, six per arm, `results/spotcheck_18_5.json`:
+
+| arm | distinct-token ratio | empty | mean words |
+|---|---|---|---|
+| `v_ref` | 0.878 | 0.00 | 36.1 |
+| PC1 | 0.880 | 0.00 | 36.0 |
+| `d` | 0.898 | 0.00 | 32.1 |
+| `d_⊥` | 0.925 | 0.00 | 15.4 |
+| random | 0.938 | 0.00 | 15.2 |
+
+Read against text rather than asserted: the ablated model produces **coherent,
+on-topic compliance** with the harmful requests — fluent prose, correct register,
+directly addressing what was asked. It is not degenerate and it is not evasive.
+The incoherence failure mode — where a lobotomised model scores as "not
+refusing" — **does not occur here**, so the 0.947 drop is genuine refusal removal.
+Note the length signal corroborates it independently: arms that remove refusal
+produce ~36-word answers, while the inert arms (`d_⊥`, random) produce ~15-word
+refusals.
+
+**§18.5 is complete.** Every pre-registered arm ran, the anchor replicates, the
+acceptance tests gate the ablation, the capability gate and coherence gate each
+caught a distinct artifact, and necessity and sufficiency agree.
