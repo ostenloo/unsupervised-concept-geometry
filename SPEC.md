@@ -2098,3 +2098,96 @@ neighbour spacing. This bears directly on §14a's "intrinsic dimension ≈ 5" an
 on §18.4f″, and it is a different mechanism from the sample-size confound in N2.
 Recorded here rather than folded into §18.4f″ silently: the fix belongs in an
 amendment written before it is run, per §0.
+
+### 18.11 Amendment: N9 and N10 — written before either is run
+
+Per §0, both are recorded as rules before the runs that test them. N10 was found
+while tracing how the logged AUROC is computed, in preparation for §18.4c′.
+
+#### N9 — the ID estimator reports noise dimensionality when noise exceeds neighbour spacing
+
+§18.10 produced this incidentally: `d_hat` from `id_mle` reads 1 on a genuinely
+1-dimensional arc at σ=0, and **16–24** on the same arc at σ=0.01, where noise
+exceeds inter-point spacing. Levina–Bickel at fixed k measures the local cloud,
+and once the local cloud is noise, it measures noise. This is a different
+mechanism from N2's sample-size confound and is not addressed by n-matching.
+
+It also propagates: `d_hat` sets `n_components` for the embedding
+(`stageb_structure.py:110`), so an inflated ID changes the Isomap fit itself, not
+just the reported dimension.
+
+**Added to §18.4f″, run in this order:**
+
+1. Per layer, in the PCA(64) space, report the median nearest-neighbour distance
+   (the spacing) and the residual scale about the 1-D principal curve along `d`.
+   Report the **ratio σ / spacing** — the quantity §18.10 shows governs the bias.
+2. Run the §18.10 synthetic 1-D arc at the measured σ/spacing for each layer and
+   report what `id_mle` returns for a structure whose true intrinsic dimension is
+   **1**. This converts the concern into a number: "at this data's noise-to-spacing
+   ratio, a truly 1-dimensional structure reads as ID = X."
+3. **Pre-registered rule.** If the synthetic 1-D control returns an ID that
+   reaches the observed 5.21 (within the §18.4f″ CI), then the observed ID is
+   consistent with a far lower-dimensional structure plus noise, **no claim about
+   ~5 dimensions may be made, and the result is reported as an upper bound.** If
+   the control returns well below 5.21, the ID claim survives and gains a
+   quantified noise floor.
+
+**§14a's "intrinsic dimension ≈ 5" is under review until this resolves**, on the
+same terms as §14a's curvature under §18.10. Note the exposure: N2 and N9 push in
+*opposite* directions — N2 says the bank's 5.89 is inflated by having 2000 points,
+N9 says both numbers may be inflated by noise — so the contrast could survive both
+or neither, and guessing which is not available.
+
+#### N10 — the logged 0.995 AUROC is fully transductive, label-oriented, and not produced by the pipeline
+
+§18.4c′ diagnosed the 0.995 as "transductive on one side", reasoning from §14's
+prompt-set description: the 200 XSTest borderline prompts are in the 600-prompt
+fit bank, the 200 contrast prompts were held out. **That diagnosis was wrong.**
+The number is computed at `figures_stageb.py:99-110`, and its actual construction
+is:
+
+1. Select **only** the 400 XSTest prompts — 200 borderline + 200 contrast.
+2. Fit PCA(64) **and Isomap on those 400 points**, i.e. on precisely the set being
+   evaluated. It is not the 600-prompt refusal manifold; it is a separate
+   embedding built from the evaluation data.
+3. Take the first coordinate, and **orient its sign using the evaluation labels**
+   (`if spearmanr(cc, lab).statistic < 0: cc = -cc`).
+4. AUC by Mann–Whitney on that coordinate.
+
+Four consequences, none of which the current writeup states:
+
+- **Fully transductive, not half.** Every point scored was in the fit.
+- **Not the pipeline's coordinate.** §14d's sentence — "an unsupervised coordinate
+  recovered from activations alone... separates them at AUC 0.995" — describes a
+  coordinate fit on the test set, and not the one every other Stage B number
+  refers to. The 0.946 alignment, the 0.871 behavioural correlation and the
+  curvature statistic all come from the 600-prompt embedding; the 0.995 does not.
+- **The sign is supervised.** With a binary choice this cannot turn a real
+  separation into a fake one, but it does mean a coordinate anti-correlated with
+  harm reports as 0.995 rather than 0.005. The orientation rule must be declared,
+  or fixed by an unsupervised convention.
+- **No logged artifact.** The number exists only as a figure title; it is in no
+  parquet. §17b's "§5 parquet schema: partial" understated this.
+
+**Revised §18.4c′ (supersedes the version in the pre-registration commit):**
+
+1. Fit the pipeline on the **400 harmful + harmless prompts only**, which contain
+   no XSTest data of either kind. Build `d₄₀₀` per §18.4a′.
+2. Score all 400 XSTest prompts by **projection onto `d₄₀₀`** — an out-of-sample
+   readout, which is the reason §18.4a′ builds an ambient direction at all.
+   AUROC on borderline-versus-contrast. **This is the headline.**
+3. **Fix the sign from the training set**, never the test labels: orient `d₄₀₀` so
+   that harmful projects above harmless in the 400. Report the orientation rule.
+4. Report the logged 0.995 alongside, described as constructed above rather than
+   as a held-out result. The gap between (2) and 0.995 is the reportable quantity:
+   it measures what fitting on the evaluation set bought.
+5. **§14c and §14d's headline are under review until (2) exists.** §18.6's
+   "abstract order unchanged: XSTest AUROC leads" is suspended — a lead number fit
+   on its own evaluation set cannot lead until it is recomputed.
+
+**Method note.** This is the third time in this project that a number survived
+until someone traced the code that produced it rather than the prose describing
+it (§15d's tangent estimator, §16b's permuted-label null, and now this). The
+pattern is specific: the prose describes what the analysis was *meant* to do, and
+the discrepancy is invisible from the write-up alone. Every remaining headline
+number should be traced to its call site before the writeup cites it.
