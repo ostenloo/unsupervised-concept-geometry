@@ -26,8 +26,8 @@ from scripts.stageb_18_4ac import fit_coordinate, build_direction, difference_in
 
 SB = config.DATA / "stageb"
 NPY = config.ACTS / "npy"
-JBB_URL = ("https://raw.githubusercontent.com/JailbreakBench/jailbreakbench/"
-           "main/src/jailbreakbench/data/behaviors.csv")
+JBB_URL = ("https://huggingface.co/datasets/JailbreakBench/JBB-Behaviors/"
+           "resolve/main/data/harmful-behaviors.csv")
 N_EVAL = 100        # §18.5b under branch B1
 
 
