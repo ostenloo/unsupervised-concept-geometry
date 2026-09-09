@@ -3116,3 +3116,64 @@ the writeup says so in those terms.
 > The two external citations remain **unverified in this session** (§18.24) and
 > must be checked against the papers before the writeup cites them. Nothing in
 > this subsection's measurements depends on them.
+
+### 18.26 Citation 1 verified — and our grid's argmax is Arditi's published cell
+
+Checked against `2406.11717v3.pdf` (Arditi et al., v3, 40pp), supplied 9 Sep 2026.
+§18.24's provenance flag is discharged for citation 1; citation 2 remains open.
+
+**Table 5 (p. 21), verbatim rows:**
+
+| model | i* | l*/L | bypass_score |
+|---|---|---|---|
+| **L LAMA -3 8B** | **−5** | **12/32** | −9.715 |
+| L LAMA -3 70B | −5 | 25/80 | −7.839 |
+| Y I 6B | −5 | 20/32 | −6.693 |
+| G EMMA 2B | −2 | 10/18 | −14.435 |
+| (the other nine models) | −1 | — | — |
+
+Citation 1 is confirmed exactly: **i\* = −5 for Llama-3 8B**, and −1 is the
+modal choice across their thirteen models rather than an unusual one.
+
+**The paper also supplies the layer, which was not in the claim as given: l\* = 12.**
+
+**Our grid's argmax is (12, −5).** An independent reconstruction of their
+selection procedure, run on Llama-3.1-8B-Instruct, returns as its top cell
+precisely the (layer, position) pair they publish for Llama-3-8B-Instruct. That is
+a materially stronger statement than §18.25's "their choice transfers", and it is
+the sentence the writeup should carry.
+
+**Two further confirmations that the comparison is like-for-like:**
+
+- **The position set is identical.** Figure 11's legend names `pos -5:
+  '<|eot_id|>'`, `pos -4: '<|start_header_id|>'`, `pos -3: 'assistant'` — the same
+  five post-instruction tokens we swept, with the same identities.
+- **The chat template is identical.** Table 6 gives
+  `{x}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`, matching the
+  rendered prompt asserted in §14.
+
+**Three caveats, all of which must appear with the claim:**
+
+1. **Different model.** They select on Llama-3-8B-Instruct; we ran
+   Llama-3.1-8B-Instruct. The agreement is across a version boundary, which is
+   what makes it interesting and also what stops it being a replication.
+2. **Not the same selection procedure.** They score candidates on bypass *and*
+   induce *and* KL over validation sets (§2.1); we ranked on bypass alone and
+   applied the capability gate at the confirmation stage. Same family, not the
+   same criterion.
+3. **Sign conventions differ.** Their `bypass_score` is reported negative
+   (−9.715); ours is baseline − ablated and positive. **Magnitudes are not
+   cross-quotable** — only the argmax cell is.
+
+**A prediction we have not checked.** §18.25 found position −4 dead at every layer
+(max 2.643 of 32). Their Figure 11 plots bypass and induce for all candidates on
+Llama-3 8B and would confirm or refute that directly. We read its legend, not its
+values.
+
+**Citation 2 is still open**, and it is the weaker of the two: it has no title,
+authors or identifier recorded, so it cannot be verified or cited as it stands.
+Note that §18.26 partly relieves the load on it — the (12, −5) agreement is now
+established from a verified source, so the position limitation no longer rests on
+the unverified claim. §18.24's framing is updated accordingly: the strongest
+statement available is the Arditi one, with the (11, −1) reimplementation as
+corroboration *if* it can be identified.
