@@ -3316,3 +3316,27 @@ range to +19.32 and a zero-centred diverging scale would spend half its range on
 cells are outlined and identified in a legend placed *below* the axes — an in-plot
 legend covered live cells on the −1 row, and obscuring data to label it is not a
 trade worth making.
+
+### 18.32 What is and is not in the repository
+
+**Committed:** every script, every aggregate result, the F9 figure, the
+environment pins, and `results/stageb_18_5_directions.npz` — the exact direction
+vectors used by §18.5. The directions are included because §11f's own point
+applies: difference-in-means is fifteen lines over public data on an open-weight
+model, so the marginal risk of publishing the vector is negligible against the
+reproducibility gain.
+
+**Deliberately not committed:** `results/gen_18_5*.json` and
+`results/spotcheck_18_5.json` — the ~41 raw generation dumps. These are the
+ablated model's actual completions to held-out harmful prompts: a ready-made
+corpus of harmful content from a model whose refusal behaviour has been removed.
+`origin` is a public repository, and unlike the direction vectors this content is
+not something a reader can already trivially obtain.
+
+Nothing scientific is lost. Every claim resting on these files is carried by
+aggregate statistics that *are* committed — refusal rates, CE, distinct-token
+ratios and mean completion lengths in §18.21 and §18.23 — and the dumps regenerate
+from `scripts/stageb_18_5.py` for anyone with the model and a GPU. They remain on
+the compute box. This is recorded rather than done silently because a reader
+checking §18.23's spot-check will look for the file and should find out here why
+it is absent.

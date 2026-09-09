@@ -4,3 +4,14 @@ __pycache__/
 acts/
 *.pdf
 env/local_venv_freeze.txt
+
+# §18.5 raw generation dumps (results/gen_18_5*.json, results/spotcheck_18_5.json).
+# These are the ablated model's actual completions to held-out harmful prompts --
+# i.e. a ready-made corpus of harmful content produced by a model with its refusal
+# behaviour removed. `origin` is public. The scientific content is fully carried by
+# the aggregate statistics already committed (refusal rates, CE, distinct-token
+# ratios, mean lengths in §18.21/§18.23), and the completions regenerate from
+# scripts/stageb_18_5.py for anyone with the model and a GPU. They are retained on
+# the compute box only, deliberately.
+results/gen_18_5*.json
+results/spotcheck_18_5.json
