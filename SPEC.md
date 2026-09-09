@@ -2597,3 +2597,55 @@ prediction but not intervention, and that distinction becomes the finding.
 
 **Unchanged:** the §18.5a′ acceptance tests gate everything, and arm 3's null is
 uninterpretable unless test 2 passes at sub-layer granularity.
+
+### 18.18 Amendment: §18.5a′ test 2's threshold was unsatisfiable — recorded as a weakening
+
+**This amendment was written after the test failed, which is the circumstance in
+which amendments are least trustworthy.** It is therefore stated with the
+evidence, the reasoning, and what is given up.
+
+§18.5a′ specified "assert `max|û·x| < ε`" without defining ε or considering
+dtype; the implementation used ε = 1e-2. First run: tests 1, 3 and 4 pass (65
+writes hooked as predicted, 1560 firings over 24 forwards, null-op identical,
+KV-cache consistent, hooks removed). Test 2 fails at 3.6e-2 (writes) and 1.5e-1
+(residual stream).
+
+**Diagnosis, measured rather than assumed:**
+
+| quantity | value |
+|---|---|
+| unablated max \|û·x\| at writes / at blocks | 14.69 / 14.00 |
+| ablated max \|û·x\| at writes / at blocks | 0.034 / 0.193 |
+| fraction removed | **99.77% / 98.62%** |
+| model dtype | bfloat16, ε = 7.81e-3 |
+| single-write rounding floor at that scale | 0.109 |
+| √65 accumulation bound over the writes | 0.88 |
+
+The residual is 1.8× the single-write floor and well under the accumulation
+bound. **The absolute threshold was unachievable by any correct implementation in
+bf16**: writing `t − (t·û)û` back into bf16 rounds at ~0.8% of the value's
+magnitude, so the test as written measured the storage format, not the code.
+
+**Revised criterion, fixed before re-running:**
+
+1. **≥99% of the projection removed at every write** — a relative bound, scale-
+   and dtype-free.
+2. **Residual-stream leak ≤ √N_writes · ε_dtype · (unablated scale)**, the
+   random-walk bound on accumulated rounding across the N=65 writes. Derived, not
+   tuned to the observed value.
+
+**What this still catches, and why it is not a rescue.** E6's within-block leak —
+attention writing a û-component the MLP reads before the next ablation — would
+appear as a *large fraction* of the unablated scale, not a rounding-scale
+residual. Criterion 1 fails at once under block-output-only hooks, which is the
+failure mode the test exists for. The weakening is confined to the numerical
+floor.
+
+**What is given up, and it bears on arm 3.** The ablation is **not exact**: the
+residual stream retains ~1.4% of the direction's maximum projection. A downstream
+mechanism reading the direction with sufficient gain could in principle still see
+it, so arm 3's null is "no detectable causal content above a 1.4% residual",
+not "none". Arditi's weight-orthogonalisation — folding û out of the write
+matrices themselves, so no per-position rounding accumulates — is the stronger
+construction and is **not** run here. That is a stated limitation of this
+implementation, not a property of the method.

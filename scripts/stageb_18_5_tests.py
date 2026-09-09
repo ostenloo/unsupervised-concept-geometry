@@ -71,16 +71,31 @@ def main():
     results["fired_per_forward"] = st.fired / max(st.forward_calls, 1)
 
     print("\n=== test 2: completeness at sub-layer AND block outputs, all positions ===")
+    # §18.18: relative criteria. An absolute epsilon measures bf16's storage
+    # rounding, not the code. The unablated pass supplies the scale.
+    with AB.ablate(L, u, alpha=0.0, monitor=True) as st0:
+        _ = _gen(L, chats)
     with AB.ablate(L, u, alpha=1.0, monitor=True) as st:
         _ = _gen(L, chats)
-    eps = 1e-2
-    ok2 = st.max_leak_at_writes < eps and st.max_leak_at_blocks < eps
+    dt_eps = float(torch.finfo(next(L.model.parameters()).dtype).eps)
+    frac_writes = st.max_leak_at_writes / st0.max_leak_at_writes
+    bound = float(np.sqrt(AB.EXPECTED_WRITES_PER_FORWARD)) * dt_eps * st0.max_leak_at_blocks
+    ok2 = frac_writes <= 0.01 and st.max_leak_at_blocks <= bound
     print(f"  forwards {st.forward_calls} (1 prompt pass + {MAX_NEW - 1} decode steps)")
-    print(f"  max |u.x| after ablation, at writes : {st.max_leak_at_writes:.3e}")
-    print(f"  max |u.x| in residual stream (blocks): {st.max_leak_at_blocks:.3e}")
-    print(f"  both < {eps}: {ok2}")
+    print(f"  unablated max |u.x|: writes {st0.max_leak_at_writes:.3f} "
+          f"blocks {st0.max_leak_at_blocks:.3f}")
+    print(f"  ablated   max |u.x|: writes {st.max_leak_at_writes:.4f} "
+          f"blocks {st.max_leak_at_blocks:.4f}")
+    print(f"  (1) removed at writes {1 - frac_writes:.4%} (need >= 99%): "
+          f"{frac_writes <= 0.01}")
+    print(f"  (2) block leak {st.max_leak_at_blocks:.4f} <= sqrt(65)*eps*scale "
+          f"= {bound:.4f}: {st.max_leak_at_blocks <= bound}")
     results.update(test2_leak_writes=st.max_leak_at_writes,
-                   test2_leak_blocks=st.max_leak_at_blocks, test2_pass=bool(ok2))
+                   test2_leak_blocks=st.max_leak_at_blocks,
+                   test2_unablated_writes=st0.max_leak_at_writes,
+                   test2_unablated_blocks=st0.max_leak_at_blocks,
+                   test2_fraction_removed_writes=float(1 - frac_writes),
+                   test2_rounding_bound=bound, test2_pass=bool(ok2))
 
     print("\n=== test 3: KV-cache consistency under ablation ===")
     with AB.ablate(L, u, alpha=1.0):
