@@ -1,0 +1,11 @@
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   1%|          | 2/291 [00:00<00:18, 15.65it/s]Loading weights:  14%|█▎        | 40/291 [00:00<00:01, 201.58it/s]Loading weights:  26%|██▌       | 76/291 [00:00<00:00, 264.00it/s]Loading weights:  37%|███▋      | 109/291 [00:00<00:00, 286.72it/s]Loading weights:  49%|████▉     | 144/291 [00:00<00:00, 307.67it/s]Loading weights:  61%|██████    | 177/291 [00:00<00:00, 310.96it/s]Loading weights:  73%|███████▎  | 213/291 [00:00<00:00, 323.56it/s]Loading weights:  86%|████████▌ | 249/291 [00:00<00:00, 333.26it/s]Loading weights: 100%|██████████| 291/291 [00:00<00:00, 307.06it/s]
+=== alkane ===
+  layer  8: inject SOURCE centroid -> mass on source name 0.478
+            inject TARGET centroid -> mass on target name 0.000
+  layer 28: inject SOURCE centroid -> mass on source name 0.509
+            inject TARGET centroid -> mass on target name 0.448
+=== alcohol ===
+  layer  8: inject SOURCE centroid -> mass on source name 0.505
+            inject TARGET centroid -> mass on target name 0.000
+  layer 28: inject SOURCE centroid -> mass on source name 0.534
+            inject TARGET centroid -> mass on target name 0.438

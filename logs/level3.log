@@ -1,0 +1,47 @@
+Loading weights:   0%|          | 0/291 [00:00<?, ?it/s]Loading weights:   1%|          | 2/291 [00:00<00:18, 15.90it/s]Loading weights:  13%|█▎        | 38/291 [00:00<00:01, 176.69it/s]Loading weights:  28%|██▊       | 81/291 [00:00<00:00, 278.44it/s]Loading weights:  39%|███▉      | 113/291 [00:00<00:00, 286.25it/s]Loading weights:  51%|█████     | 149/291 [00:00<00:00, 309.81it/s]Loading weights:  63%|██████▎   | 184/291 [00:00<00:00, 320.62it/s]Loading weights:  76%|███████▌  | 220/291 [00:00<00:00, 330.74it/s]Loading weights:  88%|████████▊ | 256/291 [00:00<00:00, 336.72it/s]Loading weights: 100%|██████████| 291/291 [00:00<00:00, 305.06it/s]
+
+[alkane] paraphrase capture (8, 10, 32, 4096); mean mass on concept names 0.40
+  L8                   efficacy src=0.442 tgt=0.000 INERT -- r is meaningless (§12i)
+            E_BC lin=0.444 unsup=0.377 sup=0.379  r=-0.032 [-0.49,0.83] degen=False (38s)
+  L22                  efficacy src=0.454 tgt=0.255 LIVE
+            E_BC lin=1.422 unsup=1.983 sup=1.231  r=3.943 [1.51,23.96] degen=True (75s)
+  L24                  efficacy src=0.447 tgt=0.381 LIVE
+            E_BC lin=1.230 unsup=3.841 sup=0.730  r=6.215 [3.92,10.10] degen=False (113s)
+  L28                  efficacy src=0.474 tgt=0.394 LIVE
+            E_BC lin=1.159 unsup=2.084 sup=0.618  r=2.711 [1.78,3.91] degen=False (150s)
+  L31                  efficacy src=0.499 tgt=0.495 LIVE
+            E_BC lin=1.519 unsup=3.849 sup=0.764  r=4.086 [2.85,5.90] degen=False (188s)
+  L28 (coord L8)       efficacy src=0.474 tgt=0.394 LIVE
+            E_BC lin=1.159 unsup=1.092 sup=0.618  r=0.875 [0.47,1.31] degen=False (225s)
+
+[alcohol] paraphrase capture (8, 10, 32, 4096); mean mass on concept names 0.43
+  L8                   efficacy src=0.527 tgt=0.000 INERT -- r is meaningless (§12i)
+            E_BC lin=0.314 unsup=0.281 sup=0.283  r=-0.052 [-2.53,0.32] degen=False (263s)
+  L22                  efficacy src=0.539 tgt=0.249 LIVE
+            E_BC lin=1.699 unsup=2.731 sup=1.948  r=-3.148 [1.81,57.03] degen=True (301s)
+  L24                  efficacy src=0.549 tgt=0.470 LIVE
+            E_BC lin=1.526 unsup=5.137 sup=0.817  r=6.088 [4.62,8.51] degen=False (338s)
+  L28                  efficacy src=0.540 tgt=0.452 LIVE
+            E_BC lin=1.264 unsup=4.246 sup=0.633  r=5.728 [4.44,7.24] degen=False (375s)
+  L31                  efficacy src=0.562 tgt=0.466 LIVE
+            E_BC lin=1.381 unsup=3.222 sup=0.645  r=3.503 [1.76,8.60] degen=False (413s)
+  L28 (coord L8)       efficacy src=0.540 tgt=0.452 LIVE
+            E_BC lin=1.264 unsup=3.197 sup=0.633  r=4.066 [2.74,5.52] degen=False (450s)
+
+ series  layer  coord_layer  n_pairs  order_agreement  src_mass  tgt_mass  efficacious  E_BC_linear  E_BC_manifold_unsup  E_BC_manifold_sup         r  r_median      r_lo      r_hi  frac_denominator_nonpositive  degenerate  n_draws_used
+ alkane      8            8       20              0.2  0.441671  0.000046        False     0.444066             0.376650           0.378719 -0.031652 -0.052298 -0.485398  0.829756                         0.003       False           993
+ alkane     22           22       20              0.4  0.454264  0.255327         True     1.421514             1.983471           1.230535  3.942524  2.776739  1.513447 23.963407                         0.241        True           755
+ alkane     24           24       20              0.2  0.446838  0.380657         True     1.230301             3.840564           0.729748  6.214749  6.247860  3.920386 10.102737                         0.000       False           996
+ alkane     28           28       20              0.3  0.474408  0.394132         True     1.158946             2.084024           0.618149  2.710583  2.718353  1.780588  3.905122                         0.000       False           996
+ alkane     31           31       20              0.3  0.498543  0.494994         True     1.519264             3.848648           0.764341  4.085594  4.001577  2.846609  5.901475                         0.000       False           996
+ alkane     28            8       20              0.2  0.474408  0.394132         True     1.158946             1.091522           0.618149  0.875325  0.888802  0.473118  1.313545                         0.000       False           996
+alcohol      8            8       20              0.6  0.527454  0.000011        False     0.314390             0.280907           0.282548 -0.051521 -0.024167 -2.530223  0.320977                         0.006       False           990
+alcohol     22           22       20              0.3  0.539188  0.249093         True     1.698641             2.731202           1.947597 -3.147565  4.324648  1.808117 57.034247                         0.631        True           365
+alcohol     24           24       20              0.3  0.549246  0.469927         True     1.526244             5.137021           0.816516  6.087551  6.059743  4.616889  8.510903                         0.000       False           996
+alcohol     28           28       20              0.0  0.540100  0.452304         True     1.263751             4.245968           0.633034  5.728302  5.636658  4.437912  7.242904                         0.000       False           996
+alcohol     31           31       20              0.3  0.562077  0.466253         True     1.380770             3.221775           0.645196  3.502816  3.456260  1.758584  8.602196                         0.000       False           996
+alcohol     28            8       20              0.6  0.540100  0.452304         True     1.263751             3.197284           0.633034  4.065616  4.051703  2.739704  5.523987                         0.000       False           996
+
+=== §12f disagreement rule ===
+  alcohol  r(8)=-0.052 r(28)=5.728 -> PRECONDITION FAILED at layer(s) [8]: replacement does not move behaviour there, so r is not interpretable (§12i)
+  alkane   r(8)=-0.032 r(28)=2.711 -> PRECONDITION FAILED at layer(s) [8]: replacement does not move behaviour there, so r is not interpretable (§12i)
