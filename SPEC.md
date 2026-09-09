@@ -3213,3 +3213,36 @@ Implementation is complete for every experiment §18 pre-registered. What is not
 | **Citation 2** | unidentified; cannot be verified or cited (§18.26). |
 | **Arditi Figure 11 values** | unread. Would confirm or refute §18.25's finding that position −4 is dead. |
 | F6, §5 parquet schema, §4d three-layer deviation | unchanged from §17b. |
+
+### 18.29 Amendment: dose-response on the non-saturating readout
+
+§18.23 compared the three steering curves at **two** doses — the only ones that
+cleared the coherence gate — using the refusal-substring rate, which saturates
+(0.000 → 0.970 → 1.000). A two-point comparison of a saturating metric is a weak
+test of "the curves agree", and it is the pre-registered comparison currently
+carrying the least power in §18.
+
+The §18.24 readout fixes it: refusal-opener **log-odds** at the last prompt
+position is continuous, unbounded, and needs one forward per prompt rather than a
+decode. Re-run with it, changing nothing else:
+
+- Same single-site addition at L10, directions rebuilt there (§18.22).
+- Same matching on each direction's own harmful-minus-harmless projection gap.
+- **Denser dose grid**, since the readout no longer saturates: ×{0.25, 0.5, 0.75,
+  1.0, 1.5, 2.0, 3.0, 4.0}.
+- **Coherence gate becomes CE-based**, so it can be evaluated at every dose from
+  forwards alone; generation is run at a subset purely to cross-check that the
+  log-odds curve and the substring curve agree where both are measurable.
+
+**Pre-registered rules:**
+
+1. **Consistency** = the log-odds curves for `d`, `v_ref` and PC1 overlap within
+   bootstrap CI at **every dose passing the CE gate**. More doses now qualify, so
+   this is a strictly harder test than §18.23's.
+2. If PC1 and `v_ref` overlap throughout while `d` diverges, §18.23's verdict is
+   confirmed on a metric that cannot saturate, and that is the version reported.
+3. If the denser grid reveals overlap where §18.23 found divergence, **§18.23's
+   divergence was an artifact of a two-point saturating comparison** and is
+   withdrawn in favour of this result.
+4. The substring cross-check must agree with the log-odds curve wherever both are
+   measurable; disagreement is reported rather than reconciled.
