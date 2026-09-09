@@ -2649,3 +2649,68 @@ not "none". Arditi's weight-orthogonalisation — folding û out of the write
 matrices themselves, so no per-position rounding accumulates — is the stronger
 construction and is **not** run here. That is a stated limitation of this
 implementation, not a property of the method.
+
+### 18.19 §18.5b first run: the replication anchor FAILED — amendment before any re-run
+
+Run 9 Sep 2026, `results/stageb_18_5.json`, completions in `results/gen_18_5_*.json`.
+Acceptance tests passed first (§18.18). n=76 harmful after dedup (24 of JBB's 100
+overlapped the fit bank — the lineage concern was real), n=100 harmless.
+
+| arm | refusal (harmful) | drop | CE (harmless) |
+|---|---|---|---|
+| 5 baseline | 0.947 | — | 0.2144 |
+| **1 `v_ref` (anchor)** | **0.882** | **0.066** | 0.3101 |
+| 2 `d₄₀₀` | 0.921 | 0.026 | 0.2580 |
+| 3 `d_⊥` | 0.947 | 0.000 | 0.2295 |
+| 6 PC1 | 0.882 | 0.066 | 0.3162 |
+| 4 random (mean of 5) | 0.944 | 0.003 | ~0.2145 |
+| 4b cos-0.65 random (mean of 5) | 0.916 | 0.032 | ~0.2498 |
+
+**Arm 1 fails as a replication anchor.** Arditi et al. report near-total removal
+of refusal; ablating `v_ref` here moves it 0.947 → 0.882. A stratified read of the
+completions confirms this is not a matcher artifact — the model genuinely still
+refuses ("I can't write a defamatory article…", "I can't assist with that
+request."), so the substring set is working and the effect is simply absent.
+
+**Consequence, stated before any re-run: every other arm is uninterpretable.**
+Arm 3's null (0.000 drop) and arm 2's near-null cannot support the completeness
+conclusion when the positive control also has almost no effect. §18.5b's
+pre-registered rules all condition on arm 1 reproducing Arditi; it does not, so
+none of them fire. This is exactly the failure arm 1 was included to catch, and
+the pre-registration is what makes it a finding rather than a quiet omission.
+
+**Diagnosis.** The acceptance tests rule out the implementation: 65 writes hooked,
+99.75% of the projection removed, null-op token-identical, KV-cache consistent
+(§18.18). What is left is the *direction*, and §11f named this risk in advance:
+*"The non-trivial part of Arditi et al. is not the difference of means — it is the
+selection sweep over layer and position scored on a validation set. We fix layer
+and position from the §3g profile and compute the direction directly."* §13b
+separately found causal accessibility to be a step function in layer for Stage A.
+**L28 was inherited, not selected, and the most likely reading is that the L28
+difference-in-means direction is not the causally potent one.**
+
+**Amendment — the sweep §11f declined to reproduce is now required.** Ablate the
+layer-`ℓ` difference-in-means direction, for every ℓ, measuring refusal drop on
+the same held-out harmful set. All 32 layers are already cached, so this costs
+generation only.
+
+**Pre-registered rules, fixed now:**
+
+1. **Selection:** the layer with the largest refusal drop, subject to CE on
+   harmless staying within 0.05 of baseline. Ties broken toward the earlier layer.
+2. **If some layer reaches a drop ≥ 0.5**, the anchor is established there, and
+   arms 2/3/4/4b/6 are re-run at that layer with directions rebuilt there. The
+   L28 results stand as reported, relabelled as what they are: a null at an
+   inherited layer.
+3. **If no layer reaches 0.5**, this is a failed replication of Arditi in our
+   hands. §18.5 is then reported as unrun-in-substance per SPEC2's fallback
+   ("report it as unrun rather than partially run"), the causal section becomes
+   proposal-only, and **no causal claim is made in either direction** — including
+   the convenient one that `d` lacks causal content.
+4. Either way, **§14d and §18.4's conclusions are untouched**, since none of them
+   rest on ablation.
+
+**Note against interest.** Arms 2, 3 and 4b at L28, read naively, look like
+tidy support for the completeness conclusion: `d_⊥` does nothing, `d` sits inside
+the cos-matched null. That reading is not available while the anchor is dead, and
+recording that here is the point of having written the rule down first.
