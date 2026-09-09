@@ -2509,3 +2509,53 @@ covariance all produce it.
 - **The departure is reportable and must not be buried**, but it cannot be
   presented as curvature. The correct sentence names the null it clears and the
   three mechanisms it cannot distinguish between.
+
+### 18.16 §3a and §3b results — the Isomap direction is the least stable of the three
+
+Run 9 Sep 2026 against `d6aa671`. `scripts/stageb_18_6.py`,
+`results/stageb_18_6.json`. L28, fit on the clean 400.
+
+#### §3a — stability under resampling (80%, without replacement per N3, 20 refits)
+
+| direction | mean \|cos(resample, full)\| | min | p5 |
+|---|---|---|---|
+| **Isomap `d`** | **0.855** | 0.793 | 0.829 |
+| PC1 of the same bank | 0.9993 | 0.9992 | 0.9992 |
+| `v_ref` (supervised) | 0.9992 | 0.9990 | 0.9991 |
+
+Dropping a fifth of the data moves the Isomap direction by cosine 0.855, while
+PC1 and the supervised difference-in-means both move by less than 0.001. This is
+consistent with §18.12's |cos(`d₄₀₀`, `d₆₀₀`)| = 0.682: the recovered direction is
+genuinely sample-sensitive, and that sensitivity is a property of the manifold
+step, not of the data — the same points give a near-invariant PC1.
+
+**This completes §18.4b's picture.** Against PC1 the Isomap coordinate is: equal
+on held-out AUROC (0.9935 vs 0.9922), **worse** on alignment with `v_ref` (0.654
+vs 0.995), and **an order of magnitude less stable** (0.855 vs 0.9993). The
+pre-registered conclusion was "the manifold machinery is not load-bearing"; the
+stability result says it is actively worse on every axis measured, at equal
+discrimination.
+
+As §3a requires, the distinction is stated explicitly: what is measured here is
+**stability under resampling**. With `eigen_solver` pinned (N5) the pipeline is
+deterministic given data, so stability under algorithmic randomness is a
+different question and is not claimed.
+
+#### §3b — k sweep at L28
+
+| k | `id_mle` | `d_hat` | cos(`d`,`v_ref`) | Pearson r | AUROC (held out) | connected |
+|---|---|---|---|---|---|---|
+| 8 | 5.68 | 6 | 0.636 | 0.975 | 0.9939 | True |
+| 12 | 5.68 | 6 | 0.654 | 0.978 | 0.9935 | True |
+| 16 | 5.68 | 6 | 0.678 | 0.980 | 0.9937 | True |
+| 24 | 5.68 | 6 | 0.721 | 0.984 | 0.9944 | True |
+
+**The conclusions are k-stable.** AUROC varies by 0.0009 across the sweep and ID
+not at all. cos(`d`,`v_ref`) rises monotonically with k (0.636 → 0.721), which is
+the expected direction — larger neighbourhoods make Isomap behave more like a
+global linear method, so `d` moves toward PC1 and hence toward `v_ref`. That
+trend is itself a small piece of evidence for §18.4b's conclusion: the further the
+method is from the manifold regime, the better it aligns.
+
+Graph connectivity holds at every k on the 400, which was §18.4c′'s precondition
+for building anything on `d₄₀₀`. That precondition is met.
