@@ -2944,3 +2944,69 @@ refusals.
 **§18.5 is complete.** Every pre-registered arm ran, the anchor replicates, the
 acceptance tests gate the ablation, the capability gate and coherence gate each
 caught a distinct artifact, and necessity and sufficiency agree.
+
+### 18.24 Amendment: position sweep — branches fixed before the grid is computed
+
+§18.20 described §18.19's sweep as closing the §11f gap. **It closed half of it.**
+§11f dropped Arditi's selection sweep over *layer and position*; §18.19
+reconstructed layer only. The read position — token index **−1**, which for this
+chat template is `'\n\n'` (id 271), the post-instruction newline after
+`<|start_header_id|>assistant<|end_header_id|>` — was never selected. It is the
+default of `src/model.py:95-100` (`positions=None` → last prompt token), taken by
+`capture_stageb.py:70` passing no `positions`.
+
+**The −1 choice has more external support than "defensible", and the two anchors
+disagree by model:**
+
+- Arditi et al.'s Table 5 selects i* = **−5**, the `<|eot_id|>` token, for **Llama-3 8B**.
+- A 2025 post-training paper re-running Arditi's selection on **Llama-3.1-8B-Instruct**
+  — this exact model — selects layer **11**, position **−1**.
+
+So on our model, an independent reimplementation of the procedure §11f skipped
+lands on (11, −1); we arrived at (10, −1) by sweep and by library default. That is
+agreement on both axes, not a lucky escape. **The writeup must state both anchors**,
+because a reviewer who opens Table 5 sees −5 for the 3.0 sibling and will ask.
+
+> **Provenance flag.** Both citations were supplied by the project lead and are
+> **not verified against the papers in this session.** They must be checked before
+> the writeup cites them; if either is wrong, this subsection's framing changes and
+> the grid results below do not.
+
+**Why run the sweep anyway — not for arm 1.** The anchor is at ceiling (0.000
+refusal) and cannot improve. The reasons are:
+
+1. **`d`'s nulls are the load-bearing claim.** "`d` carries nothing beyond its
+   `v_ref` overlap" is what rules the manifold coordinate out as an independent
+   causal handle, and it is currently conditional on a read position nobody chose.
+2. **PC1's recovery numbers are position-dependent**, and they are the headline
+   methodological contribution.
+3. **The 32 × 5 grid is the better figure** — structurally Arditi's Figure 11 for
+   Llama-3 8B, computed for 3.1, and strictly more informative than §18.19's 1-D
+   layer curve.
+
+**Method, following Arditi's own economy.** Their selection metric needs no
+generation: probability mass on the refusal-initiating token set at the last
+prompt position, as log-odds. We reuse the project's already-verified 6-token
+opener set (`capture_stageb.py:30-48`, the same set behind `refusal_prob` in §14),
+one forward per prompt per cell. Generation-based confirmation with the existing
+substring + CE gate then runs at the argmax cell, at (10, −1), and at the grid's
+second mode. The log-odds readout is also **continuous and non-saturating**, which
+is the fix the steering dose-response needs.
+
+**Pre-registered branches:**
+
+1. **`v_ref(10, i)` bypasses completely for all i ∈ {−1…−5}** → position is not
+   load-bearing at the causal layer. One robustness sentence; the limitation
+   dissolves.
+2. **Some positions fail, −1 among the working ones** → report the grid, state
+   that −1 was inherited and *post-hoc verified* to sit in the working region, and
+   that selection was not optimised over position.
+3. **`d`'s overlap or its nulls change materially at some position** → the arms
+   2/3/4b conclusion is qualified to the read position, and the **range across
+   positions** is reported rather than a single number.
+4. **cos(PC1, `v_ref`) moves outside ~0.90–0.96 at some position** → report the
+   range; the abstract number becomes "0.946 at the pre-registered read position,
+   0.9x–0.9y across post-instruction positions."
+
+**Ordering.** This runs *before* any matched-null or dose-grid work, because both
+would need re-running if position turns out to matter.
