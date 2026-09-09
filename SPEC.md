@@ -3340,3 +3340,34 @@ from `scripts/stageb_18_5.py` for anyone with the model and a GPU. They remain o
 the compute box. This is recorded rather than done silently because a reader
 checking §18.23's spot-check will look for the file and should find out here why
 it is absent.
+
+### 18.33 Figures — the superseded set and its replacement
+
+**F4 and F5c must not be reused.** F4b plots the geodesic/chord straightness
+result and F4c the tangent-`v_ref` cosines; the first measures Isomap's
+reconstruction residual rather than curvature (§18.10) and the second was
+withdrawn at §15d. F5c plots the AUC produced by fitting on the evaluation set
+with a label-chosen sign (N10). They are left in the repository as the record of
+what was claimed, and are **not** deleted — but nothing should cite them.
+
+Replacements, from `scripts/figures_18.py` and `scripts/figure_position_grid.py`:
+
+| figure | replaces | carries |
+|---|---|---|
+| **F9** `F9_position_grid.png` | — (new) | the 32 × 5 selection grid; our argmax is Arditi's published cell, the inherited cell ranks 5/160, −4 is dead (§18.25/§18.26) |
+| **F10** `F10_structure_corrected.png` | F4a, F4b | ID against the 1-D noise floor (§18.14); the falsification showing the old statistic is flat in curvature at σ=0 (§18.10); observed vs its own null per k with MDR > 1.50 (§18.15) |
+| **F11** `F11_discrimination.png` | F5c | held-out vs transductive AUROC by layer against the random null (§18.12); the baseline panel where PC1 matches on AUROC and beats on alignment (§18.13) |
+| **F12** `F12_causal.png` | — (new) | the layer sweep (§18.20); the ablation arms at L10 with both nulls (§18.21); the representation/causation dissociation as a scatter |
+| **F13** `F13_dose_response.png` | §4f/§15e's steering panel | sufficiency on the non-saturating readout, with the coherence gate marked per direction (§18.30) |
+
+**Conventions, fixed across the set** so a reader learns them once: `v_ref` red,
+PC1 green, `d` blue, nulls grey — colour follows the entity, never the rank.
+Sequential single-hue only where the job is magnitude (F9). No panel uses two
+y-scales on one axis; the dissociation is a scatter of one measure against the
+other (F12c) precisely to avoid that. Every null is drawn, not described.
+
+Two encoding decisions worth stating because they could mislead if silent: F9's
+colour floor is clamped at 0 (17 of 160 cells are negative, minimum −1.18), and
+F13 marks the coherence gate **per direction** rather than shading a dose region —
+`d` still passes at ×2 where `v_ref` and PC1 do not, and a shaded band would have
+implied otherwise.
