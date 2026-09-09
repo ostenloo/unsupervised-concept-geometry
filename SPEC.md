@@ -1584,6 +1584,10 @@ repo access), `SPEC3.md` (v1) and `SPEC4.md` (v2), which are retained unmodified
 as the audit trail. Nothing in §18.4–§18.6 is run before this section is
 committed.
 
+**Pre-registration commit: `d6aa671`, 9 Sep 2026.** Every rule below was fixed at
+that hash before any of it was run. Results are recorded in later commits that
+reference it, never by editing the rules above.
+
 ### 18.0 Audit trail
 
 v1 corrected seven errors in SPEC2 (E1–E7); v2 corrected those. A second audit
@@ -2030,3 +2034,67 @@ Nodes:
 - §18.4f″ n-matched contrast → §14d's ID contrast
 - §18.5a′ test 2 → **gates** arm 3's interpretability
 - §18.5b arm 3 → the conclusion itself
+
+### 18.10 §18.4d″ step 3 result — N1 confirmed; §14a's straightness finding does not survive
+
+Run 9 Sep 2026 against pre-registration `d6aa671`, before any other §18.4 item.
+Synthetic only — no activations, no GPU. `scripts/n1_curvature_falsification.py`,
+output in `results/n1_curvature_falsification.txt`. The `geodesic_chord` under
+test is lifted from `stageb_structure.py` by compiling its own AST node, so the
+code exercised is byte-identical to the code that produced §14a.
+
+Circular arcs of known half-angle in a 2-plane of R^64, n=600, k=12. Truth is
+computed in closed form from the generating angles over the same
+"well-separated" pair rule the statistic uses, so it is exact rather than the
+whole-arc `φ/sin φ` approximation.
+
+**At σ = 0, where there is no estimator bias to hide behind:**
+
+| true ratio | logged (geo / embedded chord) | ambient (geo / PCA-space chord) |
+|---|---|---|
+| 1.000 | 1.000 | 1.000 |
+| 1.005 | 1.000 | 1.005 |
+| 1.023 | 1.000 | 1.023 |
+| 1.105 | 1.000 | 1.105 |
+| 1.206 | **1.000** | 1.206 |
+
+The logged statistic returns 1.000 on an arc whose true ratio is 1.206. The
+ambient statistic recovers every value exactly. **N1 is confirmed**, and the
+pre-registered withdrawal branch does not fire.
+
+Across noise levels σ ∈ {0, 0.0003, 0.001, 0.003, 0.01} the logged statistic's
+total span is ≤0.012 while true curvature ranges over 1.000–1.206.
+
+**Consequences, in order of how much they cost:**
+
+1. **§14a's "Curvature: straight" is withdrawn as stated.** The observed
+   1.010–1.020 measures Isomap's MDS reconstruction residual. It is not evidence
+   of straightness, and it is not evidence of curvature either — the statistic is
+   flat in curvature, so it carries no information about it in either direction.
+   Reported henceforth as a reconstruction diagnostic under that name.
+2. **§14d's branch-one verdict loses its first-named support.** It cited
+   geodesic/chord, the coordinate alignment (0.946), the behavioural correlation
+   (0.871) and the §14c natural experiment. The latter three are untouched by
+   N1. The verdict is not withdrawn, but it may no longer be stated as resting on
+   curvature, and the writeup must not claim the structure was shown to be
+   straight. Whether straightness can be claimed at all now depends entirely on
+   §18.4e′ run against the ambient statistic.
+3. **SPEC2 §1d's worry was correct and understated.** It predicted the null sits
+   above 1.0. On a *straight* line the ambient statistic returns 1.011 at
+   σ=0.0003 and **2.107** at σ=0.01 — the kNN geodesic estimator's multiplicative
+   bias is large and strongly σ-dependent. The ambient statistic is therefore
+   only interpretable against a matched synthetic null, which is exactly
+   §18.4e′'s construction. Calibrating by the straight-line null recovers truth
+   to 14–16% at the extremes and 0% at σ=0.
+4. **Single replicate per cell.** The non-monotone rows at σ ∈ {0.0003, 0.001}
+   (true 1.005 reading higher than true 1.105) are single-draw noise, and are the
+   concrete argument for §18.4e′'s 50 replicates.
+
+**N9 — a new finding this test produced incidentally, not yet acted on.** `d_hat`
+from `id_mle` on a genuinely **1-dimensional** arc reads 1 at σ=0 but rises to
+**16–24** at σ=0.01, purely from noise above the inter-point spacing. Levina–Bickel
+at fixed k reports ambient noise dimensionality when local noise exceeds
+neighbour spacing. This bears directly on §14a's "intrinsic dimension ≈ 5" and
+on §18.4f″, and it is a different mechanism from the sample-size confound in N2.
+Recorded here rather than folded into §18.4f″ silently: the fix belongs in an
+amendment written before it is run, per §0.
