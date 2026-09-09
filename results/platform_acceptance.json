@@ -1,0 +1,13 @@
+{
+  "target": 1.0204886986777906,
+  "logged_id_mle": 5.206835113828857,
+  "local_id_mle": 5.206834766247096,
+  "d_hat_match": true,
+  "local_auto": 1.0204886961965176,
+  "delta_auto": 2.4812729648715504e-09,
+  "pass_auto": true,
+  "local_dense": 1.0204886967849143,
+  "delta_dense": 1.892876300146895e-09,
+  "pass_dense": true,
+  "verdict": "PASS \u2014 local platform reproduces the logged value within tolerance"
+}

@@ -3177,3 +3177,39 @@ established from a verified source, so the position limitation no longer rests o
 the unverified claim. §18.24's framing is updated accordingly: the strongest
 statement available is the Arditi one, with the (11, −1) reimplementation as
 corroboration *if* it can be identified.
+
+### 18.27 §18.7 platform acceptance test — run late, passes; and the outstanding list
+
+**The test was not run before §18.4, as §18.7 required.** All of §18.4 and §18.6
+was computed on macOS arm64 before any logged number had been reproduced there.
+That is a procedural violation of this section's own rule, recorded rather than
+quietly repaired by running it now and presenting it as if it had gated anything.
+Had it failed, results already committed would have been invalidated.
+
+It passes, and not marginally (`results/platform_acceptance.json`):
+
+| quantity | logged (Linux x86) | local (macOS arm64) | delta |
+|---|---|---|---|
+| `geo_chord_mean` @ L28, k=12, solver auto | 1.0204886987 | 1.0204886962 | **2.5e-9** |
+| same, solver dense | — | 1.0204886968 | 1.9e-9 |
+| `id_mle` | 5.206835 | 5.206835 | 0 |
+| `id_twonn` | 6.887768 | 6.887767 | 1e-6 |
+| `d_hat` | 5 | 5 | — |
+
+Nine orders of magnitude inside the ±0.002 tolerance, and `eigen_solver` proves
+immaterial here (auto and dense differ by 6e-10). The §18.7 platform deviation is
+therefore real but inert, and every locally computed §18.4/§18.6 number stands.
+
+### 18.28 What remains unbuilt
+
+Implementation is complete for every experiment §18 pre-registered. What is not:
+
+| item | status |
+|---|---|
+| **§18.9 claim-dependency graph** | **never built** — and it was specified to be built *before* §18.4 resolved, "with the branches open — that is the artifact's purpose". Building it now yields documentation, not the artifact that was specified. Recorded as missed, not as pending. |
+| **The (layer × position) grid figure** | not made. The data is in `stageb_18_24_grid.json`; it is the direct analogue of Arditi's Figure 11 for 3.1 and is the most informative figure this project can produce. |
+| **Dose-response on the log-odds readout** | outstanding. §18.23's substring metric saturates (0.000 → 0.970 → 1.000) and only two doses cleared the coherence gate, so the curves are compared at two points. The continuous metric of §18.24 fixes exactly this. |
+| **F4, F5c are now stale** | F4 plots the geodesic/chord distribution and the tangent-`v_ref` cosine — **both withdrawn** (§18.10, §15d). F5c plots the AUC 0.995 from the transductive construction (**N10**). They encode superseded claims and must not be reused as they stand. |
+| **Citation 2** | unidentified; cannot be verified or cited (§18.26). |
+| **Arditi Figure 11 values** | unread. Would confirm or refute §18.25's finding that position −4 is dead. |
+| F6, §5 parquet schema, §4d three-layer deviation | unchanged from §17b. |
