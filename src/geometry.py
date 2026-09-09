@@ -170,16 +170,23 @@ def d_hat_from(id_result: dict, estimator: str = "id_twonn") -> int:
 
 # --- step 2: embedding ------------------------------------------------------
 
-def isomap_embed(X: np.ndarray, n_components: int, k: int):
+def isomap_embed(X: np.ndarray, n_components: int, k: int, eigen_solver: str = "auto"):
     """Isomap. Returns (Y, D_geo, info).
 
     D_geo is the geodesic distance matrix from the neighbour graph -- that, not
     the embedding, is what Level 1 RSA consumes.
+
+    `eigen_solver` defaults to "auto", which is what every logged result was
+    produced under and must stay the default so those remain reproducible. SPEC
+    §18.7 (N5) requires it pinned to "dense" for anything used as an acceptance
+    criterion: "auto" may select ARPACK, whose start vector is unseeded, so Y is
+    not guaranteed reproducible even on one machine.
     """
     assert_geometry_dtype(X, "isomap_embed")
     n = X.shape[0]
     k_eff = min(k, n - 1)
-    iso = Isomap(n_neighbors=k_eff, n_components=min(n_components, n - 1))
+    iso = Isomap(n_neighbors=k_eff, n_components=min(n_components, n - 1),
+                 eigen_solver=eigen_solver)
     Y = iso.fit_transform(X).astype(np.float32)
     D_geo = np.asarray(iso.dist_matrix_, dtype=np.float32)
     info = {

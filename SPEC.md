@@ -2191,3 +2191,84 @@ it (§15d's tangent estimator, §16b's permuted-label null, and now this). The
 pattern is specific: the prose describes what the analysis was *meant* to do, and
 the discrepancy is invisible from the write-up alone. Every remaining headline
 number should be traced to its call site before the writeup cites it.
+
+### 18.12 §18.4a′ and §18.4c′ results — the AUROC survives; the alignment claim does not
+
+Run 9 Sep 2026 against `d6aa671` as amended by §18.11. CPU, on the transferred
+`.npy`. `scripts/stageb_18_4ac.py`, output `results/stageb_18_4ac.json`.
+`eigen_solver="dense"` per N5, so these are reproducible; the logged results used
+the "auto" default.
+
+**Reproduction check first.** Rebuilding the logged construction
+(`figures_stageb.py:99-110` — fit on the 400 XSTest, label-chosen sign) returns
+**0.9951** at L28 against the published 0.995. The N10 diagnosis is confirmed by
+reproduction, not inference.
+
+| L28 quantity | value |
+|---|---|
+| AUROC, held out (projection onto `d₄₀₀`, sign from training set) | **0.9935** |
+| AUROC, logged construction reproduced | 0.9951 |
+| CV R², coordinate on 64-d PCA scores | 0.971 |
+| CV R², ridge on full 4096-d | 0.983 |
+| \|cos(`d₄₀₀`, `d₆₀₀`)\| | 0.682 |
+| cos(`v_ref_200`, `v_ref_400`) | 0.977 |
+| **cos(`d₄₀₀`, `v_ref_200`)** | **0.654** |
+| Pearson r, clean pairing | 0.978 |
+| Pearson r, logged pairing (the 0.946) | 0.946 |
+
+**1. The AUROC claim survives decontamination, and §18.4c′ step 5 is lifted.**
+Held-out 0.9935 against transductive 0.9951: fitting on the evaluation set bought
+**0.0016**. The number was constructed indefensibly and is nonetheless right.
+§14c and §14d's headline are restored, now on a genuinely held-out basis with the
+sign fixed from training data, and §18.6's "AUROC leads" is un-suspended. Report
+the construction history anyway — the claim is now *supported*, which it was not
+before, and that difference is the whole point of having checked.
+
+Layer profile: 0.868 (L8), 0.9949 (L22), 0.9935 (L28), 0.9950 (L31). Stable
+across 22–31, which is the §18.6 layer-inheritance check passing for the claim it
+actually matters for. Note the held-out method *beats* the logged construction at
+L8 (0.868 vs 0.715) and L31 (0.995 vs 0.791): fitting Isomap on 400 XSTest points
+alone yields a coordinate that is not harm-aligned at those layers.
+
+**2. The Isomap coordinate is a linear readout — a result, per §18.4a′.** CV R²
+0.971 on the 64-d scores and 0.983 under ridge on the full 4096-d, at L28, with
+0.959–0.986 across all four layers. The coordinate is recoverable as a direction
+to within a few percent of variance, so "unsupervised recovery of a direction" is
+**not** overclaiming — C2's failure branch does not fire. That the ridge fit on
+4096 dims slightly *exceeds* the 64-d fit bounds what PCA(64) discarded at ~1% of
+variance.
+
+This is also the first hard evidence for the §18.4b branch: if the coordinate is
+~97% linear, the manifold machinery has little room to be load-bearing.
+
+**3. The `d` fork is NOT empty, and this is the surprise.** \|cos(`d₄₀₀`,`d₆₀₀`)\|
+= 0.682 at L28 (0.640–0.689 across layers), far below the 0.99 threshold.
+Removing the 200 borderline prompts moves the recovered direction substantially.
+Per §18.4a′, **both are carried through every table, `d₄₀₀` is primary in §18.5,
+`d₆₀₀` is a labelled robustness arm.** The two directions nonetheless produce
+near-identical AUROC, which is itself informative: the discriminative content is
+shared, and the 0.68 is in components that do not affect the harm readout.
+
+**4. `v_ref_200` becomes primary.** cos(`v_ref_200`, `v_ref_400`) = 0.977 at L28,
+below the pre-registered 0.99 bar. It is close, and the temptation is to call it
+immaterial; the rule was fixed in advance and is followed. `v_ref_400` appears as
+a labelled robustness row.
+
+**5. The alignment claim is materially weaker than the record implies, and this
+is C1 made concrete.** The writeup says the dominant axis "aligns with a
+difference-in-means refusal direction (0.946)". But 0.946 is a Pearson
+correlation across points; **the actual cosine between the unsupervised direction
+and `v_ref` is 0.654.** Both are legitimate quantities and both are reported, but
+they are not interchangeable, and 0.654 is a much weaker geometric statement than
+0.946 reads as. The writeup may not describe the Pearson number as "alignment"
+without naming it. The clean pairing raises the Pearson to 0.978 while the cosine
+stays at 0.654 — the two metrics move in opposite directions under
+decontamination, which is exactly why C1 required both.
+
+**Consequence for §18.5.** Arm 4b's constraint is **cos = 0.654**, not 0.946.
+The gap matters: random vectors at cosine 0.65 to `v_ref` are a much weaker null
+than at 0.95, so arm 4b is a correspondingly weaker control than SPEC2 assumed,
+and arm 3 (`d_⊥`) carries proportionally more of the test.
+
+**Still open.** §14a's curvature (§18.10) and ID (§18.11 N9) remain under review;
+neither is touched by this run.
