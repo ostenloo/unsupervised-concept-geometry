@@ -2751,3 +2751,83 @@ representational and causal claims are therefore about different parts of the
 network, and the writeup must say so rather than letting "layer 28" and "the
 refusal direction" blur together. §18.21 measures the §18.4b panel at the selected
 layer to close as much of this as CPU allows.
+
+### 18.21 §18.5b at the selected layer — Arditi replicated, and PC1 is causally interchangeable with `v_ref`
+
+`results/stageb_18_5_rerun.json`, completions in `results/gen_18_5r_*.json`.
+
+**Layer selection (§18.19 rule 1).** Candidates with drop ≥ 0.5, CE gate at
+baseline + 0.05 = 0.2644:
+
+| layer | drop | CE | |
+|---|---|---|---|
+| **10** | 0.947 | 0.2270 | **selected** (tie broken to the earlier layer) |
+| 11 | 0.947 | 0.2244 | qualifies |
+| 9 | 0.842 | 0.2290 | qualifies |
+| 12 | 0.816 | 0.2235 | qualifies |
+| 8 | 0.711 | 0.2267 | qualifies |
+| 15 | 0.645 | **0.3626** | **fails the CE gate** |
+
+The gate did real work: L15 removes 65% of refusal by damaging the model, and
+without CE it would have looked like a partial success. At L10, cos(`d`,`v_ref`)
+= 0.683 and cos(PC1,`v_ref`) = 0.990.
+
+**Arms at L10** (n=76 harmful, n=100 harmless; baseline refusal 0.947, CE 0.2144):
+
+| arm | refusal | drop | CE |
+|---|---|---|---|
+| **1 `v_ref` (anchor)** | **0.000** | **0.947** | 0.2270 |
+| **6 PC1** | **0.000** | **0.947** | 0.2373 |
+| 2 `d` | 0.289 | 0.658 | 0.2427 |
+| 3 `d_⊥` | 0.934 | 0.013 | 0.2324 |
+| 4 random (mean of 5) | 0.944 | 0.003 | ~0.2146 |
+| 4b cos-0.68 random (mean of 5) | 0.295 | **0.653** | ~0.2217 |
+
+Refusal on harmless stays 0.000 in every arm — no over-refusal artefact — and
+every CE is inside the gate, so nothing here is capability damage.
+
+**The anchor replicates.** Ablating `v_ref` at L10 takes refusal from 0.947 to
+**0.000** with CE moving 0.2144 → 0.2270. That is Arditi et al. reproduced, and
+it licenses every other arm.
+
+**All three pre-registered rules fire, and they agree:**
+
+1. **Arm 2 is NOT causally equivalent to `v_ref`.** Drop 0.658 against the
+   required 0.8 × 0.947 = 0.758. CE is fine, so this is a genuine shortfall, not
+   degradation.
+2. **Arm 3 is indistinguishable from the random null.** Drop 0.013; the
+   refusal-rate difference against random has 95% CI [−0.092, +0.066], including
+   zero. **`d`'s causal power is fully explained by its `v_ref` overlap** — the
+   result §18.5b pre-committed as expected, now interpretable because the anchor
+   works.
+3. **Arm 4b settles what `d` is.** Random vectors constrained to the *measured*
+   cosine 0.683 produce a mean drop of **0.653**, against `d`'s **0.658**. `d` does
+   not beat a random vector pointed the same distance from `v_ref`. It is, causally,
+   nothing more than "a vector near `v_ref`" — which is precisely the question
+   arm 4b was constructed to answer, and §18.17 was right that its weakened
+   constraint would make arm 3 carry the test.
+
+**Arm 6 is the finding.** PC1 removes refusal **completely**, identically to the
+supervised direction — the difference CI is [0.000, 0.000]. §18.17's rule fires:
+*the linear account is supported causally, not merely correlationally.* The same
+behaviour is reachable through the supervised difference-in-means direction and
+through the first principal component of an unsupervised bank, while the manifold
+coordinate reaches it only in proportion to its overlap with them.
+
+#### The representation/causation dissociation, measured
+
+The §18.4b panel recomputed at the causal layer (`results/stageb_18_21_layer10.json`):
+
+| layer | AUROC `d` | AUROC PC1 | AUROC `v_ref` | cos(`d`,`v_ref`) | CV R² | `id_mle` |
+|---|---|---|---|---|---|---|
+| 10 (causal) | 0.9399 | 0.9567 | 0.9610 | 0.683 | 0.974 | 5.73 |
+| 11 | 0.9518 | 0.9737 | 0.9731 | 0.605 | 0.978 | 5.56 |
+| 28 (structural) | **0.9935** | 0.9922 | 0.9924 | 0.654 | 0.971 | 5.68 |
+
+**Discrimination peaks where causal accessibility is absent, and vice versa.**
+L28 separates XSTest safe from contrast at 0.9935 while its direction is causally
+inert (drop 0.066); L10 removes refusal completely while separating at 0.9399.
+This is a dissociation, not a discrepancy — refusal is *linearly decodable*
+late and *causally manipulable* early — and it is the sharpest statement this
+project can make about where the single-direction account holds. The writeup must
+not use "the refusal direction" as though one layer served both roles.
